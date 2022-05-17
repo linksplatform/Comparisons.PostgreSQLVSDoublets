@@ -3,10 +3,11 @@
 namespace Platform::Data::Doublets
 {
     template<typename TLink>
-    struct LinksPSQL: public ILinks<LinksPSQL<TLink>, TLink>
+    struct LinksPSQL: public ILinks<LinksOptions<>>
     {
         explicit LinksPSQL(const std::string dbopts) : opts(std::move(dbopts))
         {
+            GetIndex();
             query = "CREATE TABLE IF NOT EXISTS Links(id bigint, from_id bigint, to_id bigint);";
             line.insert(query);
         }
@@ -18,19 +19,19 @@ namespace Platform::Data::Doublets
             conn.close();
         }
         
-        auto Exists(auto&& Index) -> bool
+        bool Exists(auto&& Index)
         {
             auto result = line.retrieve(line.insert("SELECT * FROM Links WHERE id = " + std::to_string(Index) + ";"));
             return result[0][0].c_str() != "";
         }
         
-        auto Create(Interfaces::CArray auto&& substitution) -> void
+        void Create(Interfaces::CArray auto&& substitution)
         {
             line.insert("INSERT INTO Links VALUES (" + std::to_string(++_index) + ", "
             + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
         }
         
-        auto Update(Interfaces::CArray auto&& restrictions, Interfaces::CArray auto&& substitution) -> void
+        void Update(Interfaces::CArray auto&& restrictions, Interfaces::CArray auto&& substitution)
         {
             if (std::size(restrictions)==1 || std::size(restrictions)==3)
             {
@@ -46,7 +47,7 @@ namespace Platform::Data::Doublets
             line.insert(query);
         }
         
-        auto Delete(Interfaces::CArray auto&& restrictions) -> void
+        void Delete(Interfaces::CArray auto&& restrictions)
         {
             if(!this->Exists(restrictions[0]))
                 std::cout<<"You can`t delete non-existent link.";
@@ -57,7 +58,7 @@ namespace Platform::Data::Doublets
             }
         }
         
-        auto Count(Interfaces::CArray auto&& restrictions) -> int
+        std::uint64_t Count(Interfaces::CArray auto&& restrictions)
         {
             LinksConstants<TLink> constants;
             if (restrictions[0] == constants.Any && restrictions[1] == constants.Any && restrictions[2] == constants.Any)
@@ -72,10 +73,10 @@ namespace Platform::Data::Doublets
                 query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restrictions[1]) +
                         "AND to_id = " + std::to_string(restrictions[2]) + ";";
             auto result = line.retrieve(line.insert(query));
-            return result[0][0].as<int>();
+            return result[0][0].as<std::uint64_t>();
         }
-        
-        auto Each(Interfaces::CArray auto&& restrictions) -> std::vector<Link<TLink>>
+
+        std::vector<Link<TLink>> Each(Interfaces::CArray auto&& restrictions)
         {
             LinksConstants<TLink> constants;
             if (restrictions[0] == constants.Any && restrictions[1] == constants.Any && restrictions[2] == constants.Any)
@@ -105,9 +106,9 @@ namespace Platform::Data::Doublets
 
         private: std::string opts{};
         private: std::string query{};
-        private: int _index{};
+        private: std::uint64_t _index{};
         
-        private: constexpr void GetIndex()
+        private: void GetIndex()
         {
             pqxx::work trans2 {conn};
             pqxx::result r {trans2.exec("SELECT * FROM Links;")};
