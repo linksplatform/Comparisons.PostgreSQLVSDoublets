@@ -7,7 +7,7 @@ namespace Platform::Data::Doublets
     {
         using LinkType = LinksOptions<>::LinkType;
 
-        explicit LinksPSQL(const std::string dbopts) : opts(std::move(dbopts))
+        explicit LinksPSQL(const std::string dbopts) : opts(dbopts)
         {
             query = "CREATE TABLE IF NOT EXISTS Links(id bigint, from_id bigint, to_id bigint);";
             line.retrieve(line.insert(query));
@@ -17,8 +17,8 @@ namespace Platform::Data::Doublets
         ~LinksPSQL()
         {
             line.complete();
-            trans.commit();
-            conn.close();
+            transaction.commit();
+            connection.close();
         }
         
         bool Exists(auto&& Index)
@@ -116,8 +116,8 @@ namespace Platform::Data::Doublets
             _index = r.size();
         }
         
-        private: pqxx::connection conn {opts};
-        private: pqxx::work trans {conn};
-        private: pqxx::pipeline line {trans};
+        private: pqxx::connection connection {opts};
+        private: pqxx::work transaction {connection};
+        private: pqxx::pipeline line {transaction};
     };
 }
