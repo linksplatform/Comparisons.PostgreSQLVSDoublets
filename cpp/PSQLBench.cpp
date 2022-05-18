@@ -14,6 +14,7 @@ namespace Platform::Data::Doublets::Benchmarks
                 std::vector sub{i+1, i+1};
                 table.Create(sub);
             }
+            table.Complete();
         }
     }
 

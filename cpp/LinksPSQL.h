@@ -59,6 +59,11 @@ namespace Platform::Data::Doublets
                 line.insert(query);
             }
         }
+
+        void Complete()
+        {
+            line.complete();
+        }
         
         std::uint64_t Count(const LinkType& restrictions)
         {
