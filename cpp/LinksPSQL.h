@@ -100,14 +100,14 @@ struct LinksPSQL
                     + std::to_string(restrictions[2]) + ";";
         auto result = line.retrieve(line.insert(query));
         std::vector<std::array<TLink, 3>> links {};
-        std::array<TLink, 3> link {};
         for(int i{}; i<result.size(); i++)
         {
+            std::array<TLink, 3> link {};
             for(int j{}; j<3; j++)
             {
                 link[j] = result[i][j].as<TLink>();
-                links.push_back(link);
             }
+            links.push_back(link);
         }
         return links;
     }
