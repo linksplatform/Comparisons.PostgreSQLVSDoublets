@@ -13,7 +13,6 @@ target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::benchmark)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE /mnt/a/Projects/Data/cpp/Platform.Data)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.ranges)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.setters)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.interfaces)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::libpqxx)
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
