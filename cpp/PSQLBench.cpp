@@ -2,7 +2,7 @@
 #include <benchmark/benchmark.h>
 
 const std::string OPTS = "host=localhost user=mitron57 dbname=mitron57 password='mitron57' port=5432";
-LinksPSQL<int> table(OPTS);
+LinksPSQL<std::uint64_t> table(OPTS);
 
 static void BM_CreateMillionLinks(benchmark::State& state)
 {
