@@ -17,14 +17,12 @@ impl LinksPSQL {
 
     pub async fn create(&mut self, substitution: &[u32]) -> Result<Statement, Error> {
         self.index += 1;
-        Ok(self
-            .client
+        self.client
             .prepare(&format!(
                 "INSERT INTO Links VALUES ({}, {}, {});",
                 self.index, substitution[0], substitution[1]
             ))
             .await
-            .unwrap())
     }
 
     pub async fn count(&self, restriction: &[u32]) -> Result<i64, Error> {
