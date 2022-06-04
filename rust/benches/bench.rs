@@ -15,8 +15,8 @@ async fn connect() -> LinksPSQL {
     LinksPSQL::new(client).await.unwrap()
 }
 
-fn create_million_links(c: &mut Criterion) {
-    c.bench_function("create_million_links", |b| {
+fn create_thousand_links(c: &mut Criterion) {
+    c.bench_function("create_thousand_links", |b| {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         b.to_async(&runtime).iter(|| async {
             let mut table = connect().await;
@@ -35,5 +35,5 @@ fn create_million_links(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, create_million_links);
+criterion_group!(benches, create_thousand_links);
 criterion_main!(benches);
