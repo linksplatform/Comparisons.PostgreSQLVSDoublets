@@ -13,7 +13,7 @@ pub struct LinksPSQL {
 
 impl LinksPSQL {
     pub async fn new(client: Client) -> Result<Self, Error> {
-        let index = client.query("SELECT * FROM Links", &[]).await?.len() as u32;
+        let index = client.query("SELECT * FROM Links;", &[]).await?.len() as u32;
         Ok(Self {
             index,
             client,
@@ -27,7 +27,7 @@ impl LinksPSQL {
         let statement = self
             .client
             .prepare(&format!(
-                "INSERT INTO Links VALUES({}, {}, {})",
+                "INSERT INTO Links VALUES ({}, {}, {});",
                 self.index, substitution[0], substitution[1]
             ))
             .await
@@ -44,7 +44,7 @@ impl LinksPSQL {
             [any_id, any_source, any_target]
                 if any_id == any && any_id == any_source && any_source == any_target =>
             {
-                result = self.client.query("SELECT COUNT(*) FROM Links", &[]).await?;
+                result = self.client.query("SELECT COUNT(*) FROM Links;", &[]).await?;
             }
             [any_id, source, any_target] if any_id == any && any_id == any_target => {
                 result = self
@@ -148,7 +148,7 @@ impl LinksPSQL {
             [any_id, any_source, any_target]
                 if any_id == any && any_id == any_source && any_source == any_target =>
             {
-                result = self.client.query("SELECT * FROM Links", &[]).await?;
+                result = self.client.query("SELECT * FROM Links;", &[]).await?;
             }
             [any_id, source, any_target] if any_id == any && any_id == any_target => {
                 result = self
