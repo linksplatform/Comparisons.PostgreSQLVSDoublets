@@ -1,40 +1,25 @@
-extern crate platform_data;
-extern crate tokio_postgres;
-
-pub use platform_data::LinksConstants;
-pub use tokio_postgres::{tls::NoTlsStream, Client, Error, NoTls, Row, Statement};
+use platform_data::LinksConstants;
+use tokio_postgres::{Client, Error, Row, Statement};
 
 pub struct LinksPSQL {
-    pub index: u32,
-    pub client: Client,
-    statements: Vec<Statement>,
-    query_id: u32,
+    index: u32,
+    client: Client,
 }
 
 impl LinksPSQL {
     pub async fn new(client: Client) -> Result<Self, Error> {
         let index = client.query("SELECT * FROM Links;", &[]).await?.len() as u32;
-        Ok(Self {
-            index,
-            client,
-            statements: Vec::new(),
-            query_id: 0,
-        })
+        Ok(Self { index, client })
     }
 
-    pub async fn create(&mut self, substitution: &[u32]) -> Result<u32, Error> {
+    pub async fn create(&mut self) -> Result<Statement, Error> {
         self.index += 1;
-        let statement = self
-            .client
+        self.client
             .prepare(&format!(
-                "INSERT INTO Links VALUES ({}, {}, {});",
-                self.index, substitution[0], substitution[1]
+                "INSERT INTO Links VALUES ({}, $1, $2);",
+                self.index
             ))
             .await
-            .unwrap();
-        self.statements.push(statement);
-        self.query_id += 1;
-        Ok(self.query_id)
     }
 
     pub async fn count(&self, restriction: &[u32]) -> Result<i64, Error> {
@@ -44,13 +29,16 @@ impl LinksPSQL {
             [any_id, any_source, any_target]
                 if any_id == any && any_id == any_source && any_source == any_target =>
             {
-                result = self.client.query("SELECT COUNT(*) FROM Links;", &[]).await?;
+                result = self
+                    .client
+                    .query("SELECT COUNT (*) FROM Links;", &[])
+                    .await?;
             }
             [any_id, source, any_target] if any_id == any && any_id == any_target => {
                 result = self
                     .client
                     .query(
-                        &format!("SELECT COUNT(*) FROM Links WHERE from_id = {};", source),
+                        &format!("SELECT COUNT (*) FROM Links WHERE from_id = {};", source),
                         &[],
                     )
                     .await?;
@@ -68,7 +56,7 @@ impl LinksPSQL {
                 result = self
                     .client
                     .query(
-                        &format!("SELECT COUNT (*) FROM Links WHERE id = {};", id),
+                        &format!("SELECT COUNT (*) FROM Links WHERE id = {}", id),
                         &[],
                     )
                     .await?;
@@ -100,7 +88,7 @@ impl LinksPSQL {
                 .query(
                     &format!(
                         "UPDATE Links SET from_id = {}, to_id = {} WHERE id = {};",
-                        substitution[1], substitution[2], restriction[0]
+                        substitution[0], substitution[1], restriction[0]
                     ),
                     &[],
                 )
@@ -108,37 +96,30 @@ impl LinksPSQL {
         } else {
             self.client
                 .query(
-                    &format!(
-                        "UPDATE Links SET from_id = {}, to_id = {} WHERE from_id = {} AND to_id = {};",
-                        substitution[1], substitution[2], restriction[0], restriction[1]
-                    ),
+                    &format!("UPDATE Links SET from_id = {}, to_id = {} WHERE from_id = {} AND to_id = {};",
+                        substitution[0],
+                        substitution[1],
+                        restriction[0],
+                        restriction[1]),
                     &[],
                 )
                 .await
         }
     }
 
-    pub async fn delete(&mut self, restriction: &[u32]) -> Result<u32, Error> {
+    pub async fn delete(&mut self, restriction: &[u32]) -> Result<Statement, Error> {
         if restriction.len() == 1 || restriction.len() == 3 {
-            self.statements.push(
-                self.client
-                    .prepare(&format!("DELETE FROM Links WHERE id = {};", restriction[0]))
-                    .await
-                    .unwrap(),
-            )
+            self.client
+                .prepare(&format!("DELETE FROM Links WHERE id = {};", restriction[0]))
+                .await
         } else {
-            self.statements.push(
-                self.client
-                    .prepare(&format!(
-                        "DELETE FROM Links WHERE from_id = {} AND to_id = {};",
-                        restriction[0], restriction[1]
-                    ))
-                    .await
-                    .unwrap(),
-            )
+            self.client
+                .prepare(&format!(
+                    "DELETE FROM Links WHERE from_id = {} AND to_id = {};",
+                    restriction[0], restriction[1]
+                ))
+                .await
         }
-        self.query_id += 1;
-        Ok(self.query_id)
     }
 
     pub async fn each(&self, restriction: &[u32]) -> Result<Vec<Row>, Error> {
@@ -191,21 +172,11 @@ impl LinksPSQL {
         Ok(result)
     }
 
-    pub async fn complete(&mut self) -> Result<(), Error> {
-        for statement in &self.statements {
-            self.client.execute(statement, &[]).await.unwrap();
-        }
-        self.statements.clear();
-        self.query_id = 0;
-        Ok(())
+    pub async fn complete(&self, statement: &Statement, args: &[i64]) -> Result<u64, Error> {
+        self.client.execute(statement, &[&args[0], &args[1]]).await
     }
 
-    pub async fn complete_by_index(&mut self, index: u32) -> Result<(), Error> {
-        self.client
-            .execute(&self.statements[(index - 1) as usize], &[])
-            .await
-            .unwrap();
-        self.statements.remove((index - 1) as usize);
-        Ok(())
+    pub async fn complete_without_args(&self, statement: &Statement) -> Result<u64, Error> {
+        self.client.execute(statement, &[]).await
     }
 }
