@@ -1,21 +1,27 @@
-#include "LinksPSQL.h"
 #include <benchmark/benchmark.h>
+#include "LinksPSQL.h"
 
-const std::string OPTS = "host=localhost user=mitron57 dbname=mitron57 password='mitron57' port=5432";
-LinksPSQL<std::uint64_t> table(OPTS);
-
-static void BM_CreateMillionLinks(benchmark::State& state)
-{
-    for(auto _ : state)
-    {
-        for(std::size_t i = 0; i<state.range(0); ++i)
+static void BM_CreateManyLinks(benchmark::State &state) {
+    const std::string opts = "";
+    for (auto _: state) {
         {
-            std::vector sub{i+1, i+1};
-            table.Create(sub);
+            LinksPSQL<std::uint64_t> table(opts);
+            for (std::uint64_t i{1}; i <= state.range(0); ++i) {
+                std::vector substitution {i, i};
+                table.Create(substitution);
+            }
+            table.Complete();
         }
-        table.Complete();
+        state.PauseTiming();
+        LinksPSQL<std::uint64_t> links(opts);
+        for (std::uint64_t i{1}; i <= state.range(0); ++i) {
+            std::vector restriction {i, i};
+            links.Delete(restriction);
+        }
+        links.Complete();
+        state.ResumeTiming();
     }
 }
 
-BENCHMARK(BM_CreateMillionLinks)->Arg(1000000);
+BENCHMARK(BM_CreateManyLinks)->Arg(1000);
 BENCHMARK_MAIN();
