@@ -2,6 +2,7 @@
 name = "linkspsql"
 version = "0.1.0"
 edition = "2021"
+
 [dependencies]
 tokio = { version = "1.18", features = ["full"] }
 tokio-postgres = "0.7.6"
