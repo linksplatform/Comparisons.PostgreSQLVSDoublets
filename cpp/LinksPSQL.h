@@ -80,8 +80,8 @@ struct LinksPSQL
         else if (restrictions[0] == any && restrictions[1] == any && restrictions[2] != any)
             query = "SELECT COUNT(*) FROM Links WHERE to_id = " + std::to_string(restrictions[2]) + ";";
         else if (restrictions[0] == any && restrictions[1] != any && restrictions[2] != any)
-            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restrictions[1])
-                    + "AND to_id = " + std::to_string(restrictions[2]) + ";";
+            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + " AND to_id = "
+                    + std::to_string(restrictions[2]) + ";";
         auto result = line.retrieve(line.insert(query));
         return result[0][0].as<TLink>();
     }
@@ -100,7 +100,7 @@ struct LinksPSQL
         else if (restrictions[0] == any && restrictions[1] == any && restrictions[2] != any)
             query = "SELECT * FROM Links WHERE to_id = " + std::to_string(restrictions[2]) + ";";
         else if (restrictions[0] == any && restrictions[1] != any && restrictions[2] != any)
-            query = "SELECT * FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + "AND to_id = "
+            query = "SELECT * FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + " AND to_id = "
                     + std::to_string(restrictions[2]) + ";";
         auto result = line.retrieve(line.insert(query));
         std::vector<std::array<TLink, 3>> links {};
