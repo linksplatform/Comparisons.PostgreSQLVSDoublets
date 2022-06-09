@@ -12,77 +12,66 @@ struct LinksPSQL
 
     explicit LinksPSQL(std::string dbopts) : opts(std::move(dbopts))
     {
-        line.retrieve(line.insert("CREATE TABLE IF NOT EXISTS Links(id bigint, from_id bigint, to_id bigint);"));
         GetIndex();
     }
 
-    ~LinksPSQL()
+    ~LinksPSQL() = default;
+
+    void Create(const LinkType& substitution)
     {
-        this->Complete();
-        connection.close();
+        client.exec("INSERT INTO Links VALUES (" + std::to_string(++index) + ", "
+                    + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
     }
 
-    TLink Create(const LinkType& substitution)
-    {
-        return line.insert("INSERT INTO Links VALUES (" + std::to_string(++index) + ", "
-        + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
-    }
-
-    TLink Update(const LinkType& restrictions, const LinkType& substitution)
+    void Update(const LinkType& restriction, const LinkType& substitution)
     {
         std::string query {};
-        if (std::size(restrictions) == 1 || std::size(restrictions) == 3)
+        if (std::size(restriction) == 1 || std::size(restriction) == 3)
         {
             query = "UPDATE Links SET from_id = " + std::to_string(substitution[0]) + ", to_id = "
-                    + std::to_string(substitution[1]) + " WHERE id = " + std::to_string(restrictions[0]) + ";";
+                    + std::to_string(substitution[1]) + " WHERE id = " + std::to_string(restriction[0]) + ";";
         }
-        else if (std::size(restrictions) == 2)
+        else if (std::size(restriction) == 2)
         {
             query = "UPDATE Links SET from_id = " + std::to_string(substitution[0]) + ", to_id = "
-                    + std::to_string(substitution[1]) + " WHERE from_id = " + std::to_string(restrictions[0])
-                    + " AND to_id = " + std::to_string(restrictions[1]) + ";";
+                    + std::to_string(substitution[1]) + " WHERE from_id = " + std::to_string(restriction[0])
+                    + " AND to_id = " + std::to_string(restriction[1]) + ";";
         }
-        return line.insert(query);
+        client.exec(query);
     }
 
-    TLink Delete(const LinkType& restrictions)
+    void Delete(const LinkType& restriction)
     {
         std::string query {};
-        if (std::size(restrictions) == 1 || std::size(restrictions) == 3)
+        if (std::size(restriction) == 1 || std::size(restriction) == 3)
         {
-            query = "DELETE FROM Links WHERE id = " + std::to_string(restrictions[0]) + ";";
+            query = "DELETE FROM Links WHERE id = " + std::to_string(restriction[0]) + ";";
         }
-        else if (std::size(restrictions) == 2)
+        else if (std::size(restriction) == 2)
         {
-            query = "DELETE FROM Links WHERE from_id = " + std::to_string(restrictions[0])
-                    + " AND to_id = " + std::to_string(restrictions[1]) + ";";
+            query = "DELETE FROM Links WHERE from_id = " + std::to_string(restriction[0])
+                    + " AND to_id = " + std::to_string(restriction[1]) + ";";
         }
-        return line.insert(query);
+        client.exec(query);
     }
 
-    void Complete()
-    {
-        line.complete();
-        transaction.commit();
-    }
-
-    TLink Count(const LinkType& restrictions)
+    TLink Count(const LinkType& restriction)
     {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query {};
-        if (restrictions[0] == any && restrictions[1] == any && restrictions[2] == any)
+        if (restriction[0] == any && restriction[1] == any && restriction[2] == any)
             query = "SELECT COUNT(*) FROM Links;";
-        else if (restrictions[0] != any && restrictions[1] == any && restrictions[2] == any)
-            query = "SELECT COUNT(*) FROM Links WHERE id = " + std::to_string(restrictions[0]) + ";";
-        else if (restrictions[0] == any && restrictions[1] != any && restrictions[2] == any)
-            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + ";";
-        else if (restrictions[0] == any && restrictions[1] == any && restrictions[2] != any)
-            query = "SELECT COUNT(*) FROM Links WHERE to_id = " + std::to_string(restrictions[2]) + ";";
-        else if (restrictions[0] == any && restrictions[1] != any && restrictions[2] != any)
-            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + " AND to_id = "
-                    + std::to_string(restrictions[2]) + ";";
-        auto result = line.retrieve(line.insert(query));
+        else if (restriction[0] != any && restriction[1] == any && restriction[2] == any)
+            query = "SELECT COUNT(*) FROM Links WHERE id = " + std::to_string(restriction[0]) + ";";
+        else if (restriction[0] == any && restriction[1] != any && restriction[2] == any)
+            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restriction[1]) + ";";
+        else if (restriction[0] == any && restriction[1] == any && restriction[2] != any)
+            query = "SELECT COUNT(*) FROM Links WHERE to_id = " + std::to_string(restriction[2]) + ";";
+        else if (restriction[0] == any && restriction[1] != any && restriction[2] != any)
+            query = "SELECT COUNT(*) FROM Links WHERE from_id = " + std::to_string(restriction[1])
+                    + " AND to_id = " + std::to_string(restriction[2]) + ";";
+        auto result = client.exec(query);
         return result[0][0].as<TLink>();
     }
 
@@ -100,9 +89,9 @@ struct LinksPSQL
         else if (restrictions[0] == any && restrictions[1] == any && restrictions[2] != any)
             query = "SELECT * FROM Links WHERE to_id = " + std::to_string(restrictions[2]) + ";";
         else if (restrictions[0] == any && restrictions[1] != any && restrictions[2] != any)
-            query = "SELECT * FROM Links WHERE from_id = " + std::to_string(restrictions[1]) + " AND to_id = "
-                    + std::to_string(restrictions[2]) + ";";
-        auto result = line.retrieve(line.insert(query));
+            query = "SELECT * FROM Links WHERE from_id = " + std::to_string(restrictions[1])
+                    + " AND to_id = " + std::to_string(restrictions[2]) + ";";
+        auto result = client.exec(query);
         std::vector<std::array<TLink, 3>> links {};
         for(int i{}; i<result.size(); ++i)
         {
@@ -113,12 +102,11 @@ struct LinksPSQL
         return links;
     }
 
-    private: void GetIndex() { index = line.retrieve(line.insert("SELECT * FROM Links;")).size(); }
+    private: void GetIndex() { index = client.exec("SELECT * FROM Links;").size(); }
 
     private: std::string opts {};
     private: TLink index {};
 
     private: pqxx::connection connection {opts};
-    private: pqxx::work transaction {connection};
-    private: pqxx::pipeline line {transaction};
+    private: pqxx::nontransaction client {connection};
 };
