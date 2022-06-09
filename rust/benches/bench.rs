@@ -18,25 +18,14 @@ fn create_thousand_links(c: &mut Criterion) {
     c.bench_function("create_thousand_links", |b| {
         b.to_async(&runtime).iter(|| async {
             let mut table = connect().await;
-            let mut statements = Vec::new();
             for i in 1..=1_000 {
-                statements.push(table.create().await.unwrap());
-            }
-            for i in 0..1000 {
-                table
-                    .complete(&statements[i], &[(i + 1) as i64; 2])
-                    .await
-                    .unwrap();
+                table.create(&[i; 2]).await.unwrap();
             }
         });
         runtime.block_on(async {
             let mut table = connect().await;
-            let mut statements = Vec::new();
             for i in 1..=1_000 {
-                statements.push(table.delete(&[i; 2]).await.unwrap());
-            }
-            for i in 0..1000 {
-                table.complete_without_args(&statements[i]).await.unwrap();
+                table.delete(&[i; 2]).await.unwrap();
             }
         });
     });

@@ -1,5 +1,5 @@
 use platform_data::LinksConstants;
-use tokio_postgres::{Client, Error, Row, Statement};
+use tokio_postgres::{Client, Error, Row};
 
 pub struct LinksPSQL {
     index: u32,
@@ -12,13 +12,16 @@ impl LinksPSQL {
         Ok(Self { index, client })
     }
 
-    pub async fn create(&mut self) -> Result<Statement, Error> {
+    pub async fn create(&mut self, substitution: &[u32]) -> Result<Vec<Row>, Error> {
         self.index += 1;
         self.client
-            .prepare(&format!(
-                "INSERT INTO Links VALUES ({}, $1, $2);",
-                self.index
-            ))
+            .query(
+                &format!(
+                    "INSERT INTO Links VALUES ({}, {}, {});",
+                    self.index, substitution[0], substitution[1]
+                ),
+                &[],
+            )
             .await
     }
 
@@ -107,17 +110,23 @@ impl LinksPSQL {
         }
     }
 
-    pub async fn delete(&mut self, restriction: &[u32]) -> Result<Statement, Error> {
+    pub async fn delete(&self, restriction: &[u32]) -> Result<Vec<Row>, Error> {
         if restriction.len() == 1 || restriction.len() == 3 {
             self.client
-                .prepare(&format!("DELETE FROM Links WHERE id = {};", restriction[0]))
+                .query(
+                    &format!("DELETE FROM Links WHERE id = {};", restriction[0]),
+                    &[],
+                )
                 .await
         } else {
             self.client
-                .prepare(&format!(
-                    "DELETE FROM Links WHERE from_id = {} AND to_id = {};",
-                    restriction[0], restriction[1]
-                ))
+                .query(
+                    &format!(
+                        "DELETE FROM Links WHERE from_id = {} AND to_id = {};",
+                        restriction[0], restriction[1]
+                    ),
+                    &[],
+                )
                 .await
         }
     }
@@ -170,13 +179,5 @@ impl LinksPSQL {
             [] | [_, ..] => todo!(),
         }
         Ok(result)
-    }
-
-    pub async fn complete(&self, statement: &Statement, args: &[i64]) -> Result<u64, Error> {
-        self.client.execute(statement, &[&args[0], &args[1]]).await
-    }
-
-    pub async fn complete_without_args(&self, statement: &Statement) -> Result<u64, Error> {
-        self.client.execute(statement, &[]).await
     }
 }
