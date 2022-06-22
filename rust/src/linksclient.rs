@@ -14,7 +14,7 @@ impl Client {
         Ok(Self { index, client })
     }
 
-    pub async fn get_transaction(&mut self) -> Result<Transaction<'_>, Error> {
+    pub async fn transaction(&mut self) -> Result<Transaction<'_>, Error> {
         let transaction = self.client.transaction().await.unwrap();
         Ok(Transaction::new(transaction, self.index))
     }

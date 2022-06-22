@@ -18,7 +18,7 @@ fn create_million_links(c: &mut Criterion) {
     c.bench_function("create_million_links", |b| {
         b.to_async(&runtime).iter(|| async {
             let mut client = connect().await;
-            let mut transaction = client.get_transaction().await.unwrap();
+            let mut transaction = client.transaction().await.unwrap();
             for i in 1..=1_000_000 {
                 transaction.create(&[i; 2]).await.unwrap();
             }
@@ -26,7 +26,7 @@ fn create_million_links(c: &mut Criterion) {
         });
         runtime.block_on(async {
             let mut client = connect().await;
-            let transaction = client.get_transaction().await.unwrap();
+            let transaction = client.transaction().await.unwrap();
             for i in 1..=1_000_000 {
                 transaction.delete(&[i; 2]).await.unwrap();
             }
