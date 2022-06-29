@@ -18,7 +18,7 @@ impl<'a> Transaction<'a> {
         self.0
             .query(
                 &format!(
-                    "INSERT INTO LINKS VALUES({}, {}, {});",
+                    "INSERT INTO Links VALUES({}, {}, {});",
                     self.1, substituiton[0], substituiton[1]
                 ),
                 &[],
