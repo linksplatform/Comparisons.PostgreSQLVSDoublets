@@ -2,10 +2,10 @@ use platform_data::LinksConstants;
 use postgres::{Error, Row};
 use tokio_postgres as postgres;
 
-pub struct Transaction<'a>(postgres::Transaction<'a>, u32);
+pub struct Transaction<'a>(postgres::Transaction<'a>, u64);
 
 impl<'a> Transaction<'a> {
-    pub fn new(transaction: postgres::Transaction<'a>, index: u32) -> Transaction<'a> {
+    pub fn new(transaction: postgres::Transaction<'a>, index: u64) -> Transaction<'a> {
         Transaction(transaction, index)
     }
 
@@ -13,7 +13,7 @@ impl<'a> Transaction<'a> {
         self.0.commit().await
     }
 
-    pub async fn create(&mut self, substituiton: &[u32]) -> Result<Vec<Row>, Error> {
+    pub async fn create(&mut self, substituiton: &[u64]) -> Result<Vec<Row>, Error> {
         self.1 += 1;
         self.0
             .query(
@@ -26,9 +26,9 @@ impl<'a> Transaction<'a> {
             .await
     }
 
-    pub async fn count(&self, restriction: &[u32]) -> Result<i64, Error> {
+    pub async fn count(&self, restriction: &[u64]) -> Result<i64, Error> {
         let mut result = Vec::new();
-        let any: u32 = LinksConstants::new().any;
+        let any = LinksConstants::new().any;
         match restriction[..] {
             [any_id, any_source, any_target]
                 if any_id == any && any_id == any_source && any_source == any_target =>
@@ -74,15 +74,15 @@ impl<'a> Transaction<'a> {
                     )
                     .await?;
             }
-            [] | [_, ..] => todo!(),
+            [] | [_, ..] => eprintln!("Constraints violation, use \"any\" "),
         }
         Ok(result[0].get(0))
     }
 
     pub async fn update(
         &self,
-        restriction: &[u32],
-        substitution: &[u32],
+        restriction: &[u64],
+        substitution: &[u64],
     ) -> Result<Vec<Row>, Error> {
         if restriction.len() == 1 || restriction.len() == 3 {
             self.0
@@ -108,7 +108,7 @@ impl<'a> Transaction<'a> {
         }
     }
 
-    pub async fn delete(&self, restriction: &[u32]) -> Result<Vec<Row>, Error> {
+    pub async fn delete(&self, restriction: &[u64]) -> Result<Vec<Row>, Error> {
         if restriction.len() == 1 || restriction.len() == 3 {
             self.0
                 .query(
@@ -129,9 +129,9 @@ impl<'a> Transaction<'a> {
         }
     }
 
-    pub async fn each(&self, restriction: &[u32]) -> Result<Vec<Row>, Error> {
+    pub async fn each(&self, restriction: &[u64]) -> Result<Vec<Row>, Error> {
         let mut result = Vec::new();
-        let any: u32 = LinksConstants::new().any;
+        let any = LinksConstants::new().any;
         match restriction[..] {
             [any_id, any_source, any_target]
                 if any_id == any && any_id == any_source && any_source == any_target =>
@@ -174,7 +174,7 @@ impl<'a> Transaction<'a> {
                     )
                     .await?;
             }
-            [] | [_, ..] => todo!(),
+            [] | [_, ..] => eprintln!("Constraints violation, use \"any\""),
         }
         Ok(result)
     }

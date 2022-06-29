@@ -13,13 +13,31 @@ async fn connect() -> Client {
     Client::new(client).await.unwrap()
 }
 
-fn create_million_links(c: &mut Criterion) {
+fn create_thousand_links_without_transaction(c: &mut Criterion) {
     let runtime = tokio::runtime::Runtime::new().unwrap();
-    c.bench_function("create_million_links", |b| {
+    c.bench_function("create_thousand_links_with_transaction", |b| {
+        b.to_async(&runtime).iter(|| async {
+            let mut client = connect().await;
+            for i in 1..=1_000 {
+                client.create(&[i; 2]).await.unwrap();
+            }
+        });
+        runtime.block_on(async {
+            let client = connect().await;
+            for i in 1..=1_000 {
+                client.delete(&[i; 2]).await.unwrap();
+            }
+        });
+    });
+}
+
+fn create_thousand_links_with_transaction(c: &mut Criterion) {
+    let runtime = tokio::runtime::Runtime::new().unwrap();
+    c.bench_function("create_thousand_links_with_transaction", |b| {
         b.to_async(&runtime).iter(|| async {
             let mut client = connect().await;
             let mut transaction = client.transaction().await.unwrap();
-            for i in 1..=1_000_000 {
+            for i in 1..=1_000 {
                 transaction.create(&[i; 2]).await.unwrap();
             }
             transaction.commit().await.unwrap();
@@ -27,7 +45,7 @@ fn create_million_links(c: &mut Criterion) {
         runtime.block_on(async {
             let mut client = connect().await;
             let transaction = client.transaction().await.unwrap();
-            for i in 1..=1_000_000 {
+            for i in 1..=1_000 {
                 transaction.delete(&[i; 2]).await.unwrap();
             }
             transaction.commit().await.unwrap();
@@ -35,5 +53,9 @@ fn create_million_links(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, create_million_links);
+criterion_group!(
+    benches,
+    create_thousand_links_without_transaction,
+    create_thousand_links_with_transaction
+);
 criterion_main!(benches);
