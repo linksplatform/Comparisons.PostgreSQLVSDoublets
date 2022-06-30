@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
-#include "Client.h"
-#include "Transaction.h"
+#include <Client.h>
+#include <Transaction.h>
 
 static void BM_CreateThousandLinksWithoutTransaction(benchmark::State& state) {
     const std::string opts = "";

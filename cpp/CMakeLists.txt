@@ -13,10 +13,12 @@ target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.data
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.ranges)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.setters)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::libpqxx)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE LinksPSQL)
+
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 
-add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp Client.h Transaction.h)
+add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.Library)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
