@@ -1,5 +1,5 @@
-pub use linksclient::Client;
-pub use linkstransaction::Transaction;
+pub use links_client::Client;
+pub use links_transaction::Transaction;
 
-mod linksclient;
-mod linkstransaction;
+mod links_client;
+mod links_transaction;
