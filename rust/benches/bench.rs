@@ -1,6 +1,7 @@
+#![feature(allocator_api)]
+
 use criterion::{criterion_group, criterion_main, Criterion};
-use doublets::{mem::FileMappedMem, unit, Doublets};
-use std::fs::File;
+use doublets::{mem::AllocMem, unit, Doublets};
 use tokio_postgres::{Error, NoTls};
 
 use linkspsql::Client;
@@ -19,7 +20,7 @@ async fn connect() -> Result<Client, Error> {
 fn create_thousand_links_without_transaction(c: &mut Criterion) {
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let mut client = runtime.block_on(connect()).unwrap();
-    c.bench_function("create_thousand_links_with_transaction", |b| {
+    c.bench_function("create_thousand_links_without_transaction", |b| {
         b.iter(|| {
             runtime.block_on(async {
                 for i in 1..=1_000 {
@@ -59,19 +60,13 @@ fn create_thousand_links_with_transaction(c: &mut Criterion) {
 }
 
 fn doublets_benchmark(c: &mut Criterion) {
-    let file = File::options()
-        .create(true)
-        .read(true)
-        .write(true)
-        .open("db.links")
-        .unwrap();
-    let memory = FileMappedMem::new(file).unwrap();
-    let mut links = unit::Store::<usize, _>::new(memory).unwrap();
-    let any = links.constants().any;
+    let allocator = std::alloc::Global;
+    let storage = AllocMem::new(allocator);
+    let mut links = unit::Store::<usize, _>::new(storage).unwrap();
     c.bench_function("doublets", |b| {
         b.iter(|| {
-            for _ in 1..=1000 {
-                links.create().unwrap();
+            for _ in 1..=1_000_000 {
+                links.create_point().unwrap();
             }
         });
         links.delete_all().unwrap();
