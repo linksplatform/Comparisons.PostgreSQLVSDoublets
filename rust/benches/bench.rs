@@ -1,4 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use doublets::{mem::FileMappedMem, unit, Doublets};
+use std::fs::File;
 use tokio_postgres::{Error, NoTls};
 
 use linkspsql::Client;
@@ -56,9 +58,30 @@ fn create_thousand_links_with_transaction(c: &mut Criterion) {
     });
 }
 
+fn doublets_benchmark(c: &mut Criterion) {
+    let file = File::options()
+        .create(true)
+        .read(true)
+        .write(true)
+        .open("db.links")
+        .unwrap();
+    let memory = FileMappedMem::new(file).unwrap();
+    let mut links = unit::Store::<usize, _>::new(memory).unwrap();
+    let any = links.constants().any;
+    c.bench_function("doublets", |b| {
+        b.iter(|| {
+            for _ in 1..=1000 {
+                links.create().unwrap();
+            }
+        });
+        links.delete_all().unwrap();
+    });
+}
+
 criterion_group!(
     benches,
     create_thousand_links_without_transaction,
-    create_thousand_links_with_transaction
+    create_thousand_links_with_transaction,
+    doublets_benchmark
 );
 criterion_main!(benches);

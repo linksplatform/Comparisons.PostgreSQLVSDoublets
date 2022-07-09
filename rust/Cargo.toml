@@ -7,7 +7,8 @@ edition = "2021"
 tokio = { version = "1.19", features = ["full"] }
 tokio-postgres = "0.7.6"
 criterion = "0.3.6"
-platform-data = "0.1.0-alpha.0"
+platform-data = "0.1.0-alpha.1"
+doublets = "0.1.0-beta.10"
 
 [[bench]]
 name = "bench"
