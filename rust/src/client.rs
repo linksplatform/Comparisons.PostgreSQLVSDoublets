@@ -83,7 +83,7 @@ impl Client {
                     )
                     .await?;
             }
-            [] | [_, ..] => panic!("Constraints violation, use \"any\""),
+            [] | [_, ..] => panic!("Constraints violation, use 'any'"),
         }
         Ok(result[0].get(0))
     }
@@ -183,7 +183,7 @@ impl Client {
                     )
                     .await?;
             }
-            [] | [_, ..] => panic!("Constraints violation, use \"any\" "),
+            [] | [_, ..] => panic!("Constraints violation, use 'any'"),
         }
         Ok(result)
     }
