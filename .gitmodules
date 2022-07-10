@@ -1,0 +1,3 @@
+[submodule "Data.Doublets"]
+	path = Data.Doublets
+	url = https://github.com/linksplatform/Data.Doublets
