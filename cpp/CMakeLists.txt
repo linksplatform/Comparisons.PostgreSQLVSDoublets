@@ -12,9 +12,15 @@ target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::benchmark)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.data)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.ranges)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.setters)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.collections.methods)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.threading)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::mio)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.memory)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.exceptions)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.interfaces)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::libpqxx)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE LinksPSQL)
-
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data.Doublets/cpp/Platform.Data.Doublets)
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 

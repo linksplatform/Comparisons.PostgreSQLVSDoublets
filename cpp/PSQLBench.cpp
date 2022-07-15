@@ -1,4 +1,5 @@
 #include <benchmark/benchmark.h>
+#include <Platform.Data.Doublets.h>
 
 #include <Client.h>
 #include <Transaction.h>
@@ -46,6 +47,23 @@ static void BM_CreateThousandLinksWithTransaction(benchmark::State& state) {
     }
 }
 
+static void BM_CreateMillionPointsDoublets(benchmark::State& state) {
+    using namespace Platform::Memory;
+    using namespace Platform::Data::Doublets;
+    using namespace Memory::United::Generic;
+    using namespace Platform::Collections;
+    std::filesystem::path path{"db.links"};
+    Expects(!IsWhiteSpace(path.string()));
+    for(auto _ : state) {
+        UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage{FileMappedResizableDirectMemory{path.string()}};
+        for(std::size_t i {}; i != state.range(0); ++i) {
+            CreatePoint(storage);
+        }
+        std::filesystem::remove(path);
+    }
+}
+
 BENCHMARK(BM_CreateThousandLinksWithoutTransaction)->Arg(1000);
 BENCHMARK(BM_CreateThousandLinksWithTransaction)->Arg(1000);
+BENCHMARK(BM_CreateMillionPointsDoublets)->Arg(1000000);
 BENCHMARK_MAIN();
