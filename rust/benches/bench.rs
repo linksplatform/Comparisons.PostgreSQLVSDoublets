@@ -7,7 +7,7 @@ use doublets::{
 };
 use tokio_postgres::{Error, NoTls};
 
-use linkspsql::Client;
+use linkspsql::{Client, Cruds};
 
 async fn connect() -> Result<Client, Error> {
     let (client, connection) = tokio_postgres::connect("", NoTls).await.unwrap();
@@ -53,7 +53,7 @@ fn create_thousand_links_with_transaction(c: &mut Criterion) {
             });
         });
         runtime.block_on(async {
-            let transaction = client.transaction().await.unwrap();
+            let mut transaction = client.transaction().await.unwrap();
             for i in 1..=1_000 {
                 transaction.delete(&[i; 2]).await.unwrap();
             }
