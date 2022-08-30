@@ -5,7 +5,8 @@
 #include <Platform.Data.h>
 
 template<typename TLink>
-struct Client {
+struct Client
+{
     using LinkType = Platform::Data::LinksOptions<>::LinkType;
 
     explicit Client(std::string dbopts) : connection(dbopts)
@@ -17,12 +18,14 @@ struct Client {
         connection.close();
     };
 
-    void Create(const LinkType &substitution) {
+    void Create(const LinkType& substitution)
+    {
         client.exec("INSERT INTO Links VALUES (" + std::to_string(++index) + ", "
                     + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
     }
 
-    void Update(const LinkType &restriction, const LinkType &substitution) {
+    void Update(const LinkType& restriction, const LinkType& substitution)
+    {
         std::string query{};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "UPDATE Links SET from_id = " + std::to_string(substitution[0]) + ", to_id = "
@@ -35,7 +38,8 @@ struct Client {
         client.exec(query);
     }
 
-    void Delete(const LinkType &restriction) {
+    void Delete(const LinkType& restriction)
+    {
         std::string query{};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "DELETE FROM Links WHERE id = " + std::to_string(restriction[0]) + ";";
@@ -46,7 +50,8 @@ struct Client {
         client.exec(query);
     }
 
-    TLink Count(const LinkType &restriction) {
+    TLink Count(const LinkType& restriction)
+    {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query{};
@@ -65,7 +70,8 @@ struct Client {
         return result[0][0].as<TLink>();
     }
 
-    std::vector<std::array<TLink, 3>> Each(const LinkType &restrictions) {
+    std::vector<std::array<TLink, 3>> Each(const LinkType& restrictions)
+    {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query{};

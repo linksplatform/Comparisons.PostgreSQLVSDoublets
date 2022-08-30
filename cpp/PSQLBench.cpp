@@ -4,7 +4,7 @@
 #include <Client.h>
 #include <Transaction.h>
 
-static void BM_CreateThousandLinksWithoutTransaction(benchmark::State &state) {
+static void BM_CreateThousandLinksWithoutTransaction(benchmark::State& state) {
     const std::string opts = "";
     for (auto _: state) {
         {
@@ -26,7 +26,7 @@ static void BM_CreateThousandLinksWithoutTransaction(benchmark::State &state) {
     }
 }
 
-static void BM_CreateThousandLinksWithTransaction(benchmark::State &state) {
+static void BM_CreateThousandLinksWithTransaction(benchmark::State& state) {
     const std::string opts = "";
     for (auto _: state) {
         {
@@ -48,7 +48,7 @@ static void BM_CreateThousandLinksWithTransaction(benchmark::State &state) {
     }
 }
 
-static void BM_CreateMillionPointsDoubletsFile(benchmark::State &state) {
+static void BM_CreateMillionPointsDoubletsFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
@@ -65,7 +65,7 @@ static void BM_CreateMillionPointsDoubletsFile(benchmark::State &state) {
     }
 }
 
-static void BM_CreateMillionPointsDoubletsRAM(benchmark::State &state) {
+static void BM_CreateMillionPointsDoubletsRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
@@ -89,6 +89,7 @@ static void BM_CreateMillionPointsDoubletsRAM(benchmark::State &state) {
         state.ResumeTiming();
     }
 }
+
 
 BENCHMARK(BM_CreateThousandLinksWithoutTransaction)->Arg(1000);
 BENCHMARK(BM_CreateThousandLinksWithTransaction)->Arg(1000);
