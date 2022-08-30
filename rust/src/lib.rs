@@ -7,4 +7,5 @@ pub use transaction::Transaction;
 
 mod client;
 mod cruds;
+mod make_bench;
 mod transaction;
