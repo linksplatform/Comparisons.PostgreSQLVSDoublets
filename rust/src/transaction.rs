@@ -18,7 +18,6 @@ impl<'a> Transaction<'a> {
     }
 }
 
-#[async_trait]
 impl<'a> Cruds<'a, postgres::Transaction<'a>> for Transaction<'a> {
     #[inline]
     fn index(&mut self) -> &mut u64 {

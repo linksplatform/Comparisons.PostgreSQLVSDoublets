@@ -21,7 +21,6 @@ impl Client {
     }
 }
 
-#[async_trait]
 impl Cruds<'_, postgres::Client> for Client {
     #[inline]
     fn index(&mut self) -> &mut u64 {
