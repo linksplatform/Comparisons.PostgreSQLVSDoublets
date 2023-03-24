@@ -24,7 +24,7 @@ target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIS
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 
-add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
+add_executable(${PROJECT_NAME} Benchmarks/AllBenchmarks.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.Library)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)

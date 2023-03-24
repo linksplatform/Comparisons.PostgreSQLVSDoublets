@@ -9,12 +9,13 @@ struct Client
 {
     using LinkType = Platform::Data::LinksOptions<>::LinkType;
 
-    explicit Client(std::string dbopts) : connection(dbopts)
+    explicit Client(std::string opts) : connection(opts)
     {
         index = client.exec("SELECT * FROM Links;").size();
     }
 
-    ~Client() {
+    ~Client() 
+    {
         connection.close();
     };
 
@@ -26,7 +27,7 @@ struct Client
 
     void Update(const LinkType& restriction, const LinkType& substitution)
     {
-        std::string query{};
+        std::string_view query{};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "UPDATE Links SET from_id = " + std::to_string(substitution[0]) + ", to_id = "
                     + std::to_string(substitution[1]) + " WHERE id = " + std::to_string(restriction[0]) + ";";
@@ -40,7 +41,7 @@ struct Client
 
     void Delete(const LinkType& restriction)
     {
-        std::string query{};
+        std::string_view query {};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "DELETE FROM Links WHERE id = " + std::to_string(restriction[0]) + ";";
         } else if (std::size(restriction) == 2) {
@@ -50,11 +51,16 @@ struct Client
         client.exec(query);
     }
 
+    void DeleteAll()
+    {
+        client.exec("DELETE FROM LINKS");
+    }
+
     TLink Count(const LinkType& restriction)
     {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
-        std::string query{};
+        std::string_view query {};
         if (restriction[0] == any && restriction[1] == any && restriction[2] == any)
             query = "SELECT COUNT(*) FROM Links;";
         else if (restriction[0] != any && restriction[1] == any && restriction[2] == any)
@@ -74,7 +80,7 @@ struct Client
     {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
-        std::string query{};
+        std::string_view query {};
         if (restrictions[0] == any && restrictions[1] == any && restrictions[2] == any)
             query = "SELECT * FROM Links;";
         else if (restrictions[0] != any && restrictions[1] == any && restrictions[2] == any)
@@ -88,16 +94,14 @@ struct Client
                     + " AND to_id = " + std::to_string(restrictions[2]) + ";";
         auto result = client.exec(query);
         std::vector<std::array<TLink, 3>> links{};
-        for (int i{}; i < result.size(); ++i) {
-            std::array<TLink, 3> link{};
-            for (int j{}; j < 3; j++) { link[j] = result[i][j].as<TLink>(); }
-            links.push_back(link);
+        for (std::size_t i {}; i < result.size(); ++i) {
+            links.push_back({result[i][0].as<TLink>(), result[i][1].as<TLink>(), result[i][2].as<TLink>()});
         }
         return links;
     }
-
+    
     private: TLink index {};
 
     private: pqxx::connection connection;
-    private: pqxx::nontransaction client{connection};
+    private: pqxx::nontransaction client {connection};
 };

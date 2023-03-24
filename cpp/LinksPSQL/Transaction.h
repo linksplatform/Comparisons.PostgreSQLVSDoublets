@@ -14,20 +14,21 @@ struct Transaction
         index = transaction.exec("SELECT * FROM Links;").size();
     }
 
-    ~Transaction() {
+    ~Transaction()
+    {
         transaction.commit();
         connection.close();
     };
-
+    
     void Create(const LinkType& substitution)
     {
         transaction.exec("INSERT INTO Links VALUES (" + std::to_string(++index) + ", "
-                         + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
+                    + std::to_string(substitution[0]) + ", " + std::to_string(substitution[1]) + ");");
     }
 
     void Update(const LinkType& restriction, const LinkType& substitution)
     {
-        std::string query{};
+        std::string_view query{};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "UPDATE Links SET from_id = " + std::to_string(substitution[0]) + ", to_id = "
                     + std::to_string(substitution[1]) + " WHERE id = " + std::to_string(restriction[0]) + ";";
@@ -41,7 +42,7 @@ struct Transaction
 
     void Delete(const LinkType& restriction)
     {
-        std::string query{};
+        std::string_view query {};
         if (std::size(restriction) == 1 || std::size(restriction) == 3) {
             query = "DELETE FROM Links WHERE id = " + std::to_string(restriction[0]) + ";";
         } else if (std::size(restriction) == 2) {
@@ -50,12 +51,17 @@ struct Transaction
         }
         transaction.exec(query);
     }
-
+    
+    void DeleteAll()
+    {
+        transaction.exec("DELETE FROM LINKS");
+    }
+    
     TLink Count(const LinkType& restriction)
     {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
-        std::string query{};
+        std::string query {};
         if (restriction[0] == any && restriction[1] == any && restriction[2] == any)
             query = "SELECT COUNT(*) FROM Links;";
         else if (restriction[0] != any && restriction[1] == any && restriction[2] == any)
@@ -75,7 +81,7 @@ struct Transaction
     {
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
-        std::string query{};
+        std::string_view query {};
         if (restrictions[0] == any && restrictions[1] == any && restrictions[2] == any)
             query = "SELECT * FROM Links;";
         else if (restrictions[0] != any && restrictions[1] == any && restrictions[2] == any)
@@ -89,16 +95,14 @@ struct Transaction
                     + " AND to_id = " + std::to_string(restrictions[2]) + ";";
         auto result = transaction.exec(query);
         std::vector<std::array<TLink, 3>> links{};
-        for (int i{}; i < result.size(); ++i) {
-            std::array<TLink, 3> link{};
-            for (int j{}; j < 3; j++) { link[j] = result[i][j].as<TLink>(); }
-            links.push_back(link);
+        for (std::size_t i {}; i < result.size(); ++i) {
+            links.push_back({result[i][0].as<TLink>(), result[i][1].as<TLink>(), result[i][2].as<TLink>()});
         }
         return links;
     }
-
+    
     private: TLink index{};
 
     private: pqxx::connection connection;
-    private: pqxx::transaction<> transaction{connection};
+    private: pqxx::transaction<> transaction {connection};
 };
