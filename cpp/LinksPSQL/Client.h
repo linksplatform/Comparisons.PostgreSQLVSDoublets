@@ -11,6 +11,7 @@ struct Client
 
     explicit Client(std::string opts) : connection(opts)
     {
+        client.exec("CREATE TABLE Links (id bigint, from_id bigint, to_id bigint);");
         index = client.exec("SELECT * FROM Links;").size();
     }
 
