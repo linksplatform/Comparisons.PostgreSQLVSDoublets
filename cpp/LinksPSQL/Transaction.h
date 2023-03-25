@@ -11,6 +11,7 @@ struct Transaction
 
     explicit Transaction(std::string opts): connection(opts)
     {
+        transaction.exec("CREATE TABLE Links (id bigint, from_id bigint, to_id bigint);");
         index = transaction.exec("SELECT * FROM Links;").size();
     }
 
