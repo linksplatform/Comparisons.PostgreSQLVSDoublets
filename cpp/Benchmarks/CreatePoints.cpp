@@ -1,14 +1,5 @@
-#include <benchmark/benchmark.h>
-#include "Platform.Data.Doublets.h"
-
-#include "Client.h"
-#include "Transaction.h"
-
-const std::string opts = "";
-
-
 static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
-    Client<std::uint64_t> table(opts);
+    Client<std::uint64_t> table(options);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             table.Create({i, i});
@@ -23,7 +14,7 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> start;
     for (auto _: state) {
         {
-            Transaction<std::uint64_t> transaction(opts);
+            Transaction<std::uint64_t> transaction(options);
             start = std::chrono::high_resolution_clock::now();
             for (std::uint64_t i = 1; i <= state.range(0); ++i) {
                 transaction.Create({i, i});
@@ -32,7 +23,7 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         auto stop = std::chrono::high_resolution_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<std::double_t>>(stop-start).count();
         {
-            Transaction<std::uint64_t> transaction(opts);
+            Transaction<std::uint64_t> transaction(options);
             transaction.DeleteAll();
         }
         state.SetIterationTime(elapsed_time);
