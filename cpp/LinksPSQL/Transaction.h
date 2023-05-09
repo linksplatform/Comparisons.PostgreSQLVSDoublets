@@ -25,34 +25,31 @@ struct Transaction
 
     void Create(const LinkType& substitution)
     {
-        transaction.exec(std::format("INSERT INTO Links VALUES ({}, {}, {});",
-                                transaction.esc(std::to_string(++index)),
-                                transaction.esc(std::to_string(substitution[0])),
-                                transaction.esc(std::to_string(substitution[1]))));
+        transaction.exec("INSERT INTO Links VALUES ("
+                        + transaction.esc(std::to_string(++index)) + ", "
+                        + transaction.esc(std::to_string(substitution[0])) + ", "
+                        + transaction.esc(std::to_string(substitution[1]))+ ");");
     }
 
     void CreatePoint()
     {
-        transaction.exec(std::format("INSERT INTO Links VALUES ({}, {}, {});",
-                                transaction.esc(std::to_string(++index)),
-                                transaction.esc(std::to_string(index)),
-                                transaction.esc(std::to_string(index))));
+        transaction.exec("INSERT INTO Links VALUES (" + transaction.esc(std::to_string(++index)) + ", "
+                        + transaction.esc(std::to_string(index)) + ", "
+                        + transaction.esc(std::to_string(index)) + ");");
     }
-    
+
     void Update(const LinkType& restriction, const LinkType& substitution)
     {
         std::string query {};
         if (std::size(restriction) == 1) {
-            query = std::format("UPDATE Links SET from_id = {}, to_id = {} WHERE id = {};",
-                                transaction.esc(std::to_string(substitution[0])),
-                                transaction.esc(std::to_string(substitution[1])),
-                                transaction.esc(std::to_string(restriction[0])));
+            query = "UPDATE Links SET from_id = " + transaction.esc(std::to_string(substitution[0]))
+                    + ", to_id = " + transaction.esc(std::to_string(substitution[1]))
+                    + " WHERE id = " + transaction.esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = std::format("UPDATE Links SET from_id = {}, to_id = {} WHERE from_id = {} AND to_id = {};",
-                                transaction.esc(std::to_string(substitution[0])),
-                                transaction.esc(std::to_string(substitution[1])),
-                                transaction.esc(std::to_string(restriction[1])),
-                                transaction.esc(std::to_string(restriction[2])));
+            query = "UPDATE Links SET from_id = " + transaction.esc(std::to_string(substitution[0]))
+                    + ", to_id = " + transaction.esc(std::to_string(substitution[1]))
+                    + " WHERE from_id = " + transaction.esc(std::to_string(restriction[1]))
+                    + " AND to_id = " + transaction.esc(std::to_string(restriction[2])) + ";";
         }
         transaction.exec(query);
     }
@@ -61,14 +58,14 @@ struct Transaction
     {
         std::string query {};
         if (std::size(restriction) == 1) {
-            query = std::format("DELETE FROM Links WHERE id = {};", transaction.esc(std::to_string(restriction[0])));
+            query = "DELETE FROM Links WHERE id = " + transaction.esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = std::format("DELETE FROM Links WHERE from_id = {} AND to_id = {};",
-                                transaction.esc(std::to_string(restriction[0])),
-                                transaction.esc(std::to_string(restriction[1])));
+            query = "DELETE FROM Links WHERE from_id = " + transaction.esc(std::to_string(restriction[0]))
+                    + " AND to_id = " + transaction.esc(std::to_string(restriction[1])) + ";";
         }
         transaction.exec(query);
     }
+    
     void DeleteAll()
     {
         transaction.exec("DELETE FROM LINKS");

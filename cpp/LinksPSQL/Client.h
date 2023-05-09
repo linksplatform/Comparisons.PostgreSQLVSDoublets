@@ -24,34 +24,31 @@ struct Client
 
     void Create(const LinkType& substitution)
     {
-        client.exec(std::format("INSERT INTO Links VALUES ({}, {}, {});",
-                                client.esc(std::to_string(++index)),
-                                client.esc(std::to_string(substitution[0])),
-                                client.esc(std::to_string(substitution[1]))));
+        client.exec("INSERT INTO Links VALUES (" 
+                   + client.esc(std::to_string(++index)) + ", "
+                   + client.esc(std::to_string(substitution[0])) + ", "
+                   + client.esc(std::to_string(substitution[1]))+ ");");
     }
 
     void CreatePoint()
     {
-        client.exec(std::format("INSERT INTO Links VALUES ({}, {}, {});",
-                                client.esc(std::to_string(++index)),
-                                client.esc(std::to_string(index)),
-                                client.esc(std::to_string(index))));
+        client.exec("INSERT INTO Links VALUES (" + client.esc(std::to_string(++index)) + ", "
+                   + client.esc(std::to_string(index)) + ", "
+                   + client.esc(std::to_string(index)) + ");");
     }
     
     void Update(const LinkType& restriction, const LinkType& substitution)
     {
         std::string query {};
         if (std::size(restriction) == 1) {
-            query = std::format("UPDATE Links SET from_id = {}, to_id = {} WHERE id = {};",
-                                client.esc(std::to_string(substitution[0])), 
-                                client.esc(std::to_string(substitution[1])), 
-                                client.esc(std::to_string(restriction[0])));
+            query = "UPDATE Links SET from_id = " + client.esc(std::to_string(substitution[0]))
+                    + ", to_id = " + client.esc(std::to_string(substitution[1])) 
+                    + " WHERE id = " + client.esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = std::format("UPDATE Links SET from_id = {}, to_id = {} WHERE from_id = {} AND to_id = {};",
-                                client.esc(std::to_string(substitution[0])), 
-                                client.esc(std::to_string(substitution[1])), 
-                                client.esc(std::to_string(restriction[1])),
-                                client.esc(std::to_string(restriction[2])));
+            query = "UPDATE Links SET from_id = " + client.esc(std::to_string(substitution[0]))
+                    + ", to_id = " + client.esc(std::to_string(substitution[1]))
+                    + " WHERE from_id = " + client.esc(std::to_string(restriction[1]))
+                    + " AND to_id = " + client.esc(std::to_string(restriction[2])) + ";";
         }
         client.exec(query);
     }
@@ -60,11 +57,10 @@ struct Client
     {
         std::string query {};
         if (std::size(restriction) == 1) {
-            query = std::format("DELETE FROM Links WHERE id = {};", client.esc(std::to_string(restriction[0])));
+            query = "DELETE FROM Links WHERE id = " + client.esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = std::format("DELETE FROM Links WHERE from_id = {} AND to_id = {};",
-                                client.esc(std::to_string(restriction[0])),
-                                client.esc(std::to_string(restriction[1])));
+            query = "DELETE FROM Links WHERE from_id = " + client.esc(std::to_string(restriction[0])) 
+                    + " AND to_id = " + client.esc(std::to_string(restriction[1])) + ";";
         }
         client.exec(query);
     }
