@@ -9,7 +9,7 @@ list(APPEND LINKS_PLATFORM_EXTRA_FLAGS ${CONAN_USER_PLATFORM.HASHING_suggested_f
 add_library(${PROJECT_NAME}.Library INTERFACE)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::gtest)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::benchmark)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.data)
+#target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.data)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.ranges)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.setters)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.collections.methods)
@@ -17,10 +17,12 @@ target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.thre
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::mio)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.memory)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.exceptions)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.interfaces)
+#target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.interfaces)
 target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::libpqxx)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE LinksPSQL)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data.Doublets/cpp/Platform.Data.Doublets)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data/cpp/Platform.Data)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Interfaces/cpp/Platform.Interfaces)
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 

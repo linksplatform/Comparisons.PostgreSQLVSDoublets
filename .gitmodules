@@ -1,3 +1,9 @@
 [submodule "Data.Doublets"]
 	path = Data.Doublets
 	url = https://github.com/linksplatform/Data.Doublets
+[submodule "Data"]
+	path = Data
+	url = https://github.com/linksplatform/Data
+[submodule "Interfaces"]
+	path = Interfaces
+	url = https://github.com/linksplatform/Interfaces
