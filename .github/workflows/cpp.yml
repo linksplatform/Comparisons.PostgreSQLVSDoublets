@@ -37,7 +37,7 @@ jobs:
           pip install --force-reinstall -v "conan==1.59.0"
       - name: Setup Conan
         run: |
-          conan profile detect --name linksplatform
+          conan profile new linksplatform --detect
           conan profile update settings.compiler.libcxx=libstdc++11 linksplatform
           conan profile show linksplatform
       - name: Install dependencies
