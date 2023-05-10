@@ -30,3 +30,4 @@ add_executable(${PROJECT_NAME} Benchmarks/AllBenchmarks.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.Library)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+target_link_options(${PROJECT_NAME} INTERFACE -lpqxx -lpq)
