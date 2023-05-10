@@ -36,9 +36,7 @@ jobs:
       - name: Install utilities
         run: |
           sudo apt update
-          sudo apt install -y cmake
-          sudo apt install -y build-essential
-          sudo apt install -y gcc-12 g++-12
+          sudo apt install -y cmake build-essential postgresql postgresql-contrib
           pip install --force-reinstall -v "conan==1.59.0"
       - name: Setup Conan
         run: |
