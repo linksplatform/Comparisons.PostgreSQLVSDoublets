@@ -71,4 +71,4 @@ jobs:
           make
       - name: Run benchmark
         run: |
-          ./bin/PSQLBench
+          ./cpp/build/bin/PSQLBench
