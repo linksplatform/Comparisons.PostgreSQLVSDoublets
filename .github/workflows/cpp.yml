@@ -65,9 +65,8 @@ jobs:
       - name: Build and run benchmark
         run: |
           cd cpp
-          conan install . -if=build --build=missing --build=libpqxx
+          conan install . -if=build --build=missing -pr=linksplatform
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
-          cmake --build . --target PSQLBench
-          cmake --install .
+          make
           ./PSQLBench
