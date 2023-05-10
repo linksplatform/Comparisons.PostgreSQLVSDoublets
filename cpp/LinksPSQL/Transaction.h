@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 #include <vector>
-#include <format>
+
 #include <pqxx/pqxx>
 #include <Platform.Data.h>
 
