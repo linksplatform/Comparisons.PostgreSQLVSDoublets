@@ -25,7 +25,10 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Set up CMake and Conan
         uses: actions/setup-python@v2
         with:
