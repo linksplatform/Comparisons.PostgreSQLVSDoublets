@@ -36,7 +36,7 @@ jobs:
       - name: Install utilities
         run: |
           sudo apt update
-          sudo apt install -y cmake build-essential postgresql postgresql-contrib
+          sudo apt install -y cmake build-essential
           pip install --force-reinstall -v "conan==1.59.0"
       - name: Setup Conan
         run: |
@@ -69,4 +69,4 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
           make
-          ./PSQLBench
+          ./bin/PSQLBench
