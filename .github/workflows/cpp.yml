@@ -62,11 +62,13 @@ jobs:
           conan create platform.equality/all platform.equality/0.0.1@ -pr=linksplatform
           conan create platform.exceptions/all platform.exceptions/0.3.0@ -pr=linksplatform
           conan create platform.hashing/all platform.hashing/0.2.0@ -pr=linksplatform
-      - name: Build and run benchmark
+      - name: Build benchmark
         run: |
           cd cpp
           conan install . -if=build --build=missing -pr=linksplatform
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
           make
+      - name: Run benchmark
+        run: |
           ./bin/PSQLBench
