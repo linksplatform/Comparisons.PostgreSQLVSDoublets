@@ -76,9 +76,9 @@ struct Transaction
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query = "SELECT COUNT(*) FROM Links WHERE ";
-        std::string id =  restriction[0] == any ? "" : std::format("id = {} AND ", transaction.esc(std::to_string(restriction[0])));
-        std::string source = restriction[1] == any ? "" : std::format("from_id = {} AND ", transaction.esc(std::to_string(restriction[1])));
-        std::string target = restriction[2] == any ? "true;" : std::format("to_id = {};", transaction.esc(std::to_string(restriction[2])));
+        std::string id = restriction[0] == any ? "" : "id = " + transaction.esc(std::to_string(restriction[0])) + " AND ";
+        std::string source = restriction[1] == any ? "" : "from_id = " + transaction.esc(std::to_string(restriction[1])) + " AND ";
+        std::string target = restriction[2] == any ? "true;" : "to_id = " + transaction.esc(std::to_string(restriction[2])) + ";";
         query.append(id + source + target);
         pqxx::result result = transaction.exec(query);
         return result[0][0].as<TLink>();
@@ -89,9 +89,9 @@ struct Transaction
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query = "SELECT * FROM Links WHERE ";
-        std::string id =  restriction[0] == any ? "" : std::format("id = {} AND ", transaction.esc(std::to_string(restriction[0])));
-        std::string source = restriction[1] == any ? "" : std::format("from_id = {} AND ", transaction.esc(std::to_string(restriction[1])));
-        std::string target = restriction[2] == any ? "true;" : std::format("to_id = {};", transaction.esc(std::to_string(restriction[2])));
+        std::string id = restriction[0] == any ? "" : "id = " + transaction.esc(std::to_string(restriction[0])) + " AND ";
+        std::string source = restriction[1] == any ? "" : "from_id = " + transaction.esc(std::to_string(restriction[1])) + " AND ";
+        std::string target = restriction[2] == any ? "true;" : "to_id = " + transaction.esc(std::to_string(restriction[2])) + ";";
         query.append(id + source + target);
         pqxx::result result = transaction.exec(query);
         std::vector<std::array<TLink, 3>> links{};
