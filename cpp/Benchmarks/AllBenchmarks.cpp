@@ -3,7 +3,7 @@
 #include <Client.h>
 #include <Transaction.h>
 
-const std::string options = "";
+const std::string options = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
 #include "SetupTeardown.cpp"
 #include "CreatePoints.cpp"
