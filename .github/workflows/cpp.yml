@@ -69,4 +69,5 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
           cmake --build . --target PSQLBench
+          cmake --install .
           ./PSQLBench
