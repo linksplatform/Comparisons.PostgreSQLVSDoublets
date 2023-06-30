@@ -1,32 +1,35 @@
 static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
     Client<std::uint64_t> table(options);
     for (auto _: state) {
-        for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            table.Create({i, i});
+        for (std::uint64_t i {}; i < state.range(0); ++i) {
+            table.CreatePoint();
         }
         state.PauseTiming();
-        table.DeleteAll();
+        for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+            table.Delete({i});
+        }
         state.ResumeTiming();
     }
 }
 
 static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> start;
     for (auto _: state) {
         {
+            state.PauseTiming();
             Transaction<std::uint64_t> transaction(options);
-            start = std::chrono::high_resolution_clock::now();
-            for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-                transaction.Create({i, i});
+            state.ResumeTiming();
+            for (std::uint64_t i {}; i < state.range(0); ++i) {
+                transaction.CreatePoint();
             }
         }
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<std::double_t>>(stop-start).count();
+        state.PauseTiming();
         {
             Transaction<std::uint64_t> transaction(options);
-            transaction.DeleteAll();
+            for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+                transaction.Delete({i});
+            }
         }
-        state.SetIterationTime(elapsed_time);
+        state.ResumeTiming();
     }
 }
 
@@ -35,17 +38,20 @@ static void BM_DoubletsCreateLinksFile(benchmark::State& state) {
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
     using namespace Platform::Collections;
-    std::filesystem::path path("db.links");
+    std::filesystem::path path {"db.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage(FileMappedResizableDirectMemory(path.string()));
+    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
+        return storage.Constants.Continue;
+    };
     for (auto _: state) {
-        auto start = std::chrono::high_resolution_clock::now();
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<std::double_t>>(stop-start).count();
-        DeleteAll(storage);
-        state.SetIterationTime(elapsed_time);
+        state.PauseTiming();
+        for (std::size_t i = storage.Count({}); i > BACKGROUND_LINKS; i = storage.Count({})) {
+            storage.Delete({i, i, i}, handler);
+        }
+        state.ResumeTiming();
     }
 }
 
@@ -55,20 +61,26 @@ static void BM_DoubletsCreateLinksRAM(benchmark::State& state) {
     using namespace Memory::United::Generic;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage(std::move(memory));
+    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
+        return storage.Constants.Continue;
+    };
+    for (std::size_t i{}; i < BACKGROUND_LINKS; ++i) {
+        CreatePoint(storage);
+    }
     for (auto _: state) {
-        auto start = std::chrono::high_resolution_clock::now();
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<std::double_t>>(stop-start).count();
-        DeleteAll(storage);
-        state.SetIterationTime(elapsed_time);
+        state.PauseTiming();
+        for (std::size_t i = storage.Count({}); i > BACKGROUND_LINKS; i = storage.Count({})) {
+            storage.Delete({i, i, i}, handler);
+        }
+        state.ResumeTiming();
     }
 }
 
 
-BENCHMARK(BM_PSQLCreateLinksWithoutTransaction)->Arg(1000);
-BENCHMARK(BM_PSQLCreateLinksWithTransaction)->Arg(1000)->UseManualTime();
-BENCHMARK(BM_DoubletsCreateLinksRAM)->Arg(1000)->UseManualTime();
-BENCHMARK(BM_DoubletsCreateLinksFile)->Arg(1000)->UseManualTime();
+BENCHMARK(BM_PSQLCreateLinksWithoutTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_PSQLCreateLinksWithTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsCreateLinksRAM)->Arg(1000);
+BENCHMARK(BM_DoubletsCreateLinksFile)->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);

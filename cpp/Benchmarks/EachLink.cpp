@@ -6,24 +6,31 @@ static void BM_PSQLEachLinksWithoutTransaction(benchmark::State& state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             table.Each({i, any, any});
         }
+        for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
+            table.Each({i, any, any});
+        }
+        for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
+            table.Each({i, any, any});
+        }
     }
 }
 
 static void BM_PSQLEachLinksWithTransaction(benchmark::State& state) {
-    using namespace std::chrono;
-    time_point<system_clock, nanoseconds> start;
-    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
+    using namespace Platform::Data;
+    auto any = LinksConstants<std::uint64_t>().Any;
     for (auto _: state) {
-        {
-            Transaction<std::uint64_t> table (options);
-            start = high_resolution_clock::now();
-            for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-                table.Each({i, any, any});
-            }
+        state.PauseTiming();
+        Transaction<std::uint64_t> table (options);
+        state.ResumeTiming();
+        for (std::uint64_t i = 1; i <= state.range(0); ++i) {
+            table.Each({i, any, any});
         }
-        auto stop = high_resolution_clock::now();
-        auto elapsed_time = duration_cast<duration<std::double_t>>(stop-start).count();
-        state.SetIterationTime(elapsed_time);
+        for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
+            table.Each({i, any, any});
+        }
+        for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
+            table.Each({i, any, any});
+        }
     }
 }
 
@@ -42,6 +49,12 @@ static void BM_DoubletsEachLinksFile(benchmark::State& state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
         }
+        for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
+            storage.Each({i, any, any}, handler);
+        }
+        for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
+            storage.Each({i, any, any}, handler);
+        }
     }
 }
 
@@ -57,25 +70,23 @@ static void BM_DoubletsEachLinksRAM(benchmark::State& state) {
     auto handler = [&storage] (std::vector<std::uint64_t> vec) {
         return storage.Constants.Continue;
     };
-    //Setup
-    for (std::size_t i{}; i < state.range(0); ++i) {
+    for (std::size_t i{}; i < BACKGROUND_LINKS; ++i) {
         CreatePoint(storage);
     }
-    //Benchmark
     for (auto _: state) {
-        auto start = high_resolution_clock::now();
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
         }
-        auto stop = high_resolution_clock::now();
-        auto elapsed_time = duration_cast<duration<std::double_t>>(stop-start).count();
-        state.SetIterationTime(elapsed_time);
+        for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
+            storage.Each({i, any, any}, handler);
+        }
+        for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
+            storage.Each({i, any, any}, handler);
+        }
     }
-    //Teardown
-    DeleteAll(storage);
 }
 
 BENCHMARK(BM_PSQLEachLinksWithoutTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLEachLinksWithTransaction)->Arg(1000)->UseManualTime()->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsEachLinksRAM)->Arg(1000)->UseManualTime();
-BENCHMARK(BM_DoubletsEachLinksFile)->Arg(1000)->Setup(internal::SetupDoubletsFile)->Teardown(internal::TeardownDoubletsFile);
+BENCHMARK(BM_PSQLEachLinksWithTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsEachLinksRAM)->Arg(1000);
+BENCHMARK(BM_DoubletsEachLinksFile)->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);

@@ -15,6 +15,7 @@ struct Transaction
         transaction.exec("CREATE TABLE IF NOT EXISTS Links (id bigint PRIMARY KEY, from_id bigint, to_id bigint);");
         transaction.exec("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);");
         transaction.exec("CREATE INDEX IF NOT EXISTS target ON Links USING btree(to_id);");
+        index = transaction.exec("SELECT * FROM Links;").size();
     }
 
     ~Transaction()
@@ -25,15 +26,17 @@ struct Transaction
 
     void Create(const LinkType& substitution)
     {
+        ++index;
         transaction.exec("INSERT INTO Links VALUES ("
-                        + transaction.esc(std::to_string(++index)) + ", "
+                        + transaction.esc(std::to_string(index)) + ", "
                         + transaction.esc(std::to_string(substitution[0])) + ", "
                         + transaction.esc(std::to_string(substitution[1]))+ ");");
     }
 
     void CreatePoint()
     {
-        transaction.exec("INSERT INTO Links VALUES (" + transaction.esc(std::to_string(++index)) + ", "
+        ++index;
+        transaction.exec("INSERT INTO Links VALUES (" + transaction.esc(std::to_string(index)) + ", "
                         + transaction.esc(std::to_string(index)) + ", "
                         + transaction.esc(std::to_string(index)) + ");");
     }
@@ -50,6 +53,8 @@ struct Transaction
                     + ", to_id = " + transaction.esc(std::to_string(substitution[1]))
                     + " WHERE from_id = " + transaction.esc(std::to_string(restriction[1]))
                     + " AND to_id = " + transaction.esc(std::to_string(restriction[2])) + ";";
+        } else {
+            throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         transaction.exec(query);
     }
@@ -62,13 +67,16 @@ struct Transaction
         } else if (std::size(restriction) == 3) {
             query = "DELETE FROM Links WHERE from_id = " + transaction.esc(std::to_string(restriction[0]))
                     + " AND to_id = " + transaction.esc(std::to_string(restriction[1])) + ";";
+        } else {
+            throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         transaction.exec(query);
     }
     
     void DeleteAll()
     {
-        transaction.exec("DELETE FROM LINKS");
+        transaction.exec("DELETE FROM LINKS;");
+        index = 0;
     }
     
     TLink Count(const LinkType& restriction)
@@ -95,8 +103,9 @@ struct Transaction
         query.append(id + source + target);
         pqxx::result result = transaction.exec(query);
         std::vector<std::array<TLink, 3>> links{};
-        for (std::size_t i {}; i < result.size(); ++i) {
-            links.push_back({result[i][0].as<TLink>(), result[i][1].as<TLink>(), result[i][2].as<TLink>()});
+        links.reserve(result.size());
+        for (const auto& row: result) {
+            links.push_back({row[0].as<TLink>(), row[1].as<TLink>(), row[2].as<TLink>()});
         }
         return links;
     }

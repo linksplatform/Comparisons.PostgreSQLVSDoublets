@@ -15,6 +15,7 @@ struct Client
         client.exec("CREATE TABLE IF NOT EXISTS Links (id bigint PRIMARY KEY, from_id bigint, to_id bigint);");
         client.exec("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);");
         client.exec("CREATE INDEX IF NOT EXISTS target ON Links USING btree(to_id);");
+        index = client.exec("SELECT * FROM LINKS").size();
     }
 
     ~Client()
@@ -24,15 +25,17 @@ struct Client
 
     void Create(const LinkType& substitution)
     {
+        ++index;
         client.exec("INSERT INTO Links VALUES (" 
-                   + client.esc(std::to_string(++index)) + ", "
+                   + client.esc(std::to_string(index)) + ", "
                    + client.esc(std::to_string(substitution[0])) + ", "
                    + client.esc(std::to_string(substitution[1]))+ ");");
     }
 
     void CreatePoint()
     {
-        client.exec("INSERT INTO Links VALUES (" + client.esc(std::to_string(++index)) + ", "
+        ++index;
+        client.exec("INSERT INTO Links VALUES (" + client.esc(std::to_string(index)) + ", "
                    + client.esc(std::to_string(index)) + ", "
                    + client.esc(std::to_string(index)) + ");");
     }
@@ -49,6 +52,8 @@ struct Client
                     + ", to_id = " + client.esc(std::to_string(substitution[1]))
                     + " WHERE from_id = " + client.esc(std::to_string(restriction[1]))
                     + " AND to_id = " + client.esc(std::to_string(restriction[2])) + ";";
+        } else {
+            throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         client.exec(query);
     }
@@ -61,13 +66,17 @@ struct Client
         } else if (std::size(restriction) == 3) {
             query = "DELETE FROM Links WHERE from_id = " + client.esc(std::to_string(restriction[0])) 
                     + " AND to_id = " + client.esc(std::to_string(restriction[1])) + ";";
+        } else {
+            throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         client.exec(query);
+        index = client.exec("SELECT * FROM LINKS").size();
     }
 
     void DeleteAll()
     {
-        client.exec("DELETE FROM LINKS");
+        client.exec("DELETE FROM LINKS;");
+        index = 0;
     }
 
     TLink Count(const LinkType& restriction)
