@@ -64,7 +64,6 @@ static void BM_DoubletsDeleteLinksRAM(benchmark::State& state) {
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
     using namespace Platform::Collections;
-    using namespace std::chrono;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage(std::move(memory));
     auto any = storage.Constants.Any;
