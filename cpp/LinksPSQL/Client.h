@@ -97,9 +97,9 @@ struct Client
         using namespace Platform::Data;
         auto any = LinksConstants<TLink>().Any;
         std::string query = "SELECT * FROM Links WHERE";
-        std::string id =  restriction[0] == any ? "" : " id = '" + client.esc(std::to_string(restriction[0])) + "' AND";
-        std::string source = restriction[1] == any ? "" : " from_id = '" + client.esc(std::to_string(restriction[1])) + "' AND";
-        std::string target = restriction[2] == any ? " true;" : " to_id = '" + client.esc(std::to_string(restriction[2])) + ';';
+        std::string id =  restriction[0] == any ? "" : " id = " + client.esc(std::to_string(restriction[0])) + " AND";
+        std::string source = restriction[1] == any ? "" : " from_id = " + client.esc(std::to_string(restriction[1])) + " AND";
+        std::string target = restriction[2] == any ? " true;" : " to_id = " + client.esc(std::to_string(restriction[2])) + ";";
         query.append(id + source + target);
         pqxx::result result = client.exec(query);
         std::vector<std::array<TLink, 3>> links{};

@@ -1,21 +1,21 @@
-static void BM_PSQLEachLinkWithoutTransaction(benchmark::State& state) {
+static void BM_PSQLEachIncomingWithoutTransaction(benchmark::State& state) {
     using namespace Platform::Data;
     Client<std::uint64_t> table(options);
     auto any = LinksConstants<std::uint64_t>().Any;
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
     }
 }
 
-static void BM_PSQLEachLinkWithTransaction(benchmark::State& state) {
+static void BM_PSQLEachIncomingWithTransaction(benchmark::State& state) {
     using namespace Platform::Data;
     auto any = LinksConstants<std::uint64_t>().Any;
     for (auto _: state) {
@@ -23,18 +23,18 @@ static void BM_PSQLEachLinkWithTransaction(benchmark::State& state) {
         Transaction<std::uint64_t> table (options);
         state.ResumeTiming();
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            table.Each({i, any, any});
+            table.Each({any, any, i});
         }
     }
 }
 
-static void BM_DoubletsEachLinkFile(benchmark::State& state) {
+static void BM_DoubletsEachIncomingFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
@@ -47,23 +47,22 @@ static void BM_DoubletsEachLinkFile(benchmark::State& state) {
     };
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
     }
 }
 
-static void BM_DoubletsEachLinkRAM(benchmark::State& state) {
+static void BM_DoubletsEachIncomingRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
     using namespace Platform::Collections;
-    using namespace std::chrono;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage(std::move(memory));
     auto any = storage.Constants.Any;
@@ -75,18 +74,18 @@ static void BM_DoubletsEachLinkRAM(benchmark::State& state) {
     }
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Each({i, any, any}, handler);
+            storage.Each({any, any, i}, handler);
         }
     }
 }
 
-BENCHMARK(BM_PSQLEachLinkWithoutTransaction)->Name("BM_PSQL/Each/NoTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLEachLinkWithTransaction)->Name("BM_PSQL/Each/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsEachLinkRAM)->Name("BM_Doublets/Each/Volatile")->Arg(1000);
-BENCHMARK(BM_DoubletsEachLinkFile)->Name("BM_Doublets/Each/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
+BENCHMARK(BM_PSQLEachIncomingWithoutTransaction)->Name("BM_PSQL/Each/Incoming/NonTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_PSQLEachIncomingWithTransaction)->Name("BM_PSQL/Each/Incoming/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsEachIncomingRAM)->Name("BM_Doublets/Each/Incoming/Volatile")->Arg(1000);
+BENCHMARK(BM_DoubletsEachIncomingFile)->Name("BM_Doublets/Each/Incoming/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
