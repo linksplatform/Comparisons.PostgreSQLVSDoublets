@@ -59,7 +59,7 @@ static void BM_DoubletsUpdateLinksRAM(benchmark::State& state) {
     }
 }
 
-BENCHMARK(BM_PSQLUpdateLinksWithoutTransaction)->Name("BM_PSQL/UpdateLinks/NoTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLUpdateLinksWithTransaction)->Name("BM_PSQL/UpdateLinks/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsUpdateLinksRAM)->Name("BM_Doublets/UpdateLinks/Volatile")->Arg(1000);
-BENCHMARK(BM_DoubletsUpdateLinksFile)->Name("BM_Doublets/UpdateLinks/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
+BENCHMARK(BM_PSQLUpdateLinksWithoutTransaction)->Name("BM_PSQL/Update/NoTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_PSQLUpdateLinksWithTransaction)->Name("BM_PSQL/Update/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsUpdateLinksRAM)->Name("BM_Doublets/Update/Volatile")->Arg(1000);
+BENCHMARK(BM_DoubletsUpdateLinksFile)->Name("BM_Doublets/Update/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
