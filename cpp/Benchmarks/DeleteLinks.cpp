@@ -88,7 +88,7 @@ static void BM_DoubletsDeleteLinksRAM(benchmark::State& state) {
     }
 }
 
-BENCHMARK(BM_PSQLDeleteLinksWithoutTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLDeleteLinksWithTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsDeleteLinksRAM)->Arg(1000);
-BENCHMARK(BM_DoubletsDeleteLinksFile)->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
+BENCHMARK(BM_PSQLDeleteLinksWithoutTransaction)->Name("BM_PSQL/DeleteLinks/NoTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_PSQLDeleteLinksWithTransaction)->Name("BM_PSQL/DeleteLinks/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsDeleteLinksRAM)->Name("BM_Doublets/DeleteLinks/Volatile")->Arg(1000);
+BENCHMARK(BM_DoubletsDeleteLinksFile)->Name("BM_Doublets/DeleteLinks/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);

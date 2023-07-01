@@ -1,4 +1,4 @@
-static void BM_PSQLEachLinksWithoutTransaction(benchmark::State& state) {
+static void BM_PSQLEachLinkWithoutTransaction(benchmark::State& state) {
     using namespace Platform::Data;
     Client<std::uint64_t> table(options);
     auto any = LinksConstants<std::uint64_t>().Any;
@@ -15,7 +15,7 @@ static void BM_PSQLEachLinksWithoutTransaction(benchmark::State& state) {
     }
 }
 
-static void BM_PSQLEachLinksWithTransaction(benchmark::State& state) {
+static void BM_PSQLEachLinkWithTransaction(benchmark::State& state) {
     using namespace Platform::Data;
     auto any = LinksConstants<std::uint64_t>().Any;
     for (auto _: state) {
@@ -34,7 +34,7 @@ static void BM_PSQLEachLinksWithTransaction(benchmark::State& state) {
     }
 }
 
-static void BM_DoubletsEachLinksFile(benchmark::State& state) {
+static void BM_DoubletsEachLinkFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
@@ -58,7 +58,7 @@ static void BM_DoubletsEachLinksFile(benchmark::State& state) {
     }
 }
 
-static void BM_DoubletsEachLinksRAM(benchmark::State& state) {
+static void BM_DoubletsEachLinkRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
@@ -86,7 +86,7 @@ static void BM_DoubletsEachLinksRAM(benchmark::State& state) {
     }
 }
 
-BENCHMARK(BM_PSQLEachLinksWithoutTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLEachLinksWithTransaction)->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsEachLinksRAM)->Arg(1000);
-BENCHMARK(BM_DoubletsEachLinksFile)->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
+BENCHMARK(BM_PSQLEachLinkWithoutTransaction)->Name("BM_PSQL/EachLink/NoTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_PSQLEachLinkWithTransaction)->Name("BM_PSQL/EachLink/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
+BENCHMARK(BM_DoubletsEachLinkRAM)->Name("BM_Doublets/EachLink/Volatile")->Arg(1000);
+BENCHMARK(BM_DoubletsEachLinkFile)->Name("BM_Doublets/EachLinks/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
