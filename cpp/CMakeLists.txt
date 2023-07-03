@@ -23,6 +23,7 @@ target_include_directories(${PROJECT_NAME}.Library INTERFACE LinksPSQL)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data.Doublets/cpp/Platform.Data.Doublets)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data/cpp/Platform.Data)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Interfaces/cpp/Platform.Interfaces)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Numbers/cpp/Platform.Numbers)
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 

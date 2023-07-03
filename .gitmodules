@@ -7,3 +7,6 @@
 [submodule "Interfaces"]
 	path = Interfaces
 	url = https://github.com/linksplatform/Interfaces
+[submodule "Numbers"]
+	path = Numbers
+	url = https://github.com/linksplatform/Numbers
