@@ -2,6 +2,7 @@
 #include <benchmark/benchmark.h>
 #include <Client.h>
 #include <Transaction.h>
+#include <PostgreSQL.h>
 
 const std::string options = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 const std::uint64_t BACKGROUND_LINKS = 3000;

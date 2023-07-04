@@ -1,59 +1,115 @@
 static void BM_PSQLEachAllWithoutTransaction(benchmark::State& state) {
-    using namespace Platform::Data;
+    using namespace PostgreSQL;
+    using namespace SetupTeardown;
     Client<std::uint64_t> table {options};
-    auto any = LinksConstants<std::uint64_t>().Any;
+    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
+    SetupPSQL(table);
     for (auto _: state) {
-        table.Each({any, any, any});
+        Each(table, {any, any, any});
     }
+    TeardownPSQL(table);
 }
 
 static void BM_PSQLEachAllWithTransaction(benchmark::State& state) {
-    using namespace Platform::Data;
-    auto any = LinksConstants<std::uint64_t>().Any;
+    using namespace PostgreSQL;
+    using namespace SetupTeardown;
+    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
+    {
+        Transaction<std::uint64_t> table {options};
+        SetupPSQL(table);
+    }
     for (auto _: state) {
         state.PauseTiming();
         Transaction<std::uint64_t> table {options};
         state.ResumeTiming();
-        table.Each({any, any, any});
+        Each(table, {any, any, any});
     }
+    Transaction<std::uint64_t> table {options};
+    TeardownPSQL(table);
 }
 
-static void BM_DoubletsEachAllFile(benchmark::State& state) {
+static void BM_DoubletsUnitedEachAllFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
     using namespace Platform::Collections;
-    std::filesystem::path path {"db.links"};
-    UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage (FileMappedResizableDirectMemory(path.string()));
+    using namespace SetupTeardown;
+    std::filesystem::path path {"united.links"};
+    UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
     auto any = storage.Constants.Any;
     auto handler = [&storage] (std::vector<std::uint64_t> vec) {
         return storage.Constants.Continue;
     };
+    SetupDoublets(storage);
     for (auto _: state) {
         storage.Each({any, any, any}, handler);
     }
+    TeardownDoublets(storage);
 }
 
-static void BM_DoubletsEachAllRAM(benchmark::State& state) {
+static void BM_DoubletsUnitedEachAllRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
     using namespace Platform::Collections;
+    using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
-    UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage(std::move(memory));
+    UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(memory)};
     auto any = storage.Constants.Any;
     auto handler = [&storage] (std::vector<std::uint64_t> vec) {
         return storage.Constants.Continue;
     };
-    for (std::size_t i{}; i < BACKGROUND_LINKS; ++i) {
-        CreatePoint(storage);
-    }
+    SetupDoublets(storage);
     for (auto _: state) {
         storage.Each({any, any, any}, handler);
     }
+    TeardownDoublets(storage);
 }
 
-BENCHMARK(BM_PSQLEachAllWithoutTransaction)->Name("BM_PSQL/Each/All/NonTransaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_PSQLEachAllWithTransaction)->Name("BM_PSQL/Each/All/Transaction")->Arg(1000)->Setup(internal::SetupPSQL)->Teardown(internal::TeardownPSQL);
-BENCHMARK(BM_DoubletsEachAllRAM)->Name("BM_Doublets/Each/All/Volatile")->Arg(1000);
-BENCHMARK(BM_DoubletsEachAllFile)->Name("BM_Doublets/Each/All/NonVolatile")->Arg(1000)->Setup(internal::SetupDoublets)->Teardown(internal::TeardownDoublets);
+static void BM_DoubletsSplitEachAllFile(benchmark::State& state) {
+    using namespace Platform::Memory;
+    using namespace Platform::Data::Doublets;
+    using namespace Memory::Split::Generic;
+    using namespace Platform::Collections;
+    using namespace SetupTeardown;
+    std::filesystem::path split_data {"split_data.links"}, split_index {"split_index.links"};
+    SplitMemoryLinks<LinksOptions<std::uint64_t>> storage {
+        FileMappedResizableDirectMemory{split_data.string()},
+        FileMappedResizableDirectMemory{split_index.string()}
+    };
+    auto any = storage.Constants.Any;
+    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
+        return storage.Constants.Continue;
+    };
+    SetupDoublets(storage);
+    for (auto _: state) {
+        storage.Each({any, any, any}, handler);
+    }
+    TeardownDoublets(storage);
+}
+
+static void BM_DoubletsSplitEachAllRAM(benchmark::State& state) {
+    using namespace Platform::Memory;
+    using namespace Platform::Data::Doublets;
+    using namespace Memory::Split::Generic;
+    using namespace Platform::Collections;
+    using namespace SetupTeardown;
+    HeapResizableDirectMemory data {}, index {};
+    SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};
+    auto any = storage.Constants.Any;
+    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
+        return storage.Constants.Continue;
+    };
+    SetupDoublets(storage);
+    for (auto _: state) {
+        storage.Each({any, any, any}, handler);
+    }
+    TeardownDoublets(storage);
+}
+
+BENCHMARK(BM_PSQLEachAllWithoutTransaction)->Name("BM_PSQL/Each/All/NonTransaction")->Arg(1000);
+BENCHMARK(BM_PSQLEachAllWithTransaction)->Name("BM_PSQL/Each/All/Transaction")->Arg(1000);
+BENCHMARK(BM_DoubletsUnitedEachAllFile)->Name("BM_Doublets/United/Each/All/NonVolatile")->Arg(1000);
+BENCHMARK(BM_DoubletsUnitedEachAllRAM)->Name("BM_Doublets/United/Each/All/Volatile")->Arg(1000);
+BENCHMARK(BM_DoubletsSplitEachAllFile)->Name("BM_Doublets/Split/Each/All/NonVolatile")->Arg(1000);
+BENCHMARK(BM_DoubletsSplitEachAllRAM)->Name("BM_Doublets/Split/Each/All/Volatile")->Arg(1000);
