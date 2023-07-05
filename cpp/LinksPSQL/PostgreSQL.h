@@ -1,3 +1,4 @@
+#pragma once
 #include <pqxx/pqxx>
 #include <Platform.Data.h>
 
@@ -48,8 +49,8 @@ namespace PostgreSQL
         table.executor().exec(query);
     }
 
-    template <typename TExecutor>
-    void Delete(TExecutor& table, const LinkType& restriction)
+    template <template <typename> class TExecutor, typename TLink>
+    void Delete(TExecutor<TLink>& table, const LinkType& restriction)
     {
         std::string query {};
         if (std::size(restriction) == 1) {
@@ -61,6 +62,14 @@ namespace PostgreSQL
             throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         table.executor().exec(query);
+        pqxx::result result = table.executor().exec(
+            "SELECT * FROM links\n"
+            "ORDER BY id DESC\n"
+            "LIMIT 1"
+        );
+        if (!result.empty()) {
+            table.index = result[0][0].as<TLink>();
+        }
     }
 
     template <typename TExecutor>
@@ -80,8 +89,7 @@ namespace PostgreSQL
         std::string source = restriction[1] == any ? "" : "from_id = " + table.executor().esc(std::to_string(restriction[1])) + " AND ";
         std::string target = restriction[2] == any ? "true;" : "to_id = " + table.executor().esc(std::to_string(restriction[2])) + ";";
         query.append(id + source + target);
-        pqxx::result result = table.executor().exec(query);
-        return result[0][0].as<TLink>();
+        return table.executor().exec(query)[0][0].template as<TLink>();
     }
 
     template <template <typename> class TExecutor, typename TLink>

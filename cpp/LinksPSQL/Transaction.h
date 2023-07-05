@@ -12,7 +12,14 @@ struct Transaction
         transaction.exec("CREATE TABLE IF NOT EXISTS Links (id bigint PRIMARY KEY, from_id bigint, to_id bigint);");
         transaction.exec("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);");
         transaction.exec("CREATE INDEX IF NOT EXISTS target ON Links USING btree(to_id);");
-        index = transaction.exec("SELECT * FROM Links;").size();
+        auto result = transaction.exec(
+            "SELECT * FROM links\n"
+            "ORDER BY id DESC\n"
+            "LIMIT 1"
+        );
+        if (!result.empty()) {
+            index = result[0][0].as<TLink>();
+        }
     }
 
     ~Transaction()
