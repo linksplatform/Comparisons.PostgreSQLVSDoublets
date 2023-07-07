@@ -155,9 +155,9 @@ static void BM_DoubletsSplitEachIncomingRAM(benchmark::State& state) {
     TeardownDoublets(storage);
 }
 
-BENCHMARK(BM_PSQLEachIncomingWithoutTransaction)->Name("BM_PSQL/Each/Incoming/NonTransaction")->Arg(1000);
-BENCHMARK(BM_PSQLEachIncomingWithTransaction)->Name("BM_PSQL/Each/Incoming/Transaction")->Arg(1000);
-BENCHMARK(BM_DoubletsUnitedEachIncomingFile)->Name("BM_Doublets/United/Each/Incoming/NonVolatile")->Arg(1000);
-BENCHMARK(BM_DoubletsUnitedEachIncomingRAM)->Name("BM_Doublets/United/Each/Incoming/Volatile")->Arg(1000);
-BENCHMARK(BM_DoubletsSplitEachIncomingFile)->Name("BM_Doublets/Split/Each/Incoming/NonVolatile")->Arg(1000);
-BENCHMARK(BM_DoubletsSplitEachIncomingRAM)->Name("BM_Doublets/Split/Each/Incoming/Volatile")->Arg(1000);
+BENCHMARK(BM_PSQLEachIncomingWithoutTransaction)->Name("BM_PSQL/Each/Incoming/NonTransaction")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_PSQLEachIncomingWithTransaction)->Name("BM_PSQL/Each/Incoming/Transaction")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsUnitedEachIncomingFile)->Name("BM_Doublets/United/Each/Incoming/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsUnitedEachIncomingRAM)->Name("BM_Doublets/United/Each/Incoming/Volatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsSplitEachIncomingFile)->Name("BM_Doublets/Split/Each/Incoming/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsSplitEachIncomingRAM)->Name("BM_Doublets/Split/Each/Incoming/Volatile")->Arg(1000)->MinWarmUpTime(10);

@@ -160,9 +160,9 @@ static void BM_DoubletsSplitDeleteLinksRAM(benchmark::State& state) {
     TeardownDoublets(storage);
 }
 
-BENCHMARK(BM_PSQLDeleteLinksWithoutTransaction)->Name("BM_PSQL/Delete/NonTransaction")->Arg(1000);
-BENCHMARK(BM_PSQLDeleteLinksWithTransaction)->Name("BM_PSQL/Delete/Transaction")->Arg(1000);
-BENCHMARK(BM_DoubletsUnitedDeleteLinksFile)->Name("BM_Doublets/United/Delete/NonVolatile")->Arg(1000);
-BENCHMARK(BM_DoubletsUnitedDeleteLinksRAM)->Name("BM_Doublets/United/Delete/Volatile")->Arg(1000);
-BENCHMARK(BM_DoubletsSplitDeleteLinksFile)->Name("BM_Doublets/Split/Delete/NonVolatile")->Arg(1000);
-BENCHMARK(BM_DoubletsSplitDeleteLinksRAM)->Name("BM_Doublets/Split/Delete/Volatile")->Arg(1000);
+BENCHMARK(BM_PSQLDeleteLinksWithoutTransaction)->Name("BM_PSQL/Delete/NonTransaction")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_PSQLDeleteLinksWithTransaction)->Name("BM_PSQL/Delete/Transaction")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsUnitedDeleteLinksFile)->Name("BM_Doublets/United/Delete/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsUnitedDeleteLinksRAM)->Name("BM_Doublets/United/Delete/Volatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsSplitDeleteLinksFile)->Name("BM_Doublets/Split/Delete/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_DoubletsSplitDeleteLinksRAM)->Name("BM_Doublets/Split/Delete/Volatile")->Arg(1000)->MinWarmUpTime(10);
