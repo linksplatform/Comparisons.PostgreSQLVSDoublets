@@ -146,9 +146,9 @@ static void BM_DoubletsSplitCreateLinksRAM(benchmark::State& state) {
     TeardownDoublets(storage);
 }
 
-BENCHMARK(BM_PSQLCreateLinksWithoutTransaction)->Name("BM_PSQL/Create/NonTransaction")->Arg(1000)->MinWarmUpTime(10);
-BENCHMARK(BM_PSQLCreateLinksWithTransaction)->Name("BM_PSQL/Create/Transaction")->Arg(1000)->MinWarmUpTime(10);
-BENCHMARK(BM_DoubletsUnitedCreateLinksFile)->Name("BM_Doublets/United/Create/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
-BENCHMARK(BM_DoubletsUnitedCreateLinksRAM)->Name("BM_Doublets/United/Create/Volatile")->Arg(1000)->MinWarmUpTime(10);
-BENCHMARK(BM_DoubletsSplitCreateLinksFile)->Name("BM_Doublets/Split/Create/NonVolatile")->Arg(1000)->MinWarmUpTime(10);
-BENCHMARK(BM_DoubletsSplitCreateLinksRAM)->Name("BM_Doublets/Split/Create/Volatile")->Arg(1000)->MinWarmUpTime(10);
+BENCHMARK(BM_PSQLCreateLinksWithoutTransaction)->Name("BM_PSQL/Create/NonTransaction")->Arg(1000)->MinWarmUpTime(20);
+BENCHMARK(BM_PSQLCreateLinksWithTransaction)->Name("BM_PSQL/Create/Transaction")->Arg(1000)->MinWarmUpTime(20);
+BENCHMARK(BM_DoubletsUnitedCreateLinksFile)->Name("BM_Doublets/United/Create/NonVolatile")->Arg(1000)->MinWarmUpTime(20);
+BENCHMARK(BM_DoubletsUnitedCreateLinksRAM)->Name("BM_Doublets/United/Create/Volatile")->Arg(1000)->MinWarmUpTime(20);
+BENCHMARK(BM_DoubletsSplitCreateLinksFile)->Name("BM_Doublets/Split/Create/NonVolatile")->Arg(1000)->MinWarmUpTime(20);
+BENCHMARK(BM_DoubletsSplitCreateLinksRAM)->Name("BM_Doublets/Split/Create/Volatile")->Arg(1000)->MinWarmUpTime(20);
