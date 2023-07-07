@@ -13,7 +13,7 @@ static void BM_PSQLDeleteLinksWithoutTransaction(benchmark::State& state) {
         setup();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            Delete(table, {i});
+            Delete(table, {i, i, i});
         }
     }
     TeardownPSQL(table);
@@ -38,7 +38,7 @@ static void BM_PSQLDeleteLinksWithTransaction(benchmark::State& state) {
         Transaction<std::uint64_t> transaction {options};
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            Delete(transaction, {i});
+            Delete(transaction, {i, i, i});
         }
     }
     Transaction<std::uint64_t> transaction {options};
@@ -95,7 +95,7 @@ static void BM_DoubletsUnitedDeleteLinksRAM(benchmark::State& state) {
         setup();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i}, handler);
+            storage.Delete({i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);
@@ -154,7 +154,7 @@ static void BM_DoubletsSplitDeleteLinksRAM(benchmark::State& state) {
         setup();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i}, handler);
+            storage.Delete({i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);

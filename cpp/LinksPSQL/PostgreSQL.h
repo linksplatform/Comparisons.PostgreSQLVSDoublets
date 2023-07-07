@@ -56,20 +56,12 @@ namespace PostgreSQL
         if (std::size(restriction) == 1) {
             query = "DELETE FROM Links WHERE id = " + table.executor().esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = "DELETE FROM Links WHERE from_id = " + table.executor().esc(std::to_string(restriction[0]))
-                    + " AND to_id = " + table.executor().esc(std::to_string(restriction[1])) + ";";
+            query = "DELETE FROM Links WHERE from_id = " + table.executor().esc(std::to_string(restriction[1]))
+                    + " AND to_id = " + table.executor().esc(std::to_string(restriction[2])) + ";";
         } else {
             throw std::invalid_argument("Constraints violation: size of restriction neither 1 nor 3.");
         }
         table.executor().exec(query);
-        pqxx::result result = table.executor().exec(
-            "SELECT * FROM links\n"
-            "ORDER BY id DESC\n"
-            "LIMIT 1"
-        );
-        if (!result.empty()) {
-            table.index = result[0][0].as<TLink>();
-        }
     }
 
     template <typename TExecutor>

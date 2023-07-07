@@ -9,7 +9,7 @@ static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
         }
         state.PauseTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            Delete(table, {i});
+            Delete(table, {i, i, i});
         }
         state.ResumeTiming();
     }
@@ -36,7 +36,7 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         {
             Transaction<std::uint64_t> transaction {options};
             for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-                Delete(transaction, {i});
+                Delete(transaction, {i, i, i});
             }
         }
         state.ResumeTiming();
