@@ -9,38 +9,31 @@ namespace PostgreSQL
     template <typename TExecutor>
     void Create(TExecutor& table, const LinkType& substitution)
     {
-        ++table.index;
         table.executor().exec(
-            "INSERT INTO Links VALUES ("
-            + table.executor().esc(std::to_string(table.index)) + ", "
-            + table.executor().esc(std::to_string(substitution[0])) + ", "
-            + table.executor().esc(std::to_string(substitution[1])) + ");"
+            "INSERT INTO Links(from_id, to_id) VALUES ("
+            + table.executor().esc(std::to_string(substitution[1])) + ", "
+            + table.executor().esc(std::to_string(substitution[2])) + ");"
         );
     }
 
     template <typename TExecutor>
     void CreatePoint(TExecutor& table)
     {
-        ++table.index;
-        table.executor().exec(
-            "INSERT INTO Links VALUES (" 
-            + table.executor().esc(std::to_string(table.index)) + ", "
-            + table.executor().esc(std::to_string(table.index)) + ", "
-            + table.executor().esc(std::to_string(table.index)) + ");"
-        );
+        table.executor().exec("INSERT INTO Links(from_id, to_id) VALUES (DEFAULT, DEFAULT);");
+        table.executor().exec("UPDATE Links SET from_id = lastval(), to_id = lastval() WHERE id = lastval();");
     }
-
+    
     template <typename TExecutor>
     void Update(TExecutor& table, const LinkType& restriction, const LinkType& substitution)
     {
         std::string query {};
         if (std::size(restriction) == 1) {
-            query = "UPDATE Links SET from_id = " + table.executor().esc(std::to_string(substitution[0]))
-                    + ", to_id = " + table.executor().esc(std::to_string(substitution[1]))
+            query = "UPDATE Links SET from_id = " + table.executor().esc(std::to_string(substitution[1]))
+                    + ", to_id = " + table.executor().esc(std::to_string(substitution[2]))
                     + " WHERE id = " + table.executor().esc(std::to_string(restriction[0])) + ";";
         } else if (std::size(restriction) == 3) {
-            query = "UPDATE Links SET from_id = " + table.executor().esc(std::to_string(substitution[0]))
-                    + ", to_id = " + table.executor().esc(std::to_string(substitution[1]))
+            query = "UPDATE Links SET from_id = " + table.executor().esc(std::to_string(substitution[1]))
+                    + ", to_id = " + table.executor().esc(std::to_string(substitution[2]))
                     + " WHERE from_id = " + table.executor().esc(std::to_string(restriction[1]))
                     + " AND to_id = " + table.executor().esc(std::to_string(restriction[2])) + ";";
         } else {
@@ -67,7 +60,6 @@ namespace PostgreSQL
     template <typename TExecutor>
     void DeleteAll(TExecutor& table)
     {
-        table.index = 0;
         table.executor().exec("DELETE FROM LINKS;");
     }
 
@@ -101,5 +93,10 @@ namespace PostgreSQL
             links.push_back({row[0].as<TLink>(), row[1].as<TLink>(), row[2].as<TLink>()});
         }
         return links;
+    }
+    
+    template <typename TExectuor>
+    void Drop(TExectuor& table) {
+        table.executor().exec("DROP TABLE Links;");
     }
 };

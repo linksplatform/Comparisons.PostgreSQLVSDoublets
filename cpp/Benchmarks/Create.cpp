@@ -2,15 +2,17 @@ static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
     using namespace PostgreSQL;
     using namespace SetupTeardown;
     Client<std::uint64_t> table {options};
+    auto background = BACKGROUND_LINKS;
     SetupPSQL(table);
     for (auto _: state) {
         for (std::uint64_t i {}; i < state.range(0); ++i) {
             CreatePoint(table);
         }
         state.PauseTiming();
-        for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+        for (std::uint64_t i = background + state.range(0); i > background; --i) {
             Delete(table, {i, i, i});
         }
+        background += state.range(0);
         state.ResumeTiming();
     }
     TeardownPSQL(table);
@@ -23,6 +25,8 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         Transaction<std::uint64_t> transaction {options};
         SetupPSQL(transaction);
     }
+    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
+    auto background = BACKGROUND_LINKS;
     for (auto _: state) {
         {
             state.PauseTiming();
@@ -35,9 +39,10 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         state.PauseTiming();
         {
             Transaction<std::uint64_t> transaction {options};
-            for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+            for (std::uint64_t i = background + state.range(0); i > background; --i) {
                 Delete(transaction, {i, i, i});
             }
+            background += state.range(0);
         }
         state.ResumeTiming();
     }
@@ -49,7 +54,6 @@ static void BM_DoubletsUnitedCreateLinksFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path path {"united.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
@@ -98,7 +102,6 @@ static void BM_DoubletsSplitCreateLinksFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path split_data {"split_data.links"}, split_index {"split_index.links"};
     SplitMemoryLinks<LinksOptions<std::uint64_t>> storage {

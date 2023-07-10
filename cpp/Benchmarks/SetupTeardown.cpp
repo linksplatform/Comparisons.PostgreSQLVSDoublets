@@ -11,7 +11,11 @@ namespace SetupTeardown
     template <typename TStorage>
     void TeardownDoublets(TStorage& storage) {
         using namespace Platform::Data::Doublets;
+        using namespace std::filesystem;
         DeleteAll(storage);
+        remove(path{"united.links"});
+        remove(path{"split_data.links"});
+        remove(path{"split_index.links"});
     }
 
     template <typename TExecutor>
@@ -26,5 +30,6 @@ namespace SetupTeardown
     static void TeardownPSQL(TExecutor& table) {
         using namespace PostgreSQL;
         DeleteAll(table);
+        Drop(table);
     }
 }

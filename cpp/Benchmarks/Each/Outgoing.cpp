@@ -47,7 +47,6 @@ static void BM_DoubletsUnitedEachOutgoingFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path path {"united.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
@@ -74,7 +73,6 @@ static void BM_DoubletsUnitedEachOutgoingRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(memory)};
@@ -101,7 +99,6 @@ static void BM_DoubletsSplitEachOutgoingFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path split_data {"split_data.links"}, split_index {"split_index.links"};
     SplitMemoryLinks<LinksOptions<std::uint64_t>> storage {
@@ -131,7 +128,6 @@ static void BM_DoubletsSplitEachOutgoingRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory data {}, index {};
     SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};

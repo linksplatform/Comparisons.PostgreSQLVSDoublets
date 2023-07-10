@@ -5,8 +5,8 @@ static void BM_PSQLUpdateLinksWithoutTransaction(benchmark::State& state) {
     SetupPSQL(table);
     for (auto _: state) {
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            Update(table, {i}, {0, 0});
-            Update(table, {i}, {i, i});
+            Update(table, {i}, {0, 0, 0});
+            Update(table, {i}, {i, i, i});
         }
     }
     TeardownPSQL(table);
@@ -24,8 +24,8 @@ static void BM_PSQLUpdateLinksWithTransaction(benchmark::State& state) {
         Transaction<std::uint64_t> table {options};
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            Update(table, {i}, {0, 0});
-            Update(table, {i}, {i, i});
+            Update(table, {i}, {0, 0, 0});
+            Update(table, {i}, {i, i, i});
         }
     }
     Transaction<std::uint64_t> table {options};
@@ -36,7 +36,6 @@ static void BM_DoubletsUnitedUpdateLinksFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path path {"united.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
@@ -46,8 +45,8 @@ static void BM_DoubletsUnitedUpdateLinksFile(benchmark::State& state) {
     SetupDoublets(storage);
     for (auto _: state) {
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Update({i}, {0, 0}, handler);
-            storage.Update({i}, {i, i}, handler);
+            storage.Update({i}, {0, 0, 0}, handler);
+            storage.Update({i}, {i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);
@@ -57,18 +56,17 @@ static void BM_DoubletsUnitedUpdateLinksRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(memory)};
-    auto handler_update = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
+    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
     SetupDoublets(storage);
     for (auto _: state) {
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Update({i}, {0, 0}, handler_update);
-            storage.Update({i}, {i, i}, handler_update);
+            storage.Update({i}, {0, 0, 0}, handler);
+            storage.Update({i}, {i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);
@@ -78,7 +76,6 @@ static void BM_DoubletsSplitUpdateLinksFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path split_data {"split_data.links"}, split_index {"split_index.links"};
     SplitMemoryLinks<LinksOptions<std::uint64_t>> storage {
@@ -91,8 +88,8 @@ static void BM_DoubletsSplitUpdateLinksFile(benchmark::State& state) {
     SetupDoublets(storage);
     for (auto _: state) {
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Update({i}, {0, 0}, handler);
-            storage.Update({i}, {i, i}, handler);
+            storage.Update({i}, {0, 0, 0}, handler);
+            storage.Update({i}, {i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);
@@ -102,18 +99,17 @@ static void BM_DoubletsSplitUpdateLinksRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory data {}, index {};
     SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};
-    auto handler_update = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
+    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
     SetupDoublets(storage);
     for (auto _: state) {
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            storage.Update({i}, {0, 0}, handler_update);
-            storage.Update({i}, {i, i}, handler_update);
+            storage.Update({i}, {0, 0, 0}, handler);
+            storage.Update({i}, {i, i, i}, handler);
         }
     }
     TeardownDoublets(storage);

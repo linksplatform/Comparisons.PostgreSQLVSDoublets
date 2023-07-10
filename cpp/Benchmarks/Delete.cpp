@@ -4,15 +4,17 @@ static void BM_PSQLDeleteLinksWithoutTransaction(benchmark::State& state) {
     Client<std::uint64_t> table {options};
     SetupPSQL(table);
     auto setup = [&table, &state] {
-        for (std::uint64_t i {}; i < state.range(0); ++i) {
+        for (std::uint64_t i = BACKGROUND_LINKS + 1; i <= BACKGROUND_LINKS + state.range(0); ++i) {
             CreatePoint(table);
         }
     };
+    auto background = BACKGROUND_LINKS - state.range(0);
     for (auto _: state) {
         state.PauseTiming();
         setup();
+        background += state.range(0);
         state.ResumeTiming();
-        for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+        for (std::uint64_t i = background + state.range(0); i > background; --i) {
             Delete(table, {i, i, i});
         }
     }
@@ -26,6 +28,7 @@ static void BM_PSQLDeleteLinksWithTransaction(benchmark::State& state) {
         Transaction<std::uint64_t> transaction {options};
         SetupPSQL(transaction);
     }
+    auto background = BACKGROUND_LINKS - state.range(0);
     auto setup = [&options, &state] {
         Transaction<std::uint64_t> transaction {options};
         for (std::uint64_t i {}; i < state.range(0); ++i) {
@@ -35,9 +38,10 @@ static void BM_PSQLDeleteLinksWithTransaction(benchmark::State& state) {
     for (auto _: state) {
         state.PauseTiming();
         setup();
+        background += state.range(0);
         Transaction<std::uint64_t> transaction {options};
         state.ResumeTiming();
-        for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
+        for (std::uint64_t i = background + state.range(0); i > background; --i) {
             Delete(transaction, {i, i, i});
         }
     }
@@ -77,7 +81,6 @@ static void BM_DoubletsUnitedDeleteLinksRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::United::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(memory)};
@@ -105,7 +108,6 @@ static void BM_DoubletsSplitDeleteLinksFile(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     std::filesystem::path split_index {"split_index.links"}, split_data {"split_data.links"};
     SplitMemoryLinks<LinksOptions<std::uint64_t>> storage {
@@ -136,7 +138,6 @@ static void BM_DoubletsSplitDeleteLinksRAM(benchmark::State& state) {
     using namespace Platform::Memory;
     using namespace Platform::Data::Doublets;
     using namespace Memory::Split::Generic;
-    using namespace Platform::Collections;
     using namespace SetupTeardown;
     HeapResizableDirectMemory index {}, data {};
     SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};
