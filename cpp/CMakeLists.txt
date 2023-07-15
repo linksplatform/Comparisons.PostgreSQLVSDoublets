@@ -1,29 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
-project(PSQLBench)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
 
 set(LINKS_PLATFORM_EXTRA_FLAGS "" CACHE STRING "Extra compiler flags")
-list(APPEND LINKS_PLATFORM_EXTRA_FLAGS ${CONAN_USER_PLATFORM.HASHING_suggested_flags})
+
+project(PSQLBench CXX)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake-build-release)
+
+find_package(benchmark)
+find_package(Platform.Data.Doublets)
+find_package(libpqxx)
 
 add_library(${PROJECT_NAME}.Library INTERFACE)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::gtest)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::benchmark)
-#target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.data)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.ranges)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.setters)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.collections.methods)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.threading)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::mio)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.memory)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.exceptions)
-#target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::platform.interfaces)
-target_link_libraries(${PROJECT_NAME}.Library INTERFACE CONAN_PKG::libpqxx)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE LinksPSQL)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data.Doublets/cpp/Platform.Data.Doublets)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Data/cpp/Platform.Data)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Interfaces/cpp/Platform.Interfaces)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../Numbers/cpp/Platform.Numbers)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE Platform.Data.Doublets::Platform.Data.Doublets)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE libpqxx::pqxx)
+target_link_libraries(${PROJECT_NAME}.Library INTERFACE benchmark::benchmark)
 
 target_compile_options(${PROJECT_NAME}.Library INTERFACE ${LINKS_PLATFORM_EXTRA_FLAGS})
 

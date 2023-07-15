@@ -1,9 +1,10 @@
 static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
-    Client<std::uint64_t> table {options};
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
+    Client<LinksOptions<std::uint64_t>> table {options};
     auto background = BACKGROUND_LINKS;
-    SetupPSQL(table);
+    Setup(table);
     for (auto _: state) {
         for (std::uint64_t i {}; i < state.range(0); ++i) {
             CreatePoint(table);
@@ -15,22 +16,22 @@ static void BM_PSQLCreateLinksWithoutTransaction(benchmark::State& state) {
         background += state.range(0);
         state.ResumeTiming();
     }
-    TeardownPSQL(table);
+    Teardown(table);
 }
 
 static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
     {
-        Transaction<std::uint64_t> transaction {options};
-        SetupPSQL(transaction);
+        Transaction<LinksOptions<std::uint64_t>> transaction {options};
+        Setup(transaction);
     }
-    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
     auto background = BACKGROUND_LINKS;
     for (auto _: state) {
         {
             state.PauseTiming();
-            Transaction<std::uint64_t> transaction {options};
+            Transaction<LinksOptions<std::uint64_t>> transaction {options};
             state.ResumeTiming();
             for (std::uint64_t i {}; i < state.range(0); ++i) {
                 CreatePoint(transaction);
@@ -38,7 +39,7 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         }
         state.PauseTiming();
         {
-            Transaction<std::uint64_t> transaction {options};
+            Transaction<LinksOptions<std::uint64_t>> transaction {options};
             for (std::uint64_t i = background + state.range(0); i > background; --i) {
                 Delete(transaction, {i, i, i});
             }
@@ -46,8 +47,8 @@ static void BM_PSQLCreateLinksWithTransaction(benchmark::State& state) {
         }
         state.ResumeTiming();
     }
-    Transaction<std::uint64_t> transaction {options};
-    TeardownPSQL(transaction);
+    Transaction<LinksOptions<std::uint64_t>> transaction {options};
+    Teardown(transaction);
 }
 
 static void BM_DoubletsUnitedCreateLinksFile(benchmark::State& state) {
@@ -60,7 +61,7 @@ static void BM_DoubletsUnitedCreateLinksFile(benchmark::State& state) {
     auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
@@ -71,7 +72,7 @@ static void BM_DoubletsUnitedCreateLinksFile(benchmark::State& state) {
         }
         state.ResumeTiming();
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsUnitedCreateLinksRAM(benchmark::State& state) {
@@ -84,7 +85,7 @@ static void BM_DoubletsUnitedCreateLinksRAM(benchmark::State& state) {
     auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
@@ -95,7 +96,7 @@ static void BM_DoubletsUnitedCreateLinksRAM(benchmark::State& state) {
         }
         state.ResumeTiming();
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitCreateLinksFile(benchmark::State& state) {
@@ -111,7 +112,7 @@ static void BM_DoubletsSplitCreateLinksFile(benchmark::State& state) {
     auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
@@ -122,7 +123,7 @@ static void BM_DoubletsSplitCreateLinksFile(benchmark::State& state) {
         }
         state.ResumeTiming();
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitCreateLinksRAM(benchmark::State& state) {
@@ -135,7 +136,7 @@ static void BM_DoubletsSplitCreateLinksRAM(benchmark::State& state) {
     auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
         return storage.Constants.Continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
@@ -146,7 +147,7 @@ static void BM_DoubletsSplitCreateLinksRAM(benchmark::State& state) {
         }
         state.ResumeTiming();
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 BENCHMARK(BM_PSQLCreateLinksWithoutTransaction)->Name("BM_PSQL/Create/NonTransaction")->Arg(1000)->MinWarmUpTime(20);
