@@ -47,7 +47,7 @@ namespace Platform::Data::Doublets::Sql
 
         TLinkAddress Each(const std::vector<TLinkAddress>& restriction, const ReadHandlerType& handler) const {
             auto any {Constants.Any};
-            auto $continue {LinksConstants<TLinkAddress>{}.Continue};
+            auto $continue {Constants.Continue};
             std::string query{"SELECT * FROM Links WHERE "};
             if (std::size(restriction) == 0) {
                 query.append("true;");
