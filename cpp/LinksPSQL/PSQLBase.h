@@ -10,22 +10,20 @@ namespace PostgreSQL
     >
     struct PSQLBase: public ISQL<TLinksOptions, TResult, TRow, TElement>
     {
-        using TLinkAddress = typename TLinksOptions::LinkAddressType;
-        
-        explicit PSQLBase(const std::string& options): connection(options)
+        explicit PSQLBase(std::string option): connection(option)
         {
-            execute(
+            executor.exec(
                 "CREATE TABLE IF NOT EXISTS Links ("
                     "id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, "
                     "from_id bigint, "
                     "to_id bigint"
                 ");"
             );
-            execute("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);");
-            execute("CREATE INDEX IF NOT EXISTS target ON Links USING btree(to_id);");
+            executor.exec("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);");
+            executor.exec("CREATE INDEX IF NOT EXISTS target ON Links USING btree(to_id);");
         }
         
-        ~PSQLBase() {
+        virtual ~PSQLBase() {
             if constexpr (std::same_as<TExecutor, pqxx::transaction<>>) {
                 executor.commit();
             }
@@ -33,6 +31,9 @@ namespace PostgreSQL
         }
         
     private:
+        using TLinkAddress = typename TLinksOptions::LinkAddressType;
+        using ReadHandlerType = typename TLinksOptions::ReadHandlerType;
+
         TResult execute(std::string query) const {
             return executor.exec(query);
         };
@@ -56,12 +57,27 @@ namespace PostgreSQL
         TElement to_id(TRow row) const {
             return row[2];
         };
-        
+
+        bool empty(TResult result) const {
+            return result.empty();
+        }
+
+        TLinkAddress foreach(TResult& result, ReadHandlerType handler) const {
+            auto $break = TLinksOptions::Constants.Break;
+            auto $continue = TLinksOptions::Constants.Continue;
+            for (auto row: result) {
+                if (handler({cast(row[0]), cast(row[1]), cast(row[2])}) == $break) {
+                    return $break;
+                }
+            }
+            return $continue;
+        }
+
         [[nodiscard]] std::string escape(std::string query) const {
             return executor.esc(query);
         }
-        
-        TExecutor executor {connection};
+
         pqxx::connection connection;
+        mutable TExecutor executor {connection};
     };
 }

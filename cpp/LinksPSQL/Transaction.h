@@ -10,10 +10,6 @@ namespace PostgreSQL
         using LinksOptions = TLinksOptions;
         using LinkType = typename TLinksOptions::LinkType;
         using LinkAddressType = typename TLinksOptions::LinkAddressType;
-        using base::Constants;
-        
-        explicit Transaction(const std::string& opts): base(opts)
-        {
-        }
+        using base::base;
     };
 }

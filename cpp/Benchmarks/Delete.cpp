@@ -1,14 +1,15 @@
 static void BM_PSQLDeleteLinksWithoutTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
-    Client<std::uint64_t> table {options};
-    SetupPSQL(table);
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
+    Client<LinksOptions<std::uint64_t>> table {options};
+    Setup(table);
     auto setup = [&table, &state] {
         for (std::uint64_t i = BACKGROUND_LINKS + 1; i <= BACKGROUND_LINKS + state.range(0); ++i) {
             CreatePoint(table);
         }
     };
-    auto background = BACKGROUND_LINKS - state.range(0);
+    auto background {BACKGROUND_LINKS - state.range(0)};
     for (auto _: state) {
         state.PauseTiming();
         setup();
@@ -18,35 +19,36 @@ static void BM_PSQLDeleteLinksWithoutTransaction(benchmark::State& state) {
             Delete(table, {i, i, i});
         }
     }
-    TeardownPSQL(table);
+    Teardown(table);
 }
 
 static void BM_PSQLDeleteLinksWithTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
     {
-        Transaction<std::uint64_t> transaction {options};
-        SetupPSQL(transaction);
+        Transaction<LinksOptions<std::uint64_t>> transaction {options};
+        Setup(transaction);
     }
-    auto background = BACKGROUND_LINKS - state.range(0);
-    auto setup = [&options, &state] {
-        Transaction<std::uint64_t> transaction {options};
+    auto background {BACKGROUND_LINKS - state.range(0)};
+    auto fill = [options = options, &state] {
+        Transaction<LinksOptions<std::uint64_t>> transaction {options};
         for (std::uint64_t i {}; i < state.range(0); ++i) {
             CreatePoint(transaction);
         }
     };
     for (auto _: state) {
         state.PauseTiming();
-        setup();
+        fill();
         background += state.range(0);
-        Transaction<std::uint64_t> transaction {options};
+        Transaction<LinksOptions<std::uint64_t>> transaction {options};
         state.ResumeTiming();
         for (std::uint64_t i = background + state.range(0); i > background; --i) {
             Delete(transaction, {i, i, i});
         }
     }
-    Transaction<std::uint64_t> transaction {options};
-    TeardownPSQL(transaction);
+    Transaction<LinksOptions<std::uint64_t>> transaction {options};
+    Teardown(transaction);
 }
 
 static void BM_DoubletsUnitedDeleteLinksFile(benchmark::State& state) {
@@ -57,24 +59,21 @@ static void BM_DoubletsUnitedDeleteLinksFile(benchmark::State& state) {
     using namespace SetupTeardown;
     std::filesystem::path path {"united.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
-    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
-        return storage.Constants.Continue;
-    };
-    auto setup = [&storage, &state] {
+    auto fill = [&storage, &state] {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         state.PauseTiming();
-        setup();
+        fill();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i, i, i}, handler);
+            Delete(storage, {i, i, i});
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsUnitedDeleteLinksRAM(benchmark::State& state) {
@@ -84,24 +83,21 @@ static void BM_DoubletsUnitedDeleteLinksRAM(benchmark::State& state) {
     using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(memory)};
-    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
-        return storage.Constants.Continue;
-    };
-    auto setup = [&storage, &state] {
+    auto fill = [&storage, &state] {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         state.PauseTiming();
-        setup();
+        fill();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i, i, i}, handler);
+            Delete(storage, {i, i, i});
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitDeleteLinksFile(benchmark::State& state) {
@@ -114,24 +110,21 @@ static void BM_DoubletsSplitDeleteLinksFile(benchmark::State& state) {
         FileMappedResizableDirectMemory{split_data.string()},
         FileMappedResizableDirectMemory{split_index.string()}
     };
-    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
-        return storage.Constants.Continue;
-    };
-    auto setup = [&storage, &state] {
+    auto fill = [&storage, &state] {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         state.PauseTiming();
-        setup();
+        fill();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i, i, i}, handler);
+            Delete(storage, {i, i, i});
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitDeleteLinksRAM(benchmark::State& state) {
@@ -141,24 +134,21 @@ static void BM_DoubletsSplitDeleteLinksRAM(benchmark::State& state) {
     using namespace SetupTeardown;
     HeapResizableDirectMemory index {}, data {};
     SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};
-    auto handler = [&storage] (std::vector<std::uint64_t> before, std::vector<std::uint64_t> after) {
-        return storage.Constants.Continue;
-    };
-    auto setup = [&storage, &state] {
+    auto fill = [&storage, &state] {
         for (std::size_t i {}; i < state.range(0); ++i) {
             CreatePoint(storage);
         }
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         state.PauseTiming();
-        setup();
+        fill();
         state.ResumeTiming();
         for (std::uint64_t i = BACKGROUND_LINKS + state.range(0); i > BACKGROUND_LINKS; --i) {
-            storage.Delete({i, i, i}, handler);
+            Delete(storage, {i, i, i});
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 BENCHMARK(BM_PSQLDeleteLinksWithoutTransaction)->Name("BM_PSQL/Delete/NonTransaction")->Arg(1000)->MinWarmUpTime(20);

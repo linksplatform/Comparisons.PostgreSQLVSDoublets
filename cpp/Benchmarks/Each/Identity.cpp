@@ -1,47 +1,58 @@
 static void BM_PSQLEachIdentityWithoutTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
-    Client<std::uint64_t> table {options};
-    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
-    SetupPSQL(table);
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
+    Client<LinksOptions<std::uint64_t>> table {options};
+    auto any {table.Constants.Any};
+    auto $continue {table.Constants.Continue};
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
+    };
+    Setup(table);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
     }
-    TeardownPSQL(table);
+    Teardown(table);
 }
 
 static void BM_PSQLEachIdentityWithTransaction(benchmark::State& state) {
-    using namespace PostgreSQL;
     using namespace SetupTeardown;
-    auto any = Platform::Data::LinksConstants<std::uint64_t>().Any;
+    using namespace Platform::Data::Doublets;
+    using namespace PostgreSQL;
+    std::uint64_t any {}, $continue {};
     {
-        Transaction<std::uint64_t> table {options};
-        SetupPSQL(table);
+        Transaction<LinksOptions<std::uint64_t>> table {options};
+        Setup(table);
+        any = table.Constants.Any;
+        $continue = table.Constants.Continue;
     }
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
+    };
     for (auto _: state) {
         state.PauseTiming();
-        Transaction<std::uint64_t> table {options};
+        Transaction<LinksOptions<std::uint64_t>> table {options};
         state.ResumeTiming();
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS/2 - state.range(0)/2 + 1; i <= BACKGROUND_LINKS/2 + state.range(0)/2; ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
         for (std::uint64_t i = BACKGROUND_LINKS - state.range(0) + 1; i <= BACKGROUND_LINKS; ++i) {
-            Each(table, {i, any, any});
+            table.Each({i, any, any}, handler);
         }
     }
-    Transaction<std::uint64_t> table {options};
-    TeardownPSQL(table);
+    Transaction<LinksOptions<std::uint64_t>> table {options};
+    Teardown(table);
 }
 
 static void BM_DoubletsUnitedEachIdentityFile(benchmark::State& state) {
@@ -51,11 +62,11 @@ static void BM_DoubletsUnitedEachIdentityFile(benchmark::State& state) {
     using namespace SetupTeardown;
     std::filesystem::path path {"united.links"};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>> storage {FileMappedResizableDirectMemory{path.string()}};
-    auto any = storage.Constants.Any;
-    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
-        return storage.Constants.Continue;
+    auto any {storage.Constants.Any}, $continue {storage.Constants.Continue};
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
@@ -67,7 +78,7 @@ static void BM_DoubletsUnitedEachIdentityFile(benchmark::State& state) {
             storage.Each({i, any, any}, handler);
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsUnitedEachIdentityRAM(benchmark::State& state) {
@@ -77,11 +88,11 @@ static void BM_DoubletsUnitedEachIdentityRAM(benchmark::State& state) {
     using namespace SetupTeardown;
     HeapResizableDirectMemory memory {};
     UnitedMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage(std::move(memory));
-    auto any = storage.Constants.Any;
-    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
-        return storage.Constants.Continue;
+    auto any {storage.Constants.Any}, $continue {storage.Constants.Continue};
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
@@ -93,7 +104,7 @@ static void BM_DoubletsUnitedEachIdentityRAM(benchmark::State& state) {
             storage.Each({i, any, any}, handler);
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitEachIdentityFile(benchmark::State& state) {
@@ -106,11 +117,11 @@ static void BM_DoubletsSplitEachIdentityFile(benchmark::State& state) {
         FileMappedResizableDirectMemory{split_data.string()},
         FileMappedResizableDirectMemory{split_index.string()}
     };
-    auto any = storage.Constants.Any;
-    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
-        return storage.Constants.Continue;
+    auto any {storage.Constants.Any}, $continue {storage.Constants.Continue};
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
@@ -122,7 +133,7 @@ static void BM_DoubletsSplitEachIdentityFile(benchmark::State& state) {
             storage.Each({i, any, any}, handler);
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 static void BM_DoubletsSplitEachIdentityRAM(benchmark::State& state) {
@@ -132,11 +143,11 @@ static void BM_DoubletsSplitEachIdentityRAM(benchmark::State& state) {
     using namespace SetupTeardown;
     HeapResizableDirectMemory data {}, index {};
     SplitMemoryLinks<LinksOptions<std::uint64_t>, HeapResizableDirectMemory> storage {std::move(data), std::move(index)};
-    auto any = storage.Constants.Any;
-    auto handler = [&storage] (std::vector<std::uint64_t> vec) {
-        return storage.Constants.Continue;
+    auto any {storage.Constants.Any}, $continue {storage.Constants.Continue};
+    auto handler = [$continue] (std::vector<std::uint64_t> vec) {
+        return $continue;
     };
-    SetupDoublets(storage);
+    Setup(storage);
     for (auto _: state) {
         for (std::uint64_t i = 1; i <= state.range(0); ++i) {
             storage.Each({i, any, any}, handler);
@@ -148,7 +159,7 @@ static void BM_DoubletsSplitEachIdentityRAM(benchmark::State& state) {
             storage.Each({i, any, any}, handler);
         }
     }
-    TeardownDoublets(storage);
+    Teardown(storage);
 }
 
 BENCHMARK(BM_PSQLEachIdentityWithoutTransaction)->Name("BM_PSQL/Each/Identity/NonTransaction")->Arg(1000)->MinWarmUpTime(20);
