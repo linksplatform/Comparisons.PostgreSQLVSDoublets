@@ -76,6 +76,7 @@ jobs:
           cd cpp
           conan install . -of=build --build=missing
           cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/cpp/build/conan_toolchain.cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_PREFIX_PATH=build -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cd build
           make
       - name: Run benchmark
         run: |
