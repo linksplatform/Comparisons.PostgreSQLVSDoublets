@@ -76,7 +76,7 @@ jobs:
           cd cpp
           conan install . -of=build --build=missing
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=. -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
           make
       - name: Run benchmark
         run: |
