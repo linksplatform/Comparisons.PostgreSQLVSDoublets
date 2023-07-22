@@ -5,7 +5,6 @@ set(LINKS_PLATFORM_EXTRA_FLAGS "" CACHE STRING "Extra compiler flags")
 project(PSQLBench CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake-build-release)
 
 find_package(benchmark)
 find_package(Platform.Data.Doublets)
