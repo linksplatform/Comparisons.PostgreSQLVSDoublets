@@ -40,7 +40,18 @@ jobs:
           pip install conan
       - name: Setup Conan
         run: |
-          conan profile detect
+          touch .conan2/profiles/default
+          echo "
+          [settings]
+          arch=x86_64
+          build_type=Release
+          compiler=gcc
+          compiler.cppstd=gnu20
+          compiler.libcxx=libstdc++11
+          compiler.version=11
+          os=Linux
+          " >> .conan2/profiles/default
+          conan profile show
       - name: Install dependencies
         run: |
           git clone https://github.com/linksplatform/conan-center-index
@@ -49,7 +60,7 @@ jobs:
           conan create platform.delegates/all --version 0.3.7
           conan create platform.exceptions/all --version 0.3.2
           conan create platform.converters/all --version 0.2.0
-          conan create platform.hashing/all --version 0.5.4 --build=missing
+          conan create platform.hashing/all --version 0.5.6 --build=missing
           conan create platform.ranges/all --version 0.2.0
           conan create platform.random/all --version 0.2.0
           conan create platform.equality/all --version 0.0.1
