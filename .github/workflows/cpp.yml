@@ -50,7 +50,7 @@ jobs:
           compiler.libcxx=libstdc++11
           compiler.version=11
           os=Linux
-          " > /home/runner/.conan2/profiles/default
+          " > ~/.conan2/profiles/default
           conan profile show
       - name: Install dependencies
         run: |
@@ -74,7 +74,7 @@ jobs:
       - name: Build benchmark
         run: |
           cd cpp
-          conan install . -of=build --build=missing -pr=linksplatform
+          conan install . -of=build --build=missing
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/bin/make -G "CodeBlocks - Unix Makefiles" ..
           make
