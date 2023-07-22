@@ -40,8 +40,8 @@ jobs:
           pip install conan
       - name: Setup Conan
         run: |
-          mkdir .conan2/profiles
-          touch .conan2/profiles/default
+          mkdir /home/runner/.conan2/profiles
+          touch /home/runner.conan2/profiles/default
           echo "
           [settings]
           arch=x86_64
