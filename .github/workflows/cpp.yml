@@ -40,8 +40,7 @@ jobs:
           pip install conan
       - name: Setup Conan
         run: |
-          mkdir /home/runner/.conan2/profiles
-          touch /home/runner.conan2/profiles/default
+          conan profile detect
           echo "
           [settings]
           arch=x86_64
@@ -51,7 +50,7 @@ jobs:
           compiler.libcxx=libstdc++11
           compiler.version=11
           os=Linux
-          " >> .conan2/profiles/default
+          " > /home/runner/.conan2/profiles/default
           conan profile show
       - name: Install dependencies
         run: |
