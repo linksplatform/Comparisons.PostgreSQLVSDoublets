@@ -64,7 +64,7 @@ def bench1():
     rects6 = ax.barh(y + 3*width, PSQL_Transaction, width, label='PSQL Transaction', color='blue')
 
     ax.set_xlabel('Time (ns) - Scaled to Pixels')
-    ax.set_title('Benchmark comparison for Doublets and BM_PSQL')
+    ax.set_title('Benchmark comparison for Doublets and PostgreSQL')
     ax.set_yticks(y)
     ax.set_yticklabels(labels)
     ax.legend()
@@ -90,7 +90,7 @@ def bench2():
     rects6 = ax.barh(y + 3*width, PSQL_Transaction, width, label='PSQL Transaction', color='blue')
 
     ax.set_xlabel('Time (ns) - Logarithmic Scale')
-    ax.set_title('Benchmark comparison for Doublets and BM_PSQL')
+    ax.set_title('Benchmark comparison for Doublets and PostgreSQL')
     ax.set_yticks(y)
     ax.set_yticklabels(labels)
     ax.legend()
