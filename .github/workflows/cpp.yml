@@ -83,6 +83,7 @@ jobs:
       - name: Prepare benchmark results
         run: |
           cd cpp
+          pip install numpy matplotlib
           python3 out.py
       - name: Save benchmark results
         uses: actions/upload-artifact@v3
