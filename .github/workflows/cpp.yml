@@ -38,7 +38,7 @@ jobs:
           sudo apt update
           sudo apt install -y cmake build-essential
           pip install conan
-      - name: Setup Conan
+      - name: Set up Conan dependencies
         run: |
           conan profile detect
           echo "
@@ -79,5 +79,15 @@ jobs:
           cd build
           make
       - name: Run benchmark
+        run: ./cpp/build/bin/PSQLBench --benchmark_out=cpp/out.txt --benchmark_out_format=console
+      - name: Prepare benchmark results
         run: |
-          ./cpp/build/bin/PSQLBench
+          cd cpp
+          python3 out.py
+      - name: Save benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Benchmark results
+          path: |
+            cpp/Bench1.png
+            cpp/Bench2.png
