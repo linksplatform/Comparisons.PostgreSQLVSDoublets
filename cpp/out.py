@@ -2,7 +2,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 
-data = open('cmake-build-release/out.txt').read()
+data = open('out.txt').read()
 
 patterns = [
     r"BM_(PSQL)/\w+\/?\w+?/(\w+)/\d+/min_warmup_time:20\.000\s+(\d+)\sns\s+\d+\sns\s+\d+",
