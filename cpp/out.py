@@ -38,15 +38,15 @@ for pattern in patterns:
                 else:
                     Doublets_Split_NonVolatile.append(int(time))
 
-Doublets_United_Volatile = [max(1, x // 10000000) for x in Doublets_United_Volatile]
-Doublets_United_NonVolatile = [max(1, x // 10000000) for x in Doublets_United_NonVolatile]
-Doublets_Split_Volatile = [max(1, x // 10000000) for x in Doublets_Split_Volatile]
-Doublets_Split_NonVolatile = [max(1, x // 10000000) for x in Doublets_Split_NonVolatile]
-PSQL_NonTransaction = [max(1, x // 10000000) for x in PSQL_NonTransaction]
-PSQL_Transaction = [max(1, x // 10000000) for x in PSQL_Transaction]
-
 labels = ['Create', 'Delete', 'Each Identity', 'Each Concrete', 'Each Outgoing', 'Each Incoming', 'Each All', 'Update']
 def bench1():
+    Doublets_United_Volatile_Pixels = [max(1, x // 10000000) for x in Doublets_United_Volatile]
+    Doublets_United_NonVolatile_Pixels = [max(1, x // 10000000) for x in Doublets_United_NonVolatile]
+    Doublets_Split_Volatile_Pixels = [max(1, x // 10000000) for x in Doublets_Split_Volatile]
+    Doublets_Split_NonVolatile_Pixels = [max(1, x // 10000000) for x in Doublets_Split_NonVolatile]
+    PSQL_NonTransaction_Pixels = [max(1, x // 10000000) for x in PSQL_NonTransaction]
+    PSQL_Transaction_Pixels = [max(1, x // 10000000) for x in PSQL_Transaction]
+    
     y = np.arange(len(labels))
 
     width = 0.1
@@ -54,14 +54,14 @@ def bench1():
     fig, ax = plt.subplots(figsize=(12, 8))
 
 
-    rects1 = ax.barh(y - 2*width, Doublets_United_Volatile, width, label='Doublets United Volatile', color='salmon')
-    rects2 = ax.barh(y - width, Doublets_United_NonVolatile, width, label='Doublets United NonVolatile', color='red')
+    rects1 = ax.barh(y - 2*width, Doublets_United_Volatile_Pixels, width, label='Doublets United Volatile', color='salmon')
+    rects2 = ax.barh(y - width, Doublets_United_NonVolatile_Pixels, width, label='Doublets United NonVolatile', color='red')
 
-    rects3 = ax.barh(y, Doublets_Split_Volatile, width, label='Doublets Split Volatile', color='lightgreen')
-    rects4 = ax.barh(y + width, Doublets_Split_NonVolatile, width, label='Doublets Split NonVolatile', color='green')
+    rects3 = ax.barh(y, Doublets_Split_Volatile_Pixels, width, label='Doublets Split Volatile', color='lightgreen')
+    rects4 = ax.barh(y + width, Doublets_Split_NonVolatile_Pixels, width, label='Doublets Split NonVolatile', color='green')
 
-    rects5 = ax.barh(y + 2*width, PSQL_NonTransaction, width, label='PSQL NonTransaction', color='lightblue')
-    rects6 = ax.barh(y + 3*width, PSQL_Transaction, width, label='PSQL Transaction', color='blue')
+    rects5 = ax.barh(y + 2*width, PSQL_NonTransaction_Pixels, width, label='PSQL NonTransaction', color='lightblue')
+    rects6 = ax.barh(y + 3*width, PSQL_Transaction_Pixels, width, label='PSQL Transaction', color='blue')
 
     ax.set_xlabel('Time (ns) - Scaled to Pixels')
     ax.set_title('Benchmark comparison for Doublets and PostgreSQL')
