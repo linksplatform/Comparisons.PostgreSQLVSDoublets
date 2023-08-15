@@ -40,15 +40,11 @@ jobs:
       - name: Build benchmark
         uses: actions-rs/cargo@v1
         with:
-          working-directory: rust
           command: build
-          args: --release --all-features
+          args: --release --all-features --manifest-path rust/Cargo.toml
       - name: Run benchmark
-        uses: actions-rs/cargo@v1
-        with:
-          working-directory: rust
-          command: bench
-          args: --bench bench -- --output-format bencher | tee out.txt
+        working-directory: rust
+        run: cargo bench --bench bench -- --output-format bencher | tee out.txt
       - name: Prepare benchmark results
         run: |
           cd rust
