@@ -1,0 +1,61 @@
+name: Benchmark
+
+on:
+  push:
+    branches:
+      - add_rust_benchmark
+
+env:
+  toolchain: nightly-2022-08-22
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{env.toolchain}}
+          components: rustfmt, clippy
+          default: true
+      - name: Build benchmark
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all-features
+      - name: Run benchmark
+        uses: actions-rs/cargo@v1
+        with:
+          command: bench
+          args: --bench bench -- --output-format bencher | tee out.txt
+      - name: Prepare benchmark results
+        run: |
+          cd rust
+          pip install numpy matplotlib
+          python3 out.py
+      - name: Save benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Benchmark results
+          path: |
+            rust/Bench1.png
+            rust/Bench2.png

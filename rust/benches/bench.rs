@@ -1,86 +1,28 @@
 #![feature(allocator_api)]
+#![feature(box_syntax)]
 
-use criterion::{criterion_group, criterion_main, Criterion};
-use doublets::{
-    mem::{AllocMem, FileMappedMem},
-    unit, Doublets,
+use criterion::criterion_group;
+use {
+    create::create_links,
+    criterion::criterion_main,
+    delete::delete_links,
+    each::{each_all, each_concrete, each_identity, each_incoming, each_outgoing},
+    update::update_links,
 };
-use tokio_postgres::{Error, NoTls};
-
-use linkspsql::{make_bench, Client, Cruds};
-
-async fn connect() -> Result<Client, Error> {
-    let (client, connection) = tokio_postgres::connect("", NoTls).await.unwrap();
-    tokio::spawn(async move {
-        if let Err(err) = connection.await {
-            return Err(err);
-        }
-        Ok(())
-    });
-    Client::new(client).await
-}
-
-fn create_thousand_links_without_transaction(c: &mut Criterion) {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
-    let mut client = runtime.block_on(connect()).unwrap();
-    make_bench!(
-        c,
-        "create_thousand_links_without_transaction",
-        client,
-        runtime
-    );
-}
-
-fn create_thousand_links_with_transaction(c: &mut Criterion) {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
-    let mut client = runtime.block_on(connect()).unwrap();
-    make_bench!(
-        c,
-        "create_thousand_links_with_transaction",
-        client,
-        runtime,
-        transaction
-    );
-}
-
-fn doublets_benchmark_ram(c: &mut Criterion) {
-    let allocator = std::alloc::Global;
-    let storage = AllocMem::new(allocator);
-    let mut links = unit::Store::<usize, _>::new(storage).unwrap();
-    c.bench_function("doublets_benchmark_ram", |b| {
-        b.iter(|| {
-            for _ in 1..=1_000_000 {
-                links.create_point().unwrap();
-            }
-        });
-        links.delete_all().unwrap();
-    });
-}
-
-fn doublets_benchmark_file(c: &mut Criterion) {
-    let file = std::fs::File::options()
-        .create(true)
-        .write(true)
-        .read(true)
-        .open("db.links")
-        .unwrap();
-    let storage = FileMappedMem::new(file).unwrap();
-    let mut links = unit::Store::<usize, _>::new(storage).unwrap();
-    c.bench_function("doublets_benchmark_file", |b| {
-        b.iter(|| {
-            for _ in 1..=1_000_000 {
-                links.create_point().unwrap();
-            }
-        });
-        links.delete_all().unwrap();
-    });
-}
+mod create;
+mod delete;
+mod each;
+mod update;
 
 criterion_group!(
     benches,
-    create_thousand_links_without_transaction,
-    create_thousand_links_with_transaction,
-    doublets_benchmark_ram,
-    doublets_benchmark_file,
+    create_links,
+    delete_links,
+    each_identity,
+    each_concrete,
+    each_outgoing,
+    each_incoming,
+    each_all,
+    update_links
 );
 criterion_main!(benches);

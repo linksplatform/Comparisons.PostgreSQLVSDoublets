@@ -4,12 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.19", features = ["full"] }
-tokio-postgres = "0.7.6"
-criterion = "0.3.6"
-platform-data = "0.1.0-alpha.1"
-doublets = "0.1.0-pre+beta.15"
-async-trait = "0.1.57"
+tokio = { version = "1.29.1", features = ["full"] }
+tokio-postgres = "0.7.8"
+criterion = "0.5.1"
+doublets = { git = "https://github.com/linksplatform/doublets-rs.git" }
+async-trait = "0.1.72"
 
 [[bench]]
 name = "bench"
