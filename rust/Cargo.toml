@@ -1,0 +1,15 @@
+[package]
+name = "linkspsql"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.29.1", features = ["full"] }
+tokio-postgres = "0.7.8"
+criterion = "0.5.1"
+doublets = { git = "https://github.com/linksplatform/doublets-rs.git" }
+async-trait = "0.1.72"
+
+[[bench]]
+name = "bench"
+harness = false
