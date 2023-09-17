@@ -1,5 +1,5 @@
 use {
-    crate::{connect, fork::Fork, Client, Result, Sql, Transaction, BACKGROUND_LINKS},
+    crate::{map_file, Client, Exclusive, Fork, Result, Sql, Transaction},
     doublets::{
         data::LinkType,
         mem::{Alloc, FileMapped},
@@ -8,133 +8,104 @@ use {
         Doublets,
     },
     std::alloc::Global,
-    tokio::runtime::Runtime,
 };
 
 pub trait Benched: Sized {
-    type Builder<'a>;
+    type Builder<'params>;
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self>;
-
-    fn drop_storage(&mut self) -> Result<()>;
+    fn setup<'a>(builder: Self::Builder<'a>) -> Result<Self>;
 
     fn fork(&mut self) -> Fork<Self> {
-        Fork::new(self)
+        Fork(self)
     }
+
+    unsafe fn unfork(&mut self);
 }
 
+// fixme: useless constraints
 impl<T: LinkType> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
-    type Builder<'a> = FileMapped<LinkPart<T>>;
+    type Builder<'a> = &'a str;
 
     fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let mut links = Self::new(builder)?;
-        for _ in 0..BACKGROUND_LINKS {
-            links.create_point()?;
-        }
-        Ok(links)
+        Self::new(map_file(builder)?).map_err(Into::into)
     }
 
-    fn drop_storage(&mut self) -> Result<()> {
-        self.delete_all()?;
-        Ok(())
+    unsafe fn unfork(&mut self) {
+        let _ = self.delete_all();
     }
 }
 
 impl<T: LinkType> Benched for unit::Store<T, Alloc<LinkPart<T>, Global>> {
-    type Builder<'a> = Global;
+    type Builder<'a> = ();
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let storage = Alloc::new(builder);
-        let mut links = Self::new(storage)?;
-        for _ in 0..BACKGROUND_LINKS {
-            links.create_point()?;
-        }
-        Ok(links)
+    fn setup(_: Self::Builder<'_>) -> Result<Self> {
+        Self::new(Alloc::new(Global)).map_err(Into::into)
     }
 
-    fn drop_storage(&mut self) -> Result<()> {
-        self.delete_all()?;
-        Ok(())
+    unsafe fn unfork(&mut self) {
+        let _ = self.delete_all();
     }
 }
 
 impl<T: LinkType> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>> {
-    type Builder<'a> = (FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>);
+    type Builder<'a> = (&'a str, &'a str);
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let (data, index) = builder;
-        let mut links = Self::new(data, index)?;
-        for _ in 0..BACKGROUND_LINKS {
-            links.create_point()?;
-        }
-        Ok(links)
+    fn setup((data, index): Self::Builder<'_>) -> Result<Self> {
+        Self::new(map_file(data)?, map_file(index)?).map_err(Into::into)
     }
 
-    fn drop_storage(&mut self) -> Result<()> {
-        self.delete_all()?;
-        Ok(())
+    unsafe fn unfork(&mut self) {
+        let _ = self.delete_all();
     }
 }
 
 impl<T: LinkType> Benched
     for split::Store<T, Alloc<DataPart<T>, Global>, Alloc<IndexPart<T>, Global>>
 {
-    type Builder<'a> = Global;
+    type Builder<'a> = ();
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let (data, index) = (Alloc::new(builder), Alloc::new(builder));
-        let mut links = Self::new(data, index)?;
-        for _ in 0..BACKGROUND_LINKS {
-            links.create_point()?;
-        }
-        Ok(links)
+    fn setup(_: Self::Builder<'_>) -> Result<Self> {
+        Self::new(Alloc::new(Global), Alloc::new(Global)).map_err(Into::into)
     }
 
-    fn drop_storage(&mut self) -> Result<()> {
-        self.delete_all()?;
-        Ok(())
+    unsafe fn unfork(&mut self) {
+        let _ = self.delete_all();
     }
 }
 
 impl<T: LinkType> Benched for Client<T> {
-    type Builder<'a> = &'a Runtime;
+    type Builder<'a> = ();
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let mut client = builder.block_on(connect())?;
-        for _ in 0..BACKGROUND_LINKS {
-            client.create_point()?;
-        }
-        Ok(client)
-    }
-
-    fn drop_storage(&mut self) -> Result<()> {
-        self.drop_table()
+    fn setup(_: Self::Builder<'_>) -> Result<Self> {
+        Ok(crate::connect()?)
     }
 
     fn fork(&mut self) -> Fork<Self> {
         let _ = self.create_table();
-        Fork::new(self)
+        Fork(self)
+    }
+
+    unsafe fn unfork(&mut self) {
+        let _ = self.drop_table();
     }
 }
 
-impl<'a, T: LinkType> Benched for Transaction<'a, T> {
+impl<'a, T: LinkType> Benched for Exclusive<Transaction<'a, T>> {
     type Builder<'b> = &'a mut Client<T>;
 
     fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let mut transaction = builder.transaction().unwrap();
-        transaction.create_table().unwrap();
-        for _ in 0..BACKGROUND_LINKS {
-            transaction.create_point().unwrap();
-        }
-        Ok(transaction)
-    }
-
-    fn drop_storage(&mut self) -> Result<()> {
-        self.drop_table()
+        let mut transaction = builder.transaction()?;
+        transaction.create_table()?;
+        // Safety: todo
+        unsafe { Ok(Exclusive::new(transaction)) }
     }
 
     fn fork(&mut self) -> Fork<Self> {
         let _ = self.create_table();
-        Fork::new(self)
+        Fork(self)
+    }
+
+    unsafe fn unfork(&mut self) {
+        let _ = self.drop_table();
     }
 }

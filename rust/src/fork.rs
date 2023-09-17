@@ -3,30 +3,24 @@ use {
     std::ops::{Deref, DerefMut, Drop},
 };
 
-pub struct Fork<'a, S: Benched>(&'a mut S);
+pub struct Fork<'f, B: Benched>(pub(crate) &'f mut B);
 
-impl<'a, S: Benched> Fork<'a, S> {
-    pub fn new(storage: &'a mut S) -> Self {
-        Fork(storage)
-    }
-}
-
-impl<S: Benched> Deref for Fork<'_, S> {
-    type Target = S;
+impl<B: Benched> Deref for Fork<'_, B> {
+    type Target = B;
 
     fn deref(&self) -> &Self::Target {
         self.0
     }
 }
 
-impl<S: Benched> DerefMut for Fork<'_, S> {
+impl<B: Benched> DerefMut for Fork<'_, B> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.0
     }
 }
 
-impl<S: Benched> Drop for Fork<'_, S> {
+impl<B: Benched> Drop for Fork<'_, B> {
     fn drop(&mut self) {
-        let _ = self.drop_storage();
+        let _ = unsafe { self.unfork() };
     }
 }

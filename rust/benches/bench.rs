@@ -6,6 +6,16 @@ use {
     criterion::{criterion_group, criterion_main},
 };
 
+macro_rules! tri {
+    ($($body:tt)*) => {
+        let _ = (|| -> linkspsql::Result<()> {
+            Ok({ $($body)* })
+        })().unwrap();
+    };
+}
+
+pub(crate) use tri;
+
 criterion_group!(
     benches,
     create_links,
