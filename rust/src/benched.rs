@@ -12,9 +12,9 @@ use {
 };
 
 pub trait Benched: Sized {
-    type Builder<'a>;
+    type Builder;
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self>;
+    fn setup(builder: Self::Builder) -> Result<Self>;
 
     fn drop_storage(&mut self) -> Result<()>;
 
@@ -24,9 +24,9 @@ pub trait Benched: Sized {
 }
 
 impl<T: LinkType> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
-    type Builder<'a> = FileMapped<LinkPart<T>>;
+    type Builder = FileMapped<LinkPart<T>>;
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
+    fn setup(builder: Self::Builder) -> Result<Self> {
         let mut links = Self::new(builder)?;
         for _ in 0..BACKGROUND_LINKS {
             links.create_point()?;
@@ -41,10 +41,10 @@ impl<T: LinkType> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
 }
 
 impl<T: LinkType> Benched for unit::Store<T, Alloc<LinkPart<T>, Global>> {
-    type Builder<'a> = Global;
+    type Builder = ();
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let storage = Alloc::new(builder);
+    fn setup(builder: Self::Builder) -> Result<Self> {
+        let storage = Alloc::new(Global);
         let mut links = Self::new(storage)?;
         for _ in 0..BACKGROUND_LINKS {
             links.create_point()?;
@@ -59,9 +59,9 @@ impl<T: LinkType> Benched for unit::Store<T, Alloc<LinkPart<T>, Global>> {
 }
 
 impl<T: LinkType> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>> {
-    type Builder<'a> = (FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>);
+    type Builder = (FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>);
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
+    fn setup(builder: Self::Builder) -> Result<Self> {
         let (data, index) = builder;
         let mut links = Self::new(data, index)?;
         for _ in 0..BACKGROUND_LINKS {
@@ -79,10 +79,10 @@ impl<T: LinkType> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMappe
 impl<T: LinkType> Benched
     for split::Store<T, Alloc<DataPart<T>, Global>, Alloc<IndexPart<T>, Global>>
 {
-    type Builder<'a> = Global;
+    type Builder = ();
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let (data, index) = (Alloc::new(builder), Alloc::new(builder));
+    fn setup(builder: Self::Builder) -> Result<Self> {
+        let (data, index) = (Alloc::new(Global), Alloc::new(Global));
         let mut links = Self::new(data, index)?;
         for _ in 0..BACKGROUND_LINKS {
             links.create_point()?;
@@ -97,10 +97,10 @@ impl<T: LinkType> Benched
 }
 
 impl<T: LinkType> Benched for Client<T> {
-    type Builder<'a> = &'a Runtime;
+    type Builder = Runtime;
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
-        let mut client = builder.block_on(connect())?;
+    fn setup(builder: Self::Builder) -> Result<Self> {
+        let mut client = connect(builder)?;
         for _ in 0..BACKGROUND_LINKS {
             client.create_point()?;
         }
@@ -118,9 +118,9 @@ impl<T: LinkType> Benched for Client<T> {
 }
 
 impl<'a, T: LinkType> Benched for Transaction<'a, T> {
-    type Builder<'b> = &'a mut Client<T>;
+    type Builder = &'a mut Client<T>;
 
-    fn setup(builder: Self::Builder<'_>) -> Result<Self> {
+    fn setup(builder: Self::Builder) -> Result<Self> {
         let mut transaction = builder.transaction().unwrap();
         transaction.create_table().unwrap();
         for _ in 0..BACKGROUND_LINKS {

@@ -31,7 +31,8 @@ macro_rules! benchmark {
 pub use {benched::Benched, client::Client, fork::Fork, transaction::Transaction};
 use {
     doublets::{data::LinkType, mem::FileMapped},
-    std::{fs::File, io, error::Error},
+    std::{error::Error, fs::File, io},
+    tokio::runtime::Runtime,
     tokio_postgres::NoTls,
 };
 
@@ -43,18 +44,22 @@ mod transaction;
 pub type Result<T> = core::result::Result<T, Box<dyn Error>>;
 
 pub const BACKGROUND_LINKS: usize = 3_000;
-const OPTIONS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
+//const OPTIONS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
+const OPTIONS: &str = "user=zaharyan dbname=zaharyan password=zaharyan host=localhost port=5432";
 
-pub async fn connect<T: LinkType>() -> Result<Client<T>> {
-    let (client, connection) = tokio_postgres::connect(OPTIONS, NoTls).await?;
-    tokio::spawn(async move {
-        if let Err(e) = connection.await {
-            eprintln!("Connection error: {e}");
-            return Err(e);
-        }
-        Ok(())
+pub fn connect<T: LinkType>(runtime: Runtime) -> Result<Client<T>> {
+    let client = runtime.block_on(async {
+        let (client, connection) = tokio_postgres::connect(OPTIONS, NoTls).await.unwrap();
+        tokio::spawn(async move {
+            if let Err(e) = connection.await {
+                eprintln!("Connection error: {e}");
+                return Err(e);
+            }
+            Ok(())
+        });
+        client
     });
-    Client::new(client).await
+    Client::new(client, runtime)
 }
 
 pub fn prepare_file<T: Default>(filename: &str) -> io::Result<FileMapped<T>> {

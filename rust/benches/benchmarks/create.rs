@@ -1,11 +1,11 @@
 use {
-    linkspsql::{connect, Sql},
     criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
     doublets::{data::LinkType, mem::Alloc, split, unit, Doublets},
     linkspsql::{
         benchmark, elapsed, prepare_file, Benched, Client, Fork, Result, Transaction,
         BACKGROUND_LINKS,
     },
+    linkspsql::{connect, Sql},
     std::{
         alloc::Global,
         time::{Duration, Instant},
@@ -14,7 +14,7 @@ use {
 };
 
 fn bench<S: Benched + Doublets<T>, T: LinkType>(
-    builder: S::Builder<'_>,
+    builder: S::Builder,
     id: &str,
     group: &mut BenchmarkGroup<WallTime>,
 ) -> Result<()> {
@@ -38,8 +38,8 @@ pub fn create_links(c: &mut Criterion) -> Result<()> {
     //let split_index = prepare_file("split_index.links")?;
     //bench::<Client<usize>, _>(&runtime, "PSQL_NonTransaction", &mut group).unwrap();
     {
-        let runtime = Runtime::new().unwrap();
-        let mut client = runtime.block_on(connect()).unwrap();
+        let runtime = Builder::new_multi_thread().enable_all().build().unwrap();
+        let mut client = connect(runtime).unwrap();
         bench::<Transaction<'_, usize>, _>(&mut client, "PSQL_Transaction", &mut group).unwrap();
     }
 

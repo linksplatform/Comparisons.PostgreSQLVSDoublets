@@ -16,8 +16,9 @@ pub struct Client<T: LinkType> {
 }
 
 impl<T: LinkType> Client<T> {
-    pub async fn new(client: postgres::Client) -> crate::Result<Self> {
-        client
+    pub fn new(client: postgres::Client, runtime: Runtime) -> crate::Result<Self> {
+        runtime.block_on(async {
+            client
             .query(
                 "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
                 &[],
@@ -35,10 +36,12 @@ impl<T: LinkType> Client<T> {
                 &[],
             )
             .await?;
+            Ok::<(), postgres::Error>(())
+        })?;
         Ok(Self {
             client,
             constants: LinksConstants::<T>::new(),
-            runtime: Runtime::new()?,
+            runtime,
         })
     }
 
@@ -250,13 +253,13 @@ impl<T: LinkType> Links<T> for Client<T> {
                 old_links[0].get::<_, i64>(1).try_into().unwrap(),
                 old_links[0].get::<_, i64>(2).try_into().unwrap(),
             );
-            let _ = self
+            self
                 .client
                 .query(
                     "UPDATE Links SET from_id = $1, to_id = $2 WHERE id = $3;",
                     &[&source.as_i64(), &target.as_i64(), &id.as_i64()],
                 )
-                .await;
+                .await.unwrap();
             Ok(handler(
                 Link::new(id, old_source, old_target),
                 Link::new(id, source, target),
