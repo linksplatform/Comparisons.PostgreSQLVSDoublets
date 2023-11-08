@@ -73,11 +73,11 @@ impl<T: LinkType> Benched
     }
 }
 
-impl<T: LinkType> Benched for Client<T> {
+impl<T: LinkType> Benched for Exclusive<Client<T>> {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
-        Ok(crate::connect()?)
+        unsafe { Ok(Exclusive::new(crate::connect()?)) }
     }
 
     fn fork(&mut self) -> Fork<Self> {

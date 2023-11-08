@@ -1,23 +1,26 @@
 #![feature(allocator_api, generic_associated_types)]
 
 #[macro_export]
-macro_rules! elapsed {
-    {$($body:tt)*} => {
-        let __instant = Instant::now();
-        $($body)*
-        __bench_duration += __instant.elapsed();
-    };
-}
-
-#[macro_export]
 macro_rules! bench {
     {|$fork:ident| as $B:ident { $($body:tt)* }} => {
         (move |bencher: &mut criterion::Bencher, benched: &mut _| {
             bencher.iter_custom(|iters| {
                 let mut __bench_duration = Duration::ZERO;
+                macro_rules! elapsed {
+                    {$expr:expr} => {{
+                        let __instant = Instant::now();
+                        let __ret = {$expr};
+                        __bench_duration += __instant.elapsed();
+                        __ret
+                    }};
+                }
                 crate::tri! {
+                    use linkspsql::BACKGROUND_LINKS;
                     for _iter in 0..iters {
                         let mut $fork: Fork<$B> = Benched::fork(&mut *benched);
+                        for _ in 0..BACKGROUND_LINKS {
+                            let _ = $fork.create_point()?;
+                        }
                         $($body)*
                     }
                 }
@@ -27,6 +30,7 @@ macro_rules! bench {
     }
 }
 
+use doublets::Doublets;
 pub use {
     benched::Benched, client::Client, exclusive::Exclusive, fork::Fork, transaction::Transaction,
 };

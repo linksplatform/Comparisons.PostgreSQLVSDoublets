@@ -14,8 +14,7 @@ pub struct Client<T: LinkType> {
 impl<T: LinkType> Client<T> {
     pub fn new(mut client: postgres::Client) -> Result<Self> {
         client.query(
-            "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, \
-            from_id bigint, to_id bigint);",
+            "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
             &[],
         )?;
         client.query("CREATE INDEX IF NOT EXISTS source ON Links USING btree(from_id);", &[])?;
@@ -31,8 +30,7 @@ impl<T: LinkType> Client<T> {
 impl<T: LinkType> Sql for Client<T> {
     fn create_table(&mut self) -> Result<()> {
         self.client.query(
-            "CREATE TABLE IF NOT EXISTS Links (id bigint\
-                     GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
+            "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
             &[],
         )?;
         self.client

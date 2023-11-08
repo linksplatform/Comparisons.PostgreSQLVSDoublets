@@ -26,8 +26,7 @@ impl<'a, T: LinkType> Transaction<'a, T> {
 impl<'a, T: LinkType> Sql for Transaction<'a, T> {
     fn create_table(&mut self) -> Result<()> {
         self.transaction.query(
-            "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\
-                     from_id bigint, to_id bigint);",
+            "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
             &[],
         )?;
         self.transaction
