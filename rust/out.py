@@ -74,7 +74,7 @@ def bench1():
 
     fig.tight_layout()
 
-    plt.savefig("Bench1.png")
+    plt.savefig("bench_rust.png")
     plt.close(fig)
 
 
@@ -103,7 +103,7 @@ def bench2():
 
     fig.tight_layout()
 
-    plt.savefig("Bench2.png")
+    plt.savefig("bench_rust_log_scale.png")
     plt.close(fig)
 
 
