@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   toolchain: nightly-2022-08-22
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   benchmark:
