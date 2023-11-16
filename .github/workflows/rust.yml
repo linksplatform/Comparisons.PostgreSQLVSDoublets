@@ -45,6 +45,8 @@ jobs:
         run: cargo bench --bench bench -- --output-format bencher | tee out.txt
       - name: Prepare benchmark results
         run: |
+          git config --global user.email "linksplatform@gmail.com"
+          git config --global user.name "LinksPlatformBencher"
           cd rust
           pip install numpy matplotlib
           python3 out.py
