@@ -56,7 +56,7 @@ jobs:
           cd ..
           git add Docs
           git commit -m "Publish new benchmark results"
-          git push origin gh_pages
+          git push origin gh-pages
       - name: Save benchmark results
         uses: actions/upload-artifact@v3
         with:
