@@ -54,6 +54,7 @@ jobs:
           mv bench_rust.png ../Docs
           mv bench_rust_log_scale.png ../Docs
           cd ..
+          git fetch
           git checkout gh-pages
           git add Docs
           git commit -m "Publish new benchmark results"
