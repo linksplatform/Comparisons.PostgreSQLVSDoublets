@@ -71,7 +71,7 @@ def bench1():
 
     fig.tight_layout()
 
-    plt.savefig("Bench1.png")
+    plt.savefig("bench_cpp.png")
     plt.close(fig)
 
 def bench2():
@@ -99,7 +99,7 @@ def bench2():
 
     fig.tight_layout()
 
-    plt.savefig("Bench2.png")
+    plt.savefig("bench_cpp_log_scale.png")
     plt.close(fig)
 
 bench1()

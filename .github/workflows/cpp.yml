@@ -85,10 +85,20 @@ jobs:
           cd cpp
           pip install numpy matplotlib
           python3 out.py
+          git config --global user.email "linksplatform@gmail.com"
+          git config --global user.name "LinksPlatformBencher"
+          git fetch
+          git checkout gh-pages
+          mv bench_cpp.png ../Docs
+          mv bench_cpp_log_scale.png ../Docs
+          cd ..
+          git add Docs
+          git commit -m "Publish new benchmark results (C++)"
+          git push origin gh-pages
       - name: Save benchmark results
         uses: actions/upload-artifact@v3
         with:
           name: Benchmark results
           path: |
-            cpp/Bench1.png
-            cpp/Bench2.png
+            ../Docs/bench_cpp.png
+            ../Docs/bench_cpp_log_scale.png
