@@ -50,13 +50,11 @@ jobs:
           cd rust
           pip install numpy matplotlib
           python3 out.py
-          mkdir ../Docs
-          mv bench_rust.png ../Docs
-          mv bench_rust_log_scale.png ../Docs
           cd ..
           git fetch
           git checkout gh-pages
-          git add Docs
+          mv -f rust/bench_rust.png Docs
+          mv -f rust/bench_rust_log_scale.png Docs
           git commit -m "Publish new benchmark results"
           git push origin gh-pages
       - name: Save benchmark results
