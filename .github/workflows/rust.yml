@@ -55,6 +55,7 @@ jobs:
           git checkout gh-pages
           mv -f rust/bench_rust.png Docs
           mv -f rust/bench_rust_log_scale.png Docs
+          git add Docs
           git commit -m "Publish new benchmark results"
           git push origin gh-pages
       - name: Save benchmark results
