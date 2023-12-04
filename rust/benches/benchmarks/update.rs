@@ -43,22 +43,22 @@ pub fn update_links(c: &mut Criterion) {
             &mut group,
             "Doublets_United_Volatile",
             unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(())?
-        )
+        );
         bench(
             &mut group,
             "Doublets_United_NonVolatile",
             unit::Store::<usize, FileMapped<LinkPart<_>>>::setup("united.links")?
-        )
+        );
         bench(
             &mut group,
             "Doublets_Split_Volatile",
             split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(())?
-        )
+        );
         bench(
             &mut group,
             "Doublets_Split_NonVolatile",
             split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links"))?
-        )
+        );
     }
     group.finish();
 }
