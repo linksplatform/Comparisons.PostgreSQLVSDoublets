@@ -4,22 +4,30 @@ use {
         data::{Flow, LinkType, LinksConstants, ReadHandler, WriteHandler},
         Doublets, Error, Link, Links,
     },
+    std::mem::ManuallyDrop,
 };
 
 pub struct Transaction<'a, T: LinkType> {
-    transaction: postgres::Transaction<'a>,
+    transaction: ManuallyDrop<postgres::Transaction<'a>>,
     constants: LinksConstants<T>,
 }
 
 impl<'a, T: LinkType> Transaction<'a, T> {
     pub fn new(transaction: postgres::Transaction<'a>) -> Self {
-        Self { transaction, constants: LinksConstants::<T>::new() }
+        Self { transaction: ManuallyDrop::new(transaction), constants: LinksConstants::<T>::new() }
     }
 
     pub fn commit(&mut self) -> Result<()> {
         self.transaction.execute("COMMIT;", &[])?;
         self.transaction.execute("BEGIN;", &[])?;
         Ok(())
+    }
+}
+
+impl<'a, T: LinkType> Drop for Transaction<'a, T> {
+    fn drop(&mut self) {
+        // Safety: used like `Option::take` at `postgres` implementation of `Transaction::drop`
+        let _ = unsafe { ManuallyDrop::take(&mut self.transaction) }.commit();
     }
 }
 
@@ -44,27 +52,30 @@ impl<'a, T: LinkType> Sql for Transaction<'a, T> {
 
 impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
     fn constants(&self) -> &LinksConstants<T> {
-        &self.constants
+        &unsafe { self.assume_exclusive() }.constants
     }
 
     fn count_links(&self, query: &[T]) -> T {
-        let any = self.constants.any;
+        let any = unsafe { self.assume_exclusive() }.constants.any;
         if query.is_empty() {
-            let result = self.get().transaction.query("SELECT COUNT(*) FROM Links;", &[]).unwrap();
+            let it = unsafe { self.assume_exclusive() };
+            let result = it.transaction.query("SELECT COUNT(*) FROM Links;", &[]).unwrap();
             let row = &result[0];
             row.get::<_, i64>(0).try_into().unwrap()
         } else if query.len() == 1 {
             if query[0] == any {
                 self.count_links(&[])
             } else {
-                let result = self
-                    .get()
+                let it = unsafe { self.assume_exclusive() };
+                let result = it
                     .transaction
                     .query("SELECT COUNT(*) FROM Links WHERE id = $1;", &[&query[0].as_i64()])
                     .unwrap();
                 result[0].get::<_, i64>(0).try_into().unwrap()
             }
         } else if query.len() == 3 {
+            let it = unsafe { self.assume_exclusive() };
+
             let id =
                 if query[0] == any { String::new() } else { format!("id = {} AND ", query[0]) };
             let source = if query[1] == any {
@@ -78,7 +89,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
                 format!("to_id = {};", query[2])
             };
             let statement = format!("SELECT COUNT(*) FROM Links WHERE {}{}{}", id, source, target);
-            let result = self.get().transaction.query(&statement, &[]).unwrap();
+            let result = it.transaction.query(&statement, &[]).unwrap();
             result[0].get::<_, i64>(0).try_into().unwrap()
         } else {
             panic!("Constraints violation: size of query neither 1 nor 3")
@@ -86,7 +97,8 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
     }
 
     fn create_links(&mut self, _query: &[T], handler: WriteHandler<T>) -> Result<Flow, Error<T>> {
-        let result = self
+        let it = unsafe { self.assume_exclusive() };
+        let result = it
             .transaction
             .query("INSERT INTO Links(to_id, from_id) VALUES (0, 0) RETURNING id;", &[])
             .unwrap();
@@ -97,9 +109,11 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
     }
 
     fn each_links(&self, query: &[T], handler: ReadHandler<T>) -> Flow {
-        let any = self.constants.any;
+        let any = unsafe { self.assume_exclusive() }.constants.any;
         if query.is_empty() {
-            let result = self.get().transaction.query("SELECT * FROM Links;", &[]).unwrap();
+            let it = unsafe { self.assume_exclusive() };
+
+            let result = it.transaction.query("SELECT * FROM Links;", &[]).unwrap();
             for row in result {
                 handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
@@ -112,8 +126,9 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
             if query[0] == any {
                 self.each_links(&[], handler)
             } else {
-                let result = self
-                    .get()
+                let it = unsafe { self.assume_exclusive() };
+
+                let result = it
                     .transaction
                     .query("SELECT * FROM Links WHERE id = $1;", &[&query[0].as_i64()])
                     .unwrap();
@@ -127,6 +142,8 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
                 Flow::Continue
             }
         } else if query.len() == 3 {
+            let it = unsafe { self.assume_exclusive() };
+
             let id =
                 if query[0] == any { String::new() } else { format!("id = {} AND ", query[0]) };
             let source = if query[1] == any {
@@ -140,7 +157,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
                 format!("to_id = {};", query[2])
             };
             let statement = &format!("SELECT * FROM Links WHERE {id}{source}{target}");
-            let result = self.get().transaction.query(statement, &[]).unwrap();
+            let result = it.transaction.query(statement, &[]).unwrap();
             for row in result {
                 handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
@@ -160,16 +177,18 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
         change: &[T],
         handler: WriteHandler<T>,
     ) -> Result<Flow, Error<T>> {
+        let it = unsafe { self.assume_exclusive() };
+
         let id = query[0];
         let source = change[1];
         let target = change[2];
         let old_links =
-            self.transaction.query("SELECT * FROM Links WHERE id = $1;", &[&id.as_i64()]).unwrap();
+            it.transaction.query("SELECT * FROM Links WHERE id = $1;", &[&id.as_i64()]).unwrap();
         let (old_source, old_target) = (
             old_links[0].get::<_, i64>(1).try_into().unwrap(),
             old_links[0].get::<_, i64>(2).try_into().unwrap(),
         );
-        self.transaction
+        it.transaction
             .query(
                 "UPDATE Links SET from_id = $1, to_id = $2 WHERE id = $3;",
                 &[&source.as_i64(), &target.as_i64(), &id.as_i64()],
@@ -179,8 +198,10 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
     }
 
     fn delete_links(&mut self, query: &[T], handler: WriteHandler<T>) -> Result<Flow, Error<T>> {
+        let it = unsafe { self.assume_exclusive() };
+
         let id = query[0];
-        let result = self
+        let result = it
             .transaction
             .query("DELETE FROM Links WHERE id = $1 RETURNING from_id, to_id", &[&id.as_i64()])
             .unwrap();
@@ -202,8 +223,8 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
 
 impl<T: LinkType> Doublets<T> for Exclusive<Transaction<'_, T>> {
     fn get_link(&self, index: T) -> Option<Link<T>> {
-        let result =
-            self.get().transaction.query("SELECT * FROM Links WHERE id = $1", &[&index.as_i64()]);
+        let it = unsafe { self.assume_exclusive() };
+        let result = it.transaction.query("SELECT * FROM Links WHERE id = $1", &[&index.as_i64()]);
         match result {
             Ok(rows) => {
                 let ref row = rows[0];

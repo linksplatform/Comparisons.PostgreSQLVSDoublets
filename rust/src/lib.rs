@@ -30,7 +30,6 @@ macro_rules! bench {
     }
 }
 
-use doublets::Doublets;
 pub use {
     benched::Benched, client::Client, exclusive::Exclusive, fork::Fork, transaction::Transaction,
 };

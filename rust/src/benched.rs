@@ -77,16 +77,16 @@ impl<T: LinkType> Benched for Exclusive<Client<T>> {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
-        unsafe { Ok(Exclusive::new(crate::connect()?)) }
+        Ok(Exclusive::new(crate::connect()?))
     }
 
     fn fork(&mut self) -> Fork<Self> {
-        let _ = self.create_table();
+        let _ = self.get().create_table();
         Fork(self)
     }
 
     unsafe fn unfork(&mut self) {
-        let _ = self.drop_table();
+        let _ = self.get().drop_table();
     }
 }
 
@@ -96,16 +96,15 @@ impl<'a, T: LinkType> Benched for Exclusive<Transaction<'a, T>> {
     fn setup(builder: Self::Builder<'_>) -> Result<Self> {
         let mut transaction = builder.transaction()?;
         transaction.create_table()?;
-        // Safety: todo
-        unsafe { Ok(Exclusive::new(transaction)) }
+        Ok(Exclusive::new(transaction))
     }
 
     fn fork(&mut self) -> Fork<Self> {
-        let _ = self.create_table();
+        let _ = self.get().create_table();
         Fork(self)
     }
 
     unsafe fn unfork(&mut self) {
-        let _ = self.drop_table();
+        let _ = self.get().drop_table();
     }
 }

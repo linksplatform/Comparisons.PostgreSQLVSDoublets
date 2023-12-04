@@ -1,14 +1,17 @@
 use {
     crate::tri,
-    criterion::{BenchmarkGroup, Criterion, measurement::WallTime},
+    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
     doublets::{
-        Doublets,
         mem::{Alloc, FileMapped},
         parts::LinkPart,
-        split::{self, DataPart, IndexPart}, unit,
+        split::{self, DataPart, IndexPart},
+        unit, Doublets,
     },
-    linkspsql::{bench, Benched, Client, connect, Exclusive, Fork, Transaction, BACKGROUND_LINKS},
-    std::{alloc::Global, time::{Duration, Instant}},
+    linkspsql::{bench, connect, Benched, Client, Exclusive, Fork, Transaction, BACKGROUND_LINKS},
+    std::{
+        alloc::Global,
+        time::{Duration, Instant},
+    },
 };
 fn bench<B: Benched + Doublets<usize>>(
     group: &mut BenchmarkGroup<WallTime>,

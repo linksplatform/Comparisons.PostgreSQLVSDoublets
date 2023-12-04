@@ -1,13 +1,17 @@
 use {
     crate::tri,
-    criterion::{BenchmarkGroup, Criterion, measurement::WallTime},
+    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
     doublets::{
+        mem::{Alloc, FileMapped},
+        split::{self, DataPart, IndexPart},
+        unit::{self, LinkPart},
         Doublets,
-        mem::{Alloc, FileMapped}, split, split::{DataPart, IndexPart},
-        unit, unit::LinkPart,
     },
-    linkspsql::{BACKGROUND_LINKS, bench, Benched, Transaction, Exclusive, connect, Client, Fork},
-    std::{alloc::Global, time::{Duration, Instant}},
+    linkspsql::{bench, connect, Benched, Client, Exclusive, Fork, Transaction, BACKGROUND_LINKS},
+    std::{
+        alloc::Global,
+        time::{Duration, Instant},
+    },
 };
 
 fn bench<B: Benched + Doublets<usize>>(
@@ -24,45 +28,36 @@ fn bench<B: Benched + Doublets<usize>>(
         })(bencher, &mut benched);
     });
 }
+
 pub fn update_links(c: &mut Criterion) {
     let mut group = c.benchmark_group("Update");
     tri! {
-        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
-    }
-    tri! {
-        let mut client = connect().unwrap();
+        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(())?);
+        let mut client = connect()?;
         bench(
             &mut group,
             "PSQL_Transaction",
-            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
+            Exclusive::<Transaction<'_, usize>>::setup(&mut client)?,
         );
-    }
-    tri! {
         bench(
             &mut group,
             "Doublets_United_Volatile",
-            unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(()).unwrap()
+            unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(())?
         )
-    }
-    tri! {
         bench(
             &mut group,
             "Doublets_United_NonVolatile",
-            unit::Store::<usize, FileMapped<LinkPart<_>>>::setup("united.links").unwrap()
+            unit::Store::<usize, FileMapped<LinkPart<_>>>::setup("united.links")?
         )
-    }
-    tri! {
         bench(
             &mut group,
             "Doublets_Split_Volatile",
-            split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(()).unwrap()
+            split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(())?
         )
-    }
-    tri! {
         bench(
             &mut group,
             "Doublets_Split_NonVolatile",
-            split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
+            split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links"))?
         )
     }
     group.finish();
