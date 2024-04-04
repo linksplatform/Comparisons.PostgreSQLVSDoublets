@@ -1,12 +1,10 @@
 name: Benchmark Rust version
 
-on:
-  push:
-    branches:
-      - add_rust_benchmark
+on: [push, pull_request]
 
 env:
   toolchain: nightly-2022-08-22
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   benchmark:
@@ -47,13 +45,23 @@ jobs:
         run: cargo bench --bench bench -- --output-format bencher | tee out.txt
       - name: Prepare benchmark results
         run: |
+          git config --global user.email "linksplatform@gmail.com"
+          git config --global user.name "LinksPlatformBencher"
           cd rust
           pip install numpy matplotlib
           python3 out.py
+          cd ..
+          git fetch
+          git checkout gh-pages
+          mv -f rust/bench_rust.png Docs
+          mv -f rust/bench_rust_log_scale.png Docs
+          git add Docs
+          git commit -m "Publish new benchmark results"
+          git push origin gh-pages
       - name: Save benchmark results
         uses: actions/upload-artifact@v3
         with:
           name: Benchmark results
           path: |
-            rust/Bench1.png
-            rust/Bench2.png
+            rust/bench_rust.png
+            rust/bench_rust_log_scale.png

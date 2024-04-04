@@ -1,18 +1,24 @@
 #![feature(allocator_api)]
-#![feature(box_syntax)]
 
-use criterion::criterion_group;
 use {
-    create::create_links,
-    criterion::criterion_main,
-    delete::delete_links,
-    each::{each_all, each_concrete, each_identity, each_incoming, each_outgoing},
-    update::update_links,
+    benchmarks::{
+        create_links, delete_links, each_all, each_concrete, each_identity, each_incoming,
+        each_outgoing, update_links,
+    },
+    criterion::{criterion_group, criterion_main},
 };
-mod create;
-mod delete;
-mod each;
-mod update;
+
+mod benchmarks;
+
+macro_rules! tri {
+    ($($body:tt)*) => {
+        let _ = (|| -> linkspsql::Result<()> {
+            Ok({ $($body)* })
+        })().unwrap();
+    };
+}
+
+pub(crate) use tri;
 
 criterion_group!(
     benches,
