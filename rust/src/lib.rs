@@ -1,73 +1,63 @@
-#![feature(allocator_api)]
-#![feature(generic_associated_types)]
+#![feature(allocator_api, generic_associated_types)]
 
 #[macro_export]
-macro_rules! elapsed {
-    {$operations:stmt} => {
-        {
-            let duration = Instant::now();
-            $operations
-            duration.elapsed()
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! benchmark {
-    {$bencher:ident, $fork:stmt; $body:stmt} => {
-        $bencher.iter_custom(|iters| {
-            let mut time = Duration::ZERO;
-            for _iter in 0..iters {
-                $fork;
-                time += elapsed! {
-                    $body
-                };
-            }
-            time
-        });
+macro_rules! bench {
+    {|$fork:ident| as $B:ident { $($body:tt)* }} => {
+        (move |bencher: &mut criterion::Bencher, benched: &mut _| {
+            bencher.iter_custom(|iters| {
+                let mut __bench_duration = Duration::ZERO;
+                macro_rules! elapsed {
+                    {$expr:expr} => {{
+                        let __instant = Instant::now();
+                        let __ret = {$expr};
+                        __bench_duration += __instant.elapsed();
+                        __ret
+                    }};
+                }
+                crate::tri! {
+                    use linkspsql::BACKGROUND_LINKS;
+                    for _iter in 0..iters {
+                        let mut $fork: Fork<$B> = Benched::fork(&mut *benched);
+                        for _ in 0..BACKGROUND_LINKS {
+                            let _ = $fork.create_point()?;
+                        }
+                        $($body)*
+                    }
+                }
+                __bench_duration
+            });
+        })
     }
 }
 
-pub use {benched::Benched, client::Client, fork::Fork, transaction::Transaction};
+use doublets::Doublets;
+pub use {
+    benched::Benched, client::Client, exclusive::Exclusive, fork::Fork, transaction::Transaction,
+};
+
 use {
     doublets::{data::LinkType, mem::FileMapped},
-    std::{error::Error, fs::File, io},
-    tokio::runtime::Runtime,
-    tokio_postgres::NoTls,
+    postgres::NoTls,
+    std::{error, fs::File, io, result},
 };
 
 mod benched;
 mod client;
+mod exclusive;
 mod fork;
 mod transaction;
 
-pub type Result<T> = core::result::Result<T, Box<dyn Error>>;
+pub type Result<T, E = Box<dyn error::Error + Sync + Send>> = result::Result<T, E>;
 
 pub const BACKGROUND_LINKS: usize = 3_000;
-//const OPTIONS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
-const OPTIONS: &str = "user=zaharyan dbname=zaharyan password=zaharyan host=localhost port=5432";
+const PARAMS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
-pub fn connect<T: LinkType>(runtime: Runtime) -> Result<Client<T>> {
-    let client = runtime.block_on(async {
-        let (client, connection) = tokio_postgres::connect(OPTIONS, NoTls).await.unwrap();
-        tokio::spawn(async move {
-            if let Err(e) = connection.await {
-                eprintln!("Connection error: {e}");
-                return Err(e);
-            }
-            Ok(())
-        });
-        client
-    });
-    Client::new(client, runtime)
+pub fn connect<T: LinkType>() -> Result<Client<T>> {
+    Client::new(postgres::Client::connect(PARAMS, NoTls)?).map_err(Into::into)
 }
 
-pub fn prepare_file<T: Default>(filename: &str) -> io::Result<FileMapped<T>> {
-    let file = File::options()
-        .create(true)
-        .write(true)
-        .read(true)
-        .open(filename)?;
+pub fn map_file<T: Default>(filename: &str) -> io::Result<FileMapped<T>> {
+    let file = File::options().create(true).write(true).read(true).open(filename)?;
     FileMapped::new(file)
 }
 

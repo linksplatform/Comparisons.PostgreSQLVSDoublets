@@ -1,157 +1,81 @@
 use {
-    criterion::Criterion,
+    crate::tri,
+    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
     doublets::{
         data::{Flow, LinksConstants},
         mem::{Alloc, FileMapped},
-        split, unit, Doublets,
+        parts::LinkPart,
+        split::{self, DataPart, IndexPart},
+        unit, Doublets,
     },
-    linkspsql::{benchmark, connect, elapsed, prepare_file, SetupTeardown, BACKGROUND_LINKS},
+    linkspsql::{bench, connect, Benched, Client, Exclusive, Fork, Transaction},
     std::{
-        error::Error,
+        alloc::Global,
         time::{Duration, Instant},
     },
-    tokio::runtime::Runtime,
 };
-
-pub fn each_concrete(c: &mut Criterion) -> Result<(), Box<dyn Error>> {
-    let runtime = Runtime::new()?;
-    let mut group = c.benchmark_group("Each_Concrete");
-    let allocator = std::alloc::Global;
-    let united = prepare_file("united.links")?;
-    let split_data = prepare_file("split_data.links")?;
-    let split_index = prepare_file("split_index.links")?;
+fn bench<B: Benched + Doublets<usize>>(
+    group: &mut BenchmarkGroup<WallTime>,
+    id: &str,
+    mut benched: B,
+) {
     let handler = |_| Flow::Continue;
-    let any = LinksConstants::<usize>::new().any;
-    {
-        let mut client = runtime.block_on(connect())?;
-        let _ = client.setup();
-        benchmark! {
-            group,
-            "PSQL_NonTransaction",
-            {
-                for index in 1..=1_000 {
-                    client.each_by([any, index, index], handler);
-                }
-                for index in 1_001..=2_000 {
-                    client.each_by([any, index, index], handler);
-                }
-                for index in 2_001..=BACKGROUND_LINKS {
-                    client.each_by([any, index, index], handler);
-                }
-            },
-        }
-        let _ = client.teardown();
+    let any = LinksConstants::new().any;
+    group.bench_function(id, |bencher| {
+        bench!(|fork| as B {
+            for index in 1..=1_000 {
+                elapsed! {fork.each_by([any, index, index], handler)};
+            }
+            for index in 1_001..=2_000 {
+                elapsed! {fork.each_by([any, index, index], handler)};
+            }
+            for index in 2_001..=BACKGROUND_LINKS {
+                elapsed! {fork.each_by([any, index, index], handler)};
+            }
+        })(bencher, &mut benched);
+    });
+}
+
+pub fn each_concrete(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Each_Concrete");
+    tri! {
+        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
     }
-    {
-        let mut client = runtime.block_on(connect())?;
-        let mut transaction = client.transaction()?;
-        let _ = transaction.setup();
-        let _ = transaction.commit();
-        benchmark! {
-            group,
+    tri! {
+        let mut client = connect().unwrap();
+        bench(
+            &mut group,
             "PSQL_Transaction",
-            let mut transaction = client.transaction().unwrap(),
-            {
-                for index in 1..=1_000 {
-                    transaction.each_by([any, index, index], handler);
-                };
-                for index in 1_001..=2_000 {
-                    transaction.each_by([any, index, index], handler);
-                };
-                for index in 2_001..=BACKGROUND_LINKS {
-                    transaction.each_by([any, index, index], handler);
-                };
-                let _ = transaction.commit();
-            },
-        }
-        let _ = client.transaction()?.teardown();
+            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
+        );
     }
-    {
-        let storage = Alloc::new(allocator);
-        let mut links = unit::Store::<usize, _>::new(storage)?;
-        let _ = links.setup();
-        benchmark! {
-            group,
+    tri! {
+        bench(
+            &mut group,
             "Doublets_United_Volatile",
-            {
-                for index in 1..=1_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 1_001..=2_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 2_001..=BACKGROUND_LINKS {
-                    links.each_by([any, index, index], handler);
-                }
-            },
-        }
-        let _ = links.teardown();
+            unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(()).unwrap()
+        )
     }
-    {
-        let storage = FileMapped::new(united).unwrap();
-        let mut links = unit::Store::<usize, _>::new(storage).unwrap();
-        let _ = links.setup();
-        benchmark! {
-            group,
+    tri! {
+        bench(
+            &mut group,
             "Doublets_United_NonVolatile",
-            {
-                for index in 1..=1_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 1_001..=2_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 2_001..=BACKGROUND_LINKS {
-                    links.each_by([any, index, index], handler);
-                }
-            },
-        }
-        let _ = links.teardown();
+            unit::Store::<usize, FileMapped<LinkPart<_>>>::setup("united.links").unwrap()
+        )
     }
-    {
-        let data = Alloc::new(allocator);
-        let index = Alloc::new(allocator);
-        let mut links = split::Store::<usize, _, _>::new(data, index).unwrap();
-        let _ = links.setup();
-        benchmark! {
-            group,
+    tri! {
+        bench(
+            &mut group,
             "Doublets_Split_Volatile",
-            {
-                for index in 1..=1_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 1_001..=2_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 2_001..=BACKGROUND_LINKS {
-                    links.each_by([any, index, index], handler);
-                }
-            },
-        }
-        let _ = links.teardown();
+            split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(()).unwrap()
+        )
     }
-    {
-        let split_data = FileMapped::new(split_data).unwrap();
-        let split_index = FileMapped::new(split_index).unwrap();
-        let mut links = split::Store::<usize, _, _>::new(split_data, split_index).unwrap();
-        let _ = links.setup();
-        benchmark! {
-            group,
+    tri! {
+        bench(
+            &mut group,
             "Doublets_Split_NonVolatile",
-            {
-                for index in 1..=1_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 1_001..=2_000 {
-                    links.each_by([any, index, index], handler);
-                }
-                for index in 2_001..=BACKGROUND_LINKS {
-                    links.each_by([any, index, index], handler);
-                }
-            },
-        }
-        let _ = links.teardown();
+            split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
+        )
     }
     group.finish();
-    Ok(())
 }

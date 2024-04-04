@@ -1,78 +1,71 @@
 use {
-    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
-    doublets::{data::LinkType, mem::Alloc, split, unit, Doublets},
-    linkspsql::{
-        benchmark, elapsed, prepare_file, Benched, Client, Fork, Result, Transaction,
-        BACKGROUND_LINKS,
+    crate::tri,
+    criterion::{BenchmarkGroup, Criterion, measurement::WallTime},
+    doublets::{
+        data::LinkType,
+        Doublets,
+        mem::{Alloc, FileMapped},
+        parts::LinkPart,
+        split::{self, DataPart, IndexPart}, unit,
     },
-    linkspsql::{connect, Sql},
-    std::{
-        alloc::Global,
-        time::{Duration, Instant},
-    },
-    tokio::runtime::{Builder, Runtime},
+    linkspsql::{bench, Benched, Client, connect, Exclusive, Fork, Transaction},
+    std::{alloc::Global, time::{Duration, Instant}},
 };
 
-fn bench<S: Benched + Doublets<T>, T: LinkType>(
-    builder: S::Builder,
-    id: &str,
+fn bench<T: LinkType, B: Benched + Doublets<T>>(
     group: &mut BenchmarkGroup<WallTime>,
-) -> Result<()> {
-    let mut storage = S::setup(builder)?;
-    group.bench_function(id, |b| {
-        benchmark! {
-            b,
-            let mut fork = storage.fork();
+    id: &str,
+    mut benched: B,
+) {
+    group.bench_function(id, |bencher| {
+        bench!(|fork| as B {
             for _ in 0..1_000 {
-                let _ = fork.create_point();
+                let _ = elapsed! {fork.create_point()?};
             }
-        }
+        })(bencher, &mut benched);
     });
-    Ok(())
 }
 
-pub fn create_links(c: &mut Criterion) -> Result<()> {
+pub fn create_links(c: &mut Criterion) {
     let mut group = c.benchmark_group("Create");
-    //let united = prepare_file("united.links")?;
-    //let split_data = prepare_file("split_data.links")?;
-    //let split_index = prepare_file("split_index.links")?;
-    //bench::<Client<usize>, _>(&runtime, "PSQL_NonTransaction", &mut group).unwrap();
-    {
-        let runtime = Builder::new_multi_thread().enable_all().build().unwrap();
-        let mut client = connect(runtime).unwrap();
-        bench::<Transaction<'_, usize>, _>(&mut client, "PSQL_Transaction", &mut group).unwrap();
+    tri! {
+        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
     }
-
-    /*bench::<unit::Store<usize, Alloc<LinkPart<_>, _>>, _>(
-        Global,
-        "Doublets_United_Volatile",
-        &mut group,
-    )
-    .unwrap();
-
-    bench::<unit::Store<usize, FileMapped<_>>, _>(
-        prepare_file("united.links")?,
-        "Doublets_United_NonVolatile",
-        &mut group,
-    )
-    .unwrap();
-
-    bench::<split::Store<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>, _>(
-        Global,
-        "Doublets_Split_Volatile",
-        &mut group,
-    )
-    .unwrap();
-
-    bench::<split::Store<usize, FileMapped<_>, FileMapped<_>>, _>(
-        (
-            prepare_file("split_data.links")?,
-            prepare_file("split_index.links")?,
-        ),
-        "Doublets_Split_NonVolatile",
-        &mut group,
-    )
-    .unwrap();*/
+    tri! {
+        let mut client = connect().unwrap();
+        bench(
+            &mut group,
+            "PSQL_Transaction",
+            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
+        );
+    }
+    tri! {
+        bench(
+            &mut group,
+            "Doublets_United_Volatile",
+            unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(()).unwrap()
+        )
+    }
+    tri! {
+        bench(
+            &mut group,
+            "Doublets_United_NonVolatile",
+            unit::Store::<usize, FileMapped<LinkPart<_>>>::setup("united.links").unwrap()
+        )
+    }
+    tri! {
+        bench(
+            &mut group,
+            "Doublets_Split_Volatile",
+            split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(()).unwrap()
+        )
+    }
+    tri! {
+        bench(
+            &mut group,
+            "Doublets_Split_NonVolatile",
+            split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
+        )
+    }
     group.finish();
-    Ok(())
 }
