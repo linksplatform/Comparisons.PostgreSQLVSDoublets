@@ -9,7 +9,7 @@ harness = false
 
 [dependencies]
 postgres = { version = "0.19.5" }
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.38.2", features = ["full"] }
 doublets = { git = "https://github.com/linksplatform/doublets-rs.git" }
 
 [dev-dependencies]
