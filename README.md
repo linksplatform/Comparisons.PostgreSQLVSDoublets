@@ -10,14 +10,14 @@ In this particular benchmark we decided not to increase the number of links as P
 Both databases used to store and retrieve doublet-links representation. To support storage, and all basic CRUD operations that provide Turing completeness for links as in [the links theory](https://habr.com/ru/articles/895896).
 
 ## Operations
-- **Update** – basic update operation
+- **Create** – insert point link (link with id = source = target)
+- **Update** – basic link update operation
+- **Delete** – basic link delete operation
 - **Each All** – take all links matching `[*, *, *]` constraint
 - **Each Incoming** – take all links matching `[*, *, target]` constraint
 - **Each Outgoing** – take all links matching `[*, source, *]` constraint
 - **Each Concrete** – take all links matching `[*, source, target]` constraint
 - **Each Identity** – take all links matching `[id, *, *]` constraint
-- **Delete** – basic delete operation
-- **Create** – insert point (link with id = source = target)
 
 ## Results
 The results below represent the amount of time (ns) the operation takes per iteration.
