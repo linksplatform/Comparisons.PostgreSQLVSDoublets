@@ -86,7 +86,7 @@ jobs:
           pip install numpy matplotlib
           python3 out.py
       - name: Save benchmark results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Benchmark results
           path: |
