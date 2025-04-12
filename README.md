@@ -5,6 +5,10 @@ All benchmarks ran with 3000 links in background to increase size of indexes and
 
 In this particular benchmark we decided not to increase the number of links as PostgreSQL will not be able to handle it at all in reasonable time. Remember that to get accurate result we ran this benchmark multiple times.
 
+## Task
+
+Both databases used to store and retrieve doublet-links representation. To support storage, and all basic CRUD operations that provide Turing completeness for links as in [the links theory](https://habr.com/ru/articles/895896).
+
 ## Operations
 - **Update** – basic update operation
 - **Each All** – take all links matching `[*, *, *]` constraint
