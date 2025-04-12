@@ -1,7 +1,9 @@
 # Comparisons.PostgreSQLVSDoublets
 
-The comparison between PostgreSQL and LinksPlatform's Doublets (links) on basic database operations with objects (create table, read table, delete table, update table).
-All benchmarks ran with 3000 links in background and 1000 in active use (i.e. insert, delete, update).
+The comparison between PostgreSQL and LinksPlatform's Doublets (links) on basic database operations with links (create, read, delete, update).
+All benchmarks ran with 3000 links in background to increase size of indexes and 1000 are actively created/updated/deleted.
+
+In this particular benchmark we decided not to increase the number of links as PostgreSQL will not be able to handle it at all in reasonable time. Remember that to get accurate result we ran this benchmark multiple times.
 
 ## Operations
 - **Update** – basic update operation
@@ -15,12 +17,15 @@ All benchmarks ran with 3000 links in background and 1000 in active use (i.e. in
 
 ## Results
 The results below represent the amount of time (ns) the operation takes per iteration.
-- First picture shows time in a pixel scale.
-- Second picture shows time in a logarithmic scale.
+- First picture shows time in a pixel scale (for doublets just minimum value is shown, otherwise it will be not present on the graph).
+- Second picture shows time in a logarithmic scale (to see diffrence clearly, because it is around 2-3 orders of magnitude).
 
 ### Rust
 ![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust.png?raw=true)
 ![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust_log_scale.png?raw=true)
 
 ## Conclusion
-As we can see in this comparison, Doublets are blazingly faster than PostgreSQL in basic database operations.
+
+As we can see in this comparison, Doublets are around 200+ faster than PostgreSQL in write operations, and 1000+ faster in read operations.
+
+To get fresh numbers, please fork the repository and rerun benchmark in GitHub Actions.
