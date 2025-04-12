@@ -3,7 +3,7 @@
 The comparison between PostgreSQL and LinksPlatform's Doublets (links) on basic database operations with links (create, read, delete, update).
 All benchmarks ran with 3000 links in background to increase size of indexes and 1000 are actively created/updated/deleted.
 
-In this particular benchmark we decided not to increase the number of links as PostgreSQL will not be able to handle it at all in reasonable time. Remember that to get accurate result we ran this benchmark multiple times.
+In this particular benchmark we decided not to increase the number of links as PostgreSQL will not be able to handle it at all in timeframe what GitHub Actions limit allows to use for free. Remember that to get accurate result we ran this benchmark multiple times.
 
 ## Task
 
