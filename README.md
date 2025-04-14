@@ -28,6 +28,20 @@ The results below represent the amount of time (ns) the operation takes per iter
 ![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust.png?raw=true)
 ![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust_log_scale.png?raw=true)
 
+### Raw numbers
+
+| Operation     | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PSQL NonTransaction | PSQL Transaction |
+|---------------|--------------------------|-----------------------------|-------------------------|----------------------------|---------------------|------------------|
+| Create        | 100376                   | 101880                      | 84043                   | 84055                      | 1425904655          | 987780048        |
+| Delete        | 193920                   | 186236                      | 143008                  | 144136                     | 546408452           | 337301769        |
+| Each Identity | 104797                   | 104726                      | 103833                  | 103788                     | 1031610348          | 976030584        |
+| Each Concrete | 235977                   | 233636                      | 135876                  | 135861                     | 1083041040          | 1031651385       |
+| Each Outgoing | 356441                   | 382886                      | 121997                  | 123671                     | 1039865639          | 987460340        |
+| Each Incoming | 354877                   | 377912                      | 122520                  | 122565                     | 1037351023          | 979620556        |
+| Each All      | 15008                    | 16134                       | 16887                   | 15956                      | 1713894             | 1671724          |
+| Update        | 401860                   | 403564                      | 84370                   | 84605                      | 1840929549          | 1300854930       |
+
+
 ## Conclusion
 
 As we can see in this comparison, Doublets are around 200+ faster than PostgreSQL in write operations, and 1000+ faster in read operations.
