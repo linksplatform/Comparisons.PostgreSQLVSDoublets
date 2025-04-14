@@ -28,7 +28,7 @@ The results below represent the amount of time (ns) the operation takes per iter
 ![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust.png?raw=true)
 ![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust_log_scale.png?raw=true)
 
-### Raw numbers
+### Raw benchmark results (all numbers are in nanoseconds)
 
 | Operation     | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PSQL NonTransaction | PSQL Transaction |
 |---------------|--------------------------|-----------------------------|-------------------------|----------------------------|---------------------|------------------|
@@ -40,7 +40,6 @@ The results below represent the amount of time (ns) the operation takes per iter
 | Each Incoming | 354877                   | 377912                      | 122520                  | 122565                     | 1037351023          | 979620556        |
 | Each All      | 15008                    | 16134                       | 16887                   | 15956                      | 1713894             | 1671724          |
 | Update        | 401860                   | 403564                      | 84370                   | 84605                      | 1840929549          | 1300854930       |
-
 
 ## Conclusion
 
