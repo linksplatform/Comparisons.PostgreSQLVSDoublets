@@ -1,9 +1,17 @@
 import re
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Enable detailed tracing. Set to False to disable verbose output.
+DEBUG = True
+logging.basicConfig(level=logging.INFO if DEBUG else logging.WARNING,
+                    format="%(message)s")
+
 # Read the complete file
 data = open("out.txt").read()
+if DEBUG:
+    logging.info("Loaded out.txt, length: %d characters", len(data))
 
 # Use two regex patterns to extract benchmarks.
 # The first captures PostgreSQL tests and the second captures Doublets tests.
@@ -23,21 +31,29 @@ Doublets_Split_NonVolatile = {}
 # Process each regex pattern
 for pattern in patterns:
     matches = re.findall(pattern, data)
+    if DEBUG:
+        logging.info("Pattern %s matched %d entries", pattern, len(matches))
     for match in matches:
-        op = match[0]  # the operation name (e.g., Create, Update, etc.)
+        # ─── FIX: normalise name ────────────────────────────────────────────
+        op = match[0].replace("_", " ")            # Create, Each All, …
+        # ────────────────────────────────────────────────────────────────────
         if match[1] == 'PSQL':
-            # For PostgreSQL: (operation, 'PSQL', transaction, time)
+            # (operation, 'PSQL', transaction, time)
             transaction = match[2]
             time_val = int(match[3])
+            if DEBUG:
+                logging.info("PSQL %s - %s: %d ns", op, transaction, time_val)
             if transaction == "Transaction":
                 PSQL_Transaction[op] = time_val
             else:
                 PSQL_NonTransaction[op] = time_val
         else:
-            # For Doublets: (operation, 'Doublets', trees, storage, time)
+            # (operation, 'Doublets', trees, storage, time)
             trees = match[2]
             storage = match[3]
             time_val = int(match[4])
+            if DEBUG:
+                logging.info("Doublets %s - %s %s: %d ns", op, trees, storage, time_val)
             if trees == 'United':
                 if storage == 'Volatile':
                     Doublets_United_Volatile[op] = time_val
@@ -49,150 +65,108 @@ for pattern in patterns:
                 else:
                     Doublets_Split_NonVolatile[op] = time_val
 
-# Set the unified order.
-# First write operations then read operations exactly as in the sample table.
+# Operation order for table and plots
 ordered_ops = [
-    "Create", "Update", "Delete",    # Write operations
-    "Each All", "Each Identity", "Each Concrete", "Each Outgoing", "Each Incoming"  # Read operations
+    "Create", "Update", "Delete",
+    "Each All", "Each Identity", "Each Concrete", "Each Outgoing", "Each Incoming"
 ]
 
-# Prepare arrays for plotting by reassembling results in the desired order.
-def get_series(data_dict):
-    # If an operation is missing in the dictionary, default to 0.
-    return [data_dict.get(op, 0) for op in ordered_ops]
+if DEBUG:
+    logging.info("\nFinal dictionaries (after parsing):")
+    logging.info("PSQL_Transaction: %s", PSQL_Transaction)
+    logging.info("PSQL_NonTransaction: %s", PSQL_NonTransaction)
+    logging.info("Doublets_United_Volatile: %s", Doublets_United_Volatile)
+    logging.info("Doublets_United_NonVolatile: %s", Doublets_United_NonVolatile)
+    logging.info("Doublets_Split_Volatile: %s", Doublets_Split_Volatile)
+    logging.info("Doublets_Split_NonVolatile: %s", Doublets_Split_NonVolatile)
 
-du_volatile_arr = get_series(Doublets_United_Volatile)
-du_nonvolatile_arr = get_series(Doublets_United_NonVolatile)
-ds_volatile_arr = get_series(Doublets_Split_Volatile)
-ds_nonvolatile_arr = get_series(Doublets_Split_NonVolatile)
-psql_non_arr = get_series(PSQL_NonTransaction)
-psql_trans_arr = get_series(PSQL_Transaction)
+# Assemble series in the desired order.
+def get_series(d): return [d.get(op, 0) for op in ordered_ops]
 
-#########################################
-# Print the Markdown Table to Console
-#########################################
+du_volatile_arr   = get_series(Doublets_United_Volatile)
+du_nonvolatile_arr= get_series(Doublets_United_NonVolatile)
+ds_volatile_arr   = get_series(Doublets_Split_Volatile)
+ds_nonvolatile_arr= get_series(Doublets_Split_NonVolatile)
+psql_non_arr      = get_series(PSQL_NonTransaction)
+psql_trans_arr    = get_series(PSQL_Transaction)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Markdown Table
+# ─────────────────────────────────────────────────────────────────────────────
 def print_results_markdown():
-    # Define the header in Markdown format.
     header = (
         "| Operation     | Doublets United Volatile | Doublets United NonVolatile | "
         "Doublets Split Volatile | Doublets Split NonVolatile | PSQL NonTransaction | PSQL Transaction |\n"
         "|---------------|--------------------------|-----------------------------|-------------------------|----------------------------|---------------------|------------------|"
     )
     lines = [header]
-    
-    # For each operation row, compute the minimum PostgreSQL time
-    # and annotate each Doublets result with the relative speed-up.
+
     for i, op in enumerate(ordered_ops):
-        # Get PostgreSQL values. If one is missing, use the other.
-        psql_val1 = psql_non_arr[i] if psql_non_arr[i] != 0 else float('inf')
-        psql_val2 = psql_trans_arr[i] if psql_trans_arr[i] != 0 else float('inf')
-        min_psql = min(psql_val1, psql_val2)
-        
-        def annotate(doublets_val):
-            if doublets_val == 0:
-                return "N/A"
-            # Compute the factor (using the fastest PostgreSQL result).
-            factor = min_psql / doublets_val
-            return f"{doublets_val} ({factor:.1f}+ times faster)"
-        
-        du_vol_str = annotate(du_volatile_arr[i])
-        du_nonvol_str = annotate(du_nonvolatile_arr[i])
-        ds_vol_str = annotate(ds_volatile_arr[i])
-        ds_nonvol_str = annotate(ds_nonvolatile_arr[i])
-        
-        # For PostgreSQL values, just show the raw number or N/A if missing.
-        psql_non_str = str(psql_non_arr[i]) if psql_non_arr[i] != 0 else "N/A"
-        psql_trans_str = str(psql_trans_arr[i]) if psql_trans_arr[i] != 0 else "N/A"
-        
+        psql_val1 = psql_non_arr[i]   if psql_non_arr[i]   else float('inf')
+        psql_val2 = psql_trans_arr[i] if psql_trans_arr[i] else float('inf')
+        min_psql  = min(psql_val1, psql_val2)
+
+        def annotate(v):
+            if v == 0: return "N/A"
+            if min_psql == float('inf'): return f"{v}"
+            return f"{v} ({min_psql / v:.1f}+ times faster)"
+
         row = (
-            f"| {op:<13} | {du_vol_str:<24} | {du_nonvol_str:<27} | "
-            f"{ds_vol_str:<23} | {ds_nonvol_str:<26} | {psql_non_str:<19} | {psql_trans_str:<16} |"
+            f"| {op:<13} | {annotate(du_volatile_arr[i]):<24} | "
+            f"{annotate(du_nonvolatile_arr[i]):<27} | "
+            f"{annotate(ds_volatile_arr[i]):<23} | "
+            f"{annotate(ds_nonvolatile_arr[i]):<26} | "
+            f"{psql_non_arr[i] or 'N/A':<19} | {psql_trans_arr[i] or 'N/A':<16} |"
         )
         lines.append(row)
-    
+
     table_md = "\n".join(lines)
     print(table_md)
+    if DEBUG: logging.info("\nGenerated Markdown Table:\n%s", table_md)
 
-#########################################
-# Plotting Functions with Unified Order
-#########################################
+# ─────────────────────────────────────────────────────────────────────────────
+# Plots
+# ─────────────────────────────────────────────────────────────────────────────
 def bench1():
-    """
-    This function plots horizontal bar charts with scaled times.
-    Scaled by dividing each raw nanosecond (ns) value by 10,000,000.
-    """
-    # Scale the Doublets and PostgreSQL arrays.
-    scale_factor = 10000000
-    du_volatile_scaled = [max(1, x // scale_factor) for x in du_volatile_arr]
-    du_nonvolatile_scaled = [max(1, x // scale_factor) for x in du_nonvolatile_arr]
-    ds_volatile_scaled = [max(1, x // scale_factor) for x in ds_volatile_arr]
-    ds_nonvolatile_scaled = [max(1, x // scale_factor) for x in ds_nonvolatile_arr]
-    psql_non_scaled = [max(1, x // scale_factor) for x in psql_non_arr]
-    psql_trans_scaled = [max(1, x // scale_factor) for x in psql_trans_arr]
-
-    y = np.arange(len(ordered_ops))
-    width = 0.1
-
+    """Horizontal bars – scaled (divide by 10 000 000)."""
+    scale = lambda arr: [max(1, x // 10_000_000) for x in arr]
+    y, w  = np.arange(len(ordered_ops)), 0.1
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ax.barh(y - 2 * width, du_volatile_scaled, width,
-            label='Doublets United Volatile', color='salmon')
-    ax.barh(y - width, du_nonvolatile_scaled, width,
-            label='Doublets United NonVolatile', color='red')
-    ax.barh(y, ds_volatile_scaled, width,
-            label='Doublets Split Volatile', color='lightgreen')
-    ax.barh(y + width, ds_nonvolatile_scaled, width,
-            label='Doublets Split NonVolatile', color='green')
-    ax.barh(y + 2 * width, psql_non_scaled, width,
-            label='PSQL NonTransaction', color='lightblue')
-    ax.barh(y + 3 * width, psql_trans_scaled, width,
-            label='PSQL Transaction', color='blue')
+    ax.barh(y - 2*w, scale(du_volatile_arr),   w, label='Doublets United Volatile',   color='salmon')
+    ax.barh(y -   w, scale(du_nonvolatile_arr),w, label='Doublets United NonVolatile',color='red')
+    ax.barh(y      , scale(ds_volatile_arr),    w, label='Doublets Split Volatile',    color='lightgreen')
+    ax.barh(y +   w, scale(ds_nonvolatile_arr), w, label='Doublets Split NonVolatile', color='green')
+    ax.barh(y + 2*w, scale(psql_non_arr),       w, label='PSQL NonTransaction',        color='lightblue')
+    ax.barh(y + 3*w, scale(psql_trans_arr),     w, label='PSQL Transaction',           color='blue')
 
-    ax.set_xlabel('Time (ns) - Scaled to Pixels')
-    ax.set_title('Benchmark Comparison for Doublets and PostgreSQL (Rust)')
-    ax.set_yticks(y)
-    ax.set_yticklabels(ordered_ops)
-    ax.legend()
-
-    fig.tight_layout()
-    plt.savefig("bench_rust.png")
-    plt.close(fig)
+    ax.set_xlabel('Time (ns) – scaled')
+    ax.set_title ('Benchmark Comparison (Rust)')
+    ax.set_yticks(y); ax.set_yticklabels(ordered_ops); ax.legend()
+    fig.tight_layout(); plt.savefig("bench_rust.png"); plt.close(fig)
+    if DEBUG: logging.info("bench_rust.png saved.")
 
 def bench2():
-    """
-    This function plots horizontal bar charts using raw nanosecond values on a logarithmic scale.
-    """
-    y = np.arange(len(ordered_ops))
-    width = 0.1
+    """Horizontal bars – raw values on a log scale."""
+    y, w  = np.arange(len(ordered_ops)), 0.1
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ax.barh(y - 2 * width, du_volatile_arr, width,
-            label='Doublets United Volatile', color='salmon')
-    ax.barh(y - width, du_nonvolatile_arr, width,
-            label='Doublets United NonVolatile', color='red')
-    ax.barh(y, ds_volatile_arr, width,
-            label='Doublets Split Volatile', color='lightgreen')
-    ax.barh(y + width, ds_nonvolatile_arr, width,
-            label='Doublets Split NonVolatile', color='green')
-    ax.barh(y + 2 * width, psql_non_arr, width,
-            label='PSQL NonTransaction', color='lightblue')
-    ax.barh(y + 3 * width, psql_trans_arr, width,
-            label='PSQL Transaction', color='blue')
+    ax.barh(y - 2*w, du_volatile_arr,   w, label='Doublets United Volatile',   color='salmon')
+    ax.barh(y -   w, du_nonvolatile_arr,w, label='Doublets United NonVolatile',color='red')
+    ax.barh(y      , ds_volatile_arr,    w, label='Doublets Split Volatile',    color='lightgreen')
+    ax.barh(y +   w, ds_nonvolatile_arr, w, label='Doublets Split NonVolatile', color='green')
+    ax.barh(y + 2*w, psql_non_arr,       w, label='PSQL NonTransaction',        color='lightblue')
+    ax.barh(y + 3*w, psql_trans_arr,     w, label='PSQL Transaction',           color='blue')
 
-    ax.set_xlabel('Time (ns) - Logarithmic Scale')
-    ax.set_title('Benchmark Comparison for Doublets and PostgreSQL (Rust)')
-    ax.set_yticks(y)
-    ax.set_yticklabels(ordered_ops)
-    ax.legend()
+    ax.set_xlabel('Time (ns) – log scale')
+    ax.set_title ('Benchmark Comparison (Rust)')
+    ax.set_yticks(y); ax.set_yticklabels(ordered_ops); ax.set_xscale('log'); ax.legend()
+    fig.tight_layout(); plt.savefig("bench_rust_log_scale.png"); plt.close(fig)
+    if DEBUG: logging.info("bench_rust_log_scale.png saved.")
 
-    ax.set_xscale('log')
-    fig.tight_layout()
-    plt.savefig("bench_rust_log_scale.png")
-    plt.close(fig)
-
-#########################################
-# Main section: print table and generate images
-#########################################
+# ─────────────────────────────────────────────────────────────────────────────
+# Run
+# ─────────────────────────────────────────────────────────────────────────────
 print_results_markdown()
 bench1()
 bench2()
