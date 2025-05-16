@@ -32,17 +32,17 @@ The results below represent the amount of time (ns) the operation takes per iter
 
 | Operation     | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PSQL NonTransaction | PSQL Transaction |
 |---------------|--------------------------|-----------------------------|-------------------------|----------------------------|---------------------|------------------|
-| Create        | 100376                   | 101880                      | 84043                   | 84055                      | 1425904655          | 987780048        |
-| Delete        | 193920                   | 186236                      | 143008                  | 144136                     | 546408452           | 337301769        |
-| Update        | 401860                   | 403564                      | 84370                   | 84605                      | 1840929549          | 1300854930       |
-| Each All      | 15008                    | 16134                       | 16887                   | 15956                      | 1713894             | 1671724          |
-| Each Identity | 104797                   | 104726                      | 103833                  | 103788                     | 1031610348          | 976030584        |
-| Each Concrete | 235977                   | 233636                      | 135876                  | 135861                     | 1083041040          | 1031651385       |
-| Each Outgoing | 356441                   | 382886                      | 121997                  | 123671                     | 1039865639          | 987460340        |
-| Each Incoming | 354877                   | 377912                      | 122520                  | 122565                     | 1037351023          | 979620556        |
+| Create        | 98074 (10163.6+ times faster) | 101753 (9796.1+ times faster) | 83158 (11986.6+ times faster) | 83555 (11929.7+ times faster) | 1418444409          | 996785265        |
+| Update        | 393717 (3328.3+ times faster) | 395531 (3313.0+ times faster) | 83090 (15770.8+ times faster) | 83222 (15745.8+ times faster) | 1708932179          | 1310397499       |
+| Delete        | 193643 (1746.4+ times faster) | 184686 (1831.1+ times faster) | 144773 (2336.0+ times faster) | 144322 (2343.3+ times faster) | 516439248           | 338185472        |
+| Each All      | 14991 (110.0+ times faster) | 16263 (101.4+ times faster) | 16860 (97.8+ times faster) | 15970 (103.2+ times faster) | 1717107             | 1648433          |
+| Each Identity | 102612 (9614.5+ times faster) | 102701 (9606.2+ times faster) | 101771 (9694.0+ times faster) | 101764 (9694.7+ times faster) | 1030793967          | 986567072        |
+| Each Concrete | 232170 (4482.9+ times faster) | 231432 (4497.2+ times faster) | 133134 (7817.6+ times faster) | 132956 (7828.0+ times faster) | 1085583098          | 1040785456       |
+| Each Outgoing | 384706 (2590.4+ times faster) | 382143 (2607.8+ times faster) | 120126 (8295.9+ times faster) | 121173 (8224.2+ times faster) | 1048393281          | 996555891        |
+| Each Incoming | 386936 (2551.7+ times faster) | 390969 (2525.4+ times faster) | 120659 (8182.9+ times faster) | 120620 (8185.6+ times faster) | 1039836582          | 987344012        |
 
 ## Conclusion
 
-As we can see in this comparison, Doublets are around 200+ faster than PostgreSQL in write operations, and 1000+ faster in read operations.
+As we can see in this comparison, Doublets are from 1746 to 15745 times faster than PostgreSQL in write operations, and from 100 to 9694 times faster in read operations.
 
 To get fresh numbers, please fork the repository and rerun benchmark in GitHub Actions.
