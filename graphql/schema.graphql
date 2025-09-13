@@ -1,0 +1,52 @@
+"""
+Common GraphQL schema for comparing PostgreSQL+Hasura vs Doublets+GQL
+Based on the benchmark operations: Create, Update, Delete, and various Each operations
+"""
+
+type Link {
+  id: ID!
+  source: ID!
+  target: ID!
+}
+
+input LinkInput {
+  source: ID!
+  target: ID!
+}
+
+input LinkUpdateInput {
+  id: ID!
+  source: ID
+  target: ID
+}
+
+type Query {
+  """Get all links - equivalent to Each All operation [*, *, *]"""
+  allLinks(limit: Int, offset: Int): [Link!]!
+  
+  """Get links by specific ID - equivalent to Each Identity operation [id, *, *]"""
+  linkById(id: ID!): Link
+  
+  """Get links with specific source and target - equivalent to Each Concrete operation [*, source, target]"""
+  concreteLinks(source: ID!, target: ID!, limit: Int, offset: Int): [Link!]!
+  
+  """Get outgoing links from source - equivalent to Each Outgoing operation [*, source, *]"""
+  outgoingLinks(source: ID!, limit: Int, offset: Int): [Link!]!
+  
+  """Get incoming links to target - equivalent to Each Incoming operation [*, *, target]"""
+  incomingLinks(target: ID!, limit: Int, offset: Int): [Link!]!
+}
+
+type Mutation {
+  """Create a point link (link with id = source = target)"""
+  createPointLink: Link!
+  
+  """Create a regular link"""
+  createLink(input: LinkInput!): Link!
+  
+  """Update an existing link"""
+  updateLink(input: LinkUpdateInput!): Link
+  
+  """Delete a link by ID"""
+  deleteLink(id: ID!): Boolean!
+}
