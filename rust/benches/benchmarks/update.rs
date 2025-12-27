@@ -6,7 +6,7 @@ use {
         mem::{Alloc, FileMapped}, split, split::{DataPart, IndexPart},
         unit, unit::LinkPart,
     },
-    linkspsql::{BACKGROUND_LINKS, bench, Benched, Transaction, Exclusive, connect, Client, Fork},
+    linkspsql::{background_links, benchmark_links, bench, Benched, Transaction, Exclusive, connect, Client, Fork},
     std::{alloc::Global, time::{Duration, Instant}},
 };
 
@@ -15,9 +15,11 @@ fn bench<B: Benched + Doublets<usize>>(
     id: &str,
     mut benched: B,
 ) {
+    let bg_links = background_links();
+    let links = benchmark_links();
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            for id in BACKGROUND_LINKS - 999..=BACKGROUND_LINKS {
+            for id in bg_links - (links - 1)..=bg_links {
                 let _ = elapsed! {fork.update(id, 0, 0)?};
                 let _ = elapsed! {fork.update(id, id, id)?};
             }

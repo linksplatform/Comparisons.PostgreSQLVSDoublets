@@ -34,9 +34,8 @@ for pattern in patterns:
     if DEBUG:
         logging.info("Pattern %s matched %d entries", pattern, len(matches))
     for match in matches:
-        # ─── FIX: normalise name ────────────────────────────────────────────
-        op = match[0].replace("_", " ")            # Create, Each All, …
-        # ────────────────────────────────────────────────────────────────────
+        # Normalise name
+        op = match[0].replace("_", " ")  # Create, Each All, …
         if match[1] == 'PSQL':
             # (operation, 'PSQL', transaction, time)
             transaction = match[2]
@@ -83,12 +82,12 @@ if DEBUG:
 # Assemble series in the desired order.
 def get_series(d): return [d.get(op, 0) for op in ordered_ops]
 
-du_volatile_arr   = get_series(Doublets_United_Volatile)
-du_nonvolatile_arr= get_series(Doublets_United_NonVolatile)
-ds_volatile_arr   = get_series(Doublets_Split_Volatile)
-ds_nonvolatile_arr= get_series(Doublets_Split_NonVolatile)
-psql_non_arr      = get_series(PSQL_NonTransaction)
-psql_trans_arr    = get_series(PSQL_Transaction)
+du_volatile_arr = get_series(Doublets_United_Volatile)
+du_nonvolatile_arr = get_series(Doublets_United_NonVolatile)
+ds_volatile_arr = get_series(Doublets_Split_Volatile)
+ds_nonvolatile_arr = get_series(Doublets_Split_NonVolatile)
+psql_non_arr = get_series(PSQL_NonTransaction)
+psql_trans_arr = get_series(PSQL_Transaction)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Markdown Table
@@ -102,14 +101,14 @@ def print_results_markdown():
     lines = [header]
 
     for i, op in enumerate(ordered_ops):
-        psql_val1 = psql_non_arr[i]   if psql_non_arr[i]   else float('inf')
+        psql_val1 = psql_non_arr[i] if psql_non_arr[i] else float('inf')
         psql_val2 = psql_trans_arr[i] if psql_trans_arr[i] else float('inf')
-        min_psql  = min(psql_val1, psql_val2)
+        min_psql = min(psql_val1, psql_val2)
 
         def annotate(v):
             if v == 0: return "N/A"
             if min_psql == float('inf'): return f"{v}"
-            return f"{v} ({min_psql / v:.1f}+ times faster)"
+            return f"{v} ({min_psql / v:.1f}x faster)"
 
         row = (
             f"| {op:<13} | {annotate(du_volatile_arr[i]):<24} | "
@@ -122,44 +121,71 @@ def print_results_markdown():
 
     table_md = "\n".join(lines)
     print(table_md)
+
+    # Save to file for CI to use
+    with open("results.md", "w") as f:
+        f.write(table_md)
+
     if DEBUG: logging.info("\nGenerated Markdown Table:\n%s", table_md)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Plots
 # ─────────────────────────────────────────────────────────────────────────────
+def ensure_min_visible(arr, min_val):
+    """Ensure non-zero values are at least min_val for visibility on graph."""
+    return [max(v, min_val) if v > 0 else 0 for v in arr]
+
 def bench1():
-    """Horizontal bars – scaled (divide by 10 000 000)."""
-    scale = lambda arr: [max(1, x // 10_000_000) for x in arr]
-    y, w  = np.arange(len(ordered_ops)), 0.1
+    """Horizontal bars – raw values (pixel scale)."""
+    y, w = np.arange(len(ordered_ops)), 0.1
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ax.barh(y - 2*w, scale(du_volatile_arr),   w, label='Doublets United Volatile',   color='salmon')
-    ax.barh(y -   w, scale(du_nonvolatile_arr),w, label='Doublets United NonVolatile',color='red')
-    ax.barh(y      , scale(ds_volatile_arr),    w, label='Doublets Split Volatile',    color='lightgreen')
-    ax.barh(y +   w, scale(ds_nonvolatile_arr), w, label='Doublets Split NonVolatile', color='green')
-    ax.barh(y + 2*w, scale(psql_non_arr),       w, label='PSQL NonTransaction',        color='lightblue')
-    ax.barh(y + 3*w, scale(psql_trans_arr),     w, label='PSQL Transaction',           color='blue')
+    # Calculate maximum value across all data series to determine scale
+    all_values = (du_volatile_arr + du_nonvolatile_arr + ds_volatile_arr +
+                  ds_nonvolatile_arr + psql_non_arr + psql_trans_arr)
+    max_val = max(all_values) if all_values else 1
 
-    ax.set_xlabel('Time (ns) – scaled')
-    ax.set_title ('Benchmark Comparison (Rust)')
+    # Minimum visible bar width: ~0.5% of max value ensures at least 2 pixels
+    # on typical 12-inch wide figure at 100 DPI (~900px plot area)
+    min_visible = max_val * 0.005
+    if DEBUG:
+        logging.info("bench1: max_val=%d, min_visible=%d", max_val, min_visible)
+
+    # Apply minimum visibility to all data series
+    du_volatile_vis = ensure_min_visible(du_volatile_arr, min_visible)
+    du_nonvolatile_vis = ensure_min_visible(du_nonvolatile_arr, min_visible)
+    ds_volatile_vis = ensure_min_visible(ds_volatile_arr, min_visible)
+    ds_nonvolatile_vis = ensure_min_visible(ds_nonvolatile_arr, min_visible)
+    psql_non_vis = ensure_min_visible(psql_non_arr, min_visible)
+    psql_trans_vis = ensure_min_visible(psql_trans_arr, min_visible)
+
+    ax.barh(y - 2*w, du_volatile_vis, w, label='Doublets United Volatile', color='salmon')
+    ax.barh(y - w, du_nonvolatile_vis, w, label='Doublets United NonVolatile', color='red')
+    ax.barh(y, ds_volatile_vis, w, label='Doublets Split Volatile', color='lightgreen')
+    ax.barh(y + w, ds_nonvolatile_vis, w, label='Doublets Split NonVolatile', color='green')
+    ax.barh(y + 2*w, psql_non_vis, w, label='PSQL NonTransaction', color='lightblue')
+    ax.barh(y + 3*w, psql_trans_vis, w, label='PSQL Transaction', color='blue')
+
+    ax.set_xlabel('Time (ns)')
+    ax.set_title ('Benchmark Comparison: PostgreSQL vs Doublets (Rust)')
     ax.set_yticks(y); ax.set_yticklabels(ordered_ops); ax.legend()
     fig.tight_layout(); plt.savefig("bench_rust.png"); plt.close(fig)
     if DEBUG: logging.info("bench_rust.png saved.")
 
 def bench2():
     """Horizontal bars – raw values on a log scale."""
-    y, w  = np.arange(len(ordered_ops)), 0.1
+    y, w = np.arange(len(ordered_ops)), 0.1
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ax.barh(y - 2*w, du_volatile_arr,   w, label='Doublets United Volatile',   color='salmon')
-    ax.barh(y -   w, du_nonvolatile_arr,w, label='Doublets United NonVolatile',color='red')
-    ax.barh(y      , ds_volatile_arr,    w, label='Doublets Split Volatile',    color='lightgreen')
-    ax.barh(y +   w, ds_nonvolatile_arr, w, label='Doublets Split NonVolatile', color='green')
-    ax.barh(y + 2*w, psql_non_arr,       w, label='PSQL NonTransaction',        color='lightblue')
-    ax.barh(y + 3*w, psql_trans_arr,     w, label='PSQL Transaction',           color='blue')
+    ax.barh(y - 2*w, du_volatile_arr, w, label='Doublets United Volatile', color='salmon')
+    ax.barh(y - w, du_nonvolatile_arr, w, label='Doublets United NonVolatile', color='red')
+    ax.barh(y, ds_volatile_arr, w, label='Doublets Split Volatile', color='lightgreen')
+    ax.barh(y + w, ds_nonvolatile_arr, w, label='Doublets Split NonVolatile', color='green')
+    ax.barh(y + 2*w, psql_non_arr, w, label='PSQL NonTransaction', color='lightblue')
+    ax.barh(y + 3*w, psql_trans_arr, w, label='PSQL Transaction', color='blue')
 
     ax.set_xlabel('Time (ns) – log scale')
-    ax.set_title ('Benchmark Comparison (Rust)')
+    ax.set_title ('Benchmark Comparison: PostgreSQL vs Doublets (Rust)')
     ax.set_yticks(y); ax.set_yticklabels(ordered_ops); ax.set_xscale('log'); ax.legend()
     fig.tight_layout(); plt.savefig("bench_rust_log_scale.png"); plt.close(fig)
     if DEBUG: logging.info("bench_rust_log_scale.png saved.")

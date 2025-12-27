@@ -15,10 +15,10 @@ macro_rules! bench {
                     }};
                 }
                 crate::tri! {
-                    use linkspsql::BACKGROUND_LINKS;
+                    let background_links = linkspsql::background_links();
                     for _iter in 0..iters {
                         let mut $fork: Fork<$B> = Benched::fork(&mut *benched);
-                        for _ in 0..BACKGROUND_LINKS {
+                        for _ in 0..background_links {
                             let _ = $fork.create_point()?;
                         }
                         $($body)*
@@ -30,7 +30,6 @@ macro_rules! bench {
     }
 }
 
-use doublets::Doublets;
 pub use {
     benched::Benched, client::Client, exclusive::Exclusive, fork::Fork, transaction::Transaction,
 };
@@ -38,7 +37,7 @@ pub use {
 use {
     doublets::{data::LinkType, mem::FileMapped},
     postgres::NoTls,
-    std::{error, fs::File, io, result},
+    std::{env, error, fs::File, io, result},
 };
 
 mod benched;
@@ -49,7 +48,25 @@ mod transaction;
 
 pub type Result<T, E = Box<dyn error::Error + Sync + Send>> = result::Result<T, E>;
 
-pub const BACKGROUND_LINKS: usize = 3_000;
+/// Number of background links to create before each benchmark iteration.
+/// Configurable via BENCHMARK_BACKGROUND_LINKS environment variable.
+/// Default: 3000 (for local testing), CI uses 100 for PRs and 100000 for main branch.
+pub fn background_links() -> usize {
+    env::var("BENCHMARK_BACKGROUND_LINKS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(3_000)
+}
+
+/// Number of links to create/update/delete in each benchmark operation.
+/// Configurable via BENCHMARK_LINKS environment variable.
+/// Default: 1000 (for local testing), CI uses 10 for PRs and 1000 for main branch.
+pub fn benchmark_links() -> usize {
+    env::var("BENCHMARK_LINKS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1_000)
+}
 const PARAMS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
 pub fn connect<T: LinkType>() -> Result<Client<T>> {

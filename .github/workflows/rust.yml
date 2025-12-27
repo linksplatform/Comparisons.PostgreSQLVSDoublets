@@ -1,6 +1,14 @@
 name: Benchmark Rust version
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
 
 env:
   toolchain: nightly-2022-08-22
@@ -27,23 +35,47 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: ${{env.toolchain}}
           components: rustfmt, clippy
-          default: true
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be fully ready..."
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U postgres > /dev/null 2>&1; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Attempt $i: PostgreSQL not ready yet..."
+            sleep 2
+          done
+
       - name: Build benchmark
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features --manifest-path rust/Cargo.toml
+        run: cargo build --release --all-features --manifest-path rust/Cargo.toml
+
       - name: Run benchmark
         working-directory: rust
-        run: cargo bench --bench bench -- --output-format bencher | tee out.txt
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          # Use 1000 links for main/master branch benchmarks, 10 for pull requests
+          BENCHMARK_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '1000' || '10' }}
+          # Use 100000 background links for main/master branch, 100 for pull requests
+          BENCHMARK_BACKGROUND_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '100000' || '100' }}
+        run: |
+          set -o pipefail
+          cargo bench --bench bench -- --output-format bencher | tee out.txt
+
       - name: Prepare benchmark results
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: |
           git config --global user.email "linksplatform@gmail.com"
           git config --global user.name "LinksPlatformBencher"
@@ -51,13 +83,45 @@ jobs:
           pip install numpy matplotlib
           python3 out.py
           cd ..
-          git fetch
-          git checkout gh-pages
-          mv -f rust/bench_rust.png Docs
-          mv -f rust/bench_rust_log_scale.png Docs
-          git add Docs
-          git commit -m "Publish new benchmark results"
-          git push origin gh-pages
+
+          # Create Docs directory if it doesn't exist
+          mkdir -p Docs
+
+          # Copy generated images
+          cp -f rust/bench_rust.png Docs/
+          cp -f rust/bench_rust_log_scale.png Docs/
+
+          # Update README with latest results
+          if [ -f rust/results.md ]; then
+            # Replace the results section in README.md
+            python3 -c "
+          import re
+
+          with open('rust/results.md', 'r') as f:
+              results = f.read()
+
+          with open('README.md', 'r') as f:
+              readme = f.read()
+
+          # Pattern to find and replace the results table
+          pattern = r'(\| Operation.*?\n\|[-|]+\n(?:\|.*?\n)*)'
+          if re.search(pattern, readme):
+              readme = re.sub(pattern, results.strip() + '\n', readme)
+
+          with open('README.md', 'w') as f:
+              f.write(readme)
+          "
+          fi
+
+          # Commit changes if any
+          git add Docs README.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update benchmark results"
+            git push origin HEAD
+          fi
+
       - name: Save benchmark results
         uses: actions/upload-artifact@v4
         with:
@@ -65,3 +129,4 @@ jobs:
           path: |
             rust/bench_rust.png
             rust/bench_rust_log_scale.png
+            rust/out.txt
