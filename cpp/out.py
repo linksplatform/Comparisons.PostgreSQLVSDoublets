@@ -89,12 +89,12 @@ def bench1():
         logging.info("bench1: max_val=%d, min_visible=%d", max_val, min_visible)
 
     # Apply minimum visibility to all data series
-    du_volatile_vis    = ensure_min_visible(Doublets_United_Volatile, min_visible)
+    du_volatile_vis = ensure_min_visible(Doublets_United_Volatile, min_visible)
     du_nonvolatile_vis = ensure_min_visible(Doublets_United_NonVolatile, min_visible)
-    ds_volatile_vis    = ensure_min_visible(Doublets_Split_Volatile, min_visible)
+    ds_volatile_vis = ensure_min_visible(Doublets_Split_Volatile, min_visible)
     ds_nonvolatile_vis = ensure_min_visible(Doublets_Split_NonVolatile, min_visible)
-    psql_non_vis       = ensure_min_visible(PSQL_NonTransaction, min_visible)
-    psql_trans_vis     = ensure_min_visible(PSQL_Transaction, min_visible)
+    psql_non_vis = ensure_min_visible(PSQL_NonTransaction, min_visible)
+    psql_trans_vis = ensure_min_visible(PSQL_Transaction, min_visible)
 
     ax.barh(y - 2*width, du_volatile_vis, width, label='Doublets United Volatile', color='salmon')
     ax.barh(y - width, du_nonvolatile_vis, width, label='Doublets United NonVolatile', color='red')
