@@ -25,8 +25,8 @@ The results below represent the amount of time (ns) the operation takes per iter
 - Second picture shows time in a logarithmic scale (to see diffrence clearly, because it is around 2-3 orders of magnitude).
 
 ### Rust
-![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust.png?raw=true)
-![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/gh-pages/Docs/bench_rust_log_scale.png?raw=true)
+![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/main/Docs/bench_rust.png?raw=true)
+![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/main/Docs/bench_rust_log_scale.png?raw=true)
 
 ### Raw benchmark results (all numbers are in nanoseconds)
 
