@@ -8,7 +8,7 @@ use {
         parts::LinkPart,
         split::{self, DataPart, IndexPart}, unit,
     },
-    linkspsql::{bench, Benched, Client, connect, Exclusive, Fork, Transaction},
+    linkspsql::{bench, benchmark_links, Benched, Client, connect, Exclusive, Fork, Transaction},
     std::{alloc::Global, time::{Duration, Instant}},
 };
 
@@ -17,9 +17,10 @@ fn bench<T: LinkType, B: Benched + Doublets<T>>(
     id: &str,
     mut benched: B,
 ) {
+    let links = benchmark_links();
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            for _ in 0..1_000 {
+            for _ in 0..links {
                 let _ = elapsed! {fork.create_point()?};
             }
         })(bencher, &mut benched);

@@ -67,7 +67,9 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
           # Use 1000 links for main/master branch benchmarks, 10 for pull requests
-          BENCHMARK_LINK_COUNT: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '1000' || '10' }}
+          BENCHMARK_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '1000' || '10' }}
+          # Use 100000 background links for main/master branch, 100 for pull requests
+          BENCHMARK_BACKGROUND_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '100000' || '100' }}
         run: |
           set -o pipefail
           cargo bench --bench bench -- --output-format bencher | tee out.txt

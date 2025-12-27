@@ -7,7 +7,7 @@ use {
         parts::LinkPart,
         split::{self, DataPart, IndexPart}, unit,
     },
-    linkspsql::{bench, Benched, Client, connect, Exclusive, Fork, Transaction, BACKGROUND_LINKS},
+    linkspsql::{bench, background_links, benchmark_links, Benched, Client, connect, Exclusive, Fork, Transaction},
     std::{alloc::Global, time::{Duration, Instant}},
 };
 fn bench<B: Benched + Doublets<usize>>(
@@ -15,12 +15,14 @@ fn bench<B: Benched + Doublets<usize>>(
     id: &str,
     mut benched: B,
 ) {
+    let bg_links = background_links();
+    let links = benchmark_links();
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            for _prepare in BACKGROUND_LINKS..BACKGROUND_LINKS + 1_000 {
+            for _prepare in bg_links..bg_links + links {
                 let _ = fork.create_point();
             }
-            for id in (BACKGROUND_LINKS..=BACKGROUND_LINKS + 1_000).rev() {
+            for id in (bg_links..=bg_links + links).rev() {
                 let _ = elapsed! {fork.delete(id)?};
             }
         })(bencher, &mut benched);
