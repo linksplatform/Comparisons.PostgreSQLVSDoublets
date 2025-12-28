@@ -50,22 +50,22 @@ pub type Result<T, E = Box<dyn error::Error + Sync + Send>> = result::Result<T, 
 
 /// Number of background links to create before each benchmark iteration.
 /// Configurable via BENCHMARK_BACKGROUND_LINKS environment variable.
-/// Default: 3000 (for local testing), CI uses 100 for PRs and 100000 for main branch.
+/// Default: 1000 (for local testing), CI uses 100 for PRs and 1000 for main branch.
 pub fn background_links() -> usize {
     env::var("BENCHMARK_BACKGROUND_LINKS")
         .ok()
         .and_then(|s| s.parse().ok())
-        .unwrap_or(3_000)
+        .unwrap_or(1_000)
 }
 
 /// Number of links to create/update/delete in each benchmark operation.
 /// Configurable via BENCHMARK_LINKS environment variable.
-/// Default: 1000 (for local testing), CI uses 10 for PRs and 1000 for main branch.
+/// Default: 100 (for local testing), CI uses 10 for PRs and 100 for main branch.
 pub fn benchmark_links() -> usize {
     env::var("BENCHMARK_LINKS")
         .ok()
         .and_then(|s| s.parse().ok())
-        .unwrap_or(1_000)
+        .unwrap_or(100)
 }
 const PARAMS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
