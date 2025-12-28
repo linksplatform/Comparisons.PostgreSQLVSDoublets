@@ -1,0 +1,1046 @@
+benchmark	Set up job	﻿2025-12-27T15:21:37.9341737Z Current runner version: '2.330.0'
+benchmark	Set up job	2025-12-27T15:21:37.9366991Z ##[group]Runner Image Provisioner
+benchmark	Set up job	2025-12-27T15:21:37.9367843Z Hosted Compute Agent
+benchmark	Set up job	2025-12-27T15:21:37.9368876Z Version: 20251211.462
+benchmark	Set up job	2025-12-27T15:21:37.9369525Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+benchmark	Set up job	2025-12-27T15:21:37.9370205Z Build Date: 2025-12-11T16:28:49Z
+benchmark	Set up job	2025-12-27T15:21:37.9370867Z Worker ID: {d5f00507-5c87-42e9-8e26-78046101b334}
+benchmark	Set up job	2025-12-27T15:21:37.9371496Z ##[endgroup]
+benchmark	Set up job	2025-12-27T15:21:37.9372014Z ##[group]Operating System
+benchmark	Set up job	2025-12-27T15:21:37.9372601Z Ubuntu
+benchmark	Set up job	2025-12-27T15:21:37.9373053Z 24.04.3
+benchmark	Set up job	2025-12-27T15:21:37.9373527Z LTS
+benchmark	Set up job	2025-12-27T15:21:37.9373920Z ##[endgroup]
+benchmark	Set up job	2025-12-27T15:21:37.9374457Z ##[group]Runner Image
+benchmark	Set up job	2025-12-27T15:21:37.9374955Z Image: ubuntu-24.04
+benchmark	Set up job	2025-12-27T15:21:37.9375433Z Version: 20251215.174.1
+benchmark	Set up job	2025-12-27T15:21:37.9376467Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251215.174/images/ubuntu/Ubuntu2404-Readme.md
+benchmark	Set up job	2025-12-27T15:21:37.9377889Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251215.174
+benchmark	Set up job	2025-12-27T15:21:37.9379278Z ##[endgroup]
+benchmark	Set up job	2025-12-27T15:21:37.9381803Z ##[group]GITHUB_TOKEN Permissions
+benchmark	Set up job	2025-12-27T15:21:37.9384055Z Actions: write
+benchmark	Set up job	2025-12-27T15:21:37.9384638Z ArtifactMetadata: write
+benchmark	Set up job	2025-12-27T15:21:37.9385138Z Attestations: write
+benchmark	Set up job	2025-12-27T15:21:37.9385718Z Checks: write
+benchmark	Set up job	2025-12-27T15:21:37.9386168Z Contents: write
+benchmark	Set up job	2025-12-27T15:21:37.9386671Z Deployments: write
+benchmark	Set up job	2025-12-27T15:21:37.9387214Z Discussions: write
+benchmark	Set up job	2025-12-27T15:21:37.9387725Z Issues: write
+benchmark	Set up job	2025-12-27T15:21:37.9388521Z Metadata: read
+benchmark	Set up job	2025-12-27T15:21:37.9389036Z Models: read
+benchmark	Set up job	2025-12-27T15:21:37.9389537Z Packages: write
+benchmark	Set up job	2025-12-27T15:21:37.9389990Z Pages: write
+benchmark	Set up job	2025-12-27T15:21:37.9390739Z PullRequests: write
+benchmark	Set up job	2025-12-27T15:21:37.9391368Z RepositoryProjects: write
+benchmark	Set up job	2025-12-27T15:21:37.9391937Z SecurityEvents: write
+benchmark	Set up job	2025-12-27T15:21:37.9392491Z Statuses: write
+benchmark	Set up job	2025-12-27T15:21:37.9392962Z ##[endgroup]
+benchmark	Set up job	2025-12-27T15:21:37.9395357Z Secret source: Actions
+benchmark	Set up job	2025-12-27T15:21:37.9396229Z Prepare workflow directory
+benchmark	Set up job	2025-12-27T15:21:37.9956729Z Prepare all required actions
+benchmark	Set up job	2025-12-27T15:21:37.9994420Z Getting action download info
+benchmark	Set up job	2025-12-27T15:21:38.3283577Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+benchmark	Set up job	2025-12-27T15:21:38.4495463Z Download action repository 'dtolnay/rust-toolchain@master' (SHA:f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561)
+benchmark	Set up job	2025-12-27T15:21:38.7257334Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+benchmark	Set up job	2025-12-27T15:21:39.0447067Z Complete job name: benchmark
+benchmark	Initialize containers	﻿2025-12-27T15:21:39.0898276Z ##[group]Checking docker version
+benchmark	Initialize containers	2025-12-27T15:21:39.0911354Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+benchmark	Initialize containers	2025-12-27T15:21:39.1909929Z '1.48'
+benchmark	Initialize containers	2025-12-27T15:21:39.1923313Z Docker daemon API version: '1.48'
+benchmark	Initialize containers	2025-12-27T15:21:39.1924121Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+benchmark	Initialize containers	2025-12-27T15:21:39.2084788Z '1.48'
+benchmark	Initialize containers	2025-12-27T15:21:39.2098369Z Docker client API version: '1.48'
+benchmark	Initialize containers	2025-12-27T15:21:39.2103255Z ##[endgroup]
+benchmark	Initialize containers	2025-12-27T15:21:39.2106362Z ##[group]Clean up resources from previous jobs
+benchmark	Initialize containers	2025-12-27T15:21:39.2112563Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=551e5c"
+benchmark	Initialize containers	2025-12-27T15:21:39.2305774Z ##[command]/usr/bin/docker network prune --force --filter "label=551e5c"
+benchmark	Initialize containers	2025-12-27T15:21:39.2436367Z ##[endgroup]
+benchmark	Initialize containers	2025-12-27T15:21:39.2436955Z ##[group]Create local container network
+benchmark	Initialize containers	2025-12-27T15:21:39.2447664Z ##[command]/usr/bin/docker network create --label 551e5c github_network_2106a5326de64e908e44e39a69e69ed8
+benchmark	Initialize containers	2025-12-27T15:21:39.3023976Z 90be273894ca060143413088cee2aab532a2058c2138718afdd445f06485ff7e
+benchmark	Initialize containers	2025-12-27T15:21:39.3043310Z ##[endgroup]
+benchmark	Initialize containers	2025-12-27T15:21:39.3068842Z ##[group]Starting postgres service container
+benchmark	Initialize containers	2025-12-27T15:21:39.3090175Z ##[command]/usr/bin/docker pull postgres:latest
+benchmark	Initialize containers	2025-12-27T15:21:39.7394553Z latest: Pulling from library/postgres
+benchmark	Initialize containers	2025-12-27T15:21:39.8684408Z 1733a4cd5954: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8686412Z bab3dfaacd57: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8687872Z 6dd6fcdc9495: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8689331Z b004922a6f45: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8690238Z 72fdf866b594: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8691182Z c3ff19dd627c: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8692109Z 854c622dacff: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8693063Z f106a4619ad3: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8693922Z c063aa26ba0a: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8694767Z 1a285618a7ed: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8695597Z 807997f7ba63: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8696429Z db5e628b821e: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8697308Z 1dc30afa2762: Pulling fs layer
+benchmark	Initialize containers	2025-12-27T15:21:39.8698305Z 1a285618a7ed: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8699144Z c3ff19dd627c: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8699926Z f106a4619ad3: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8700722Z c063aa26ba0a: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8701509Z 854c622dacff: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8702278Z 807997f7ba63: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8703075Z db5e628b821e: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8703868Z 1dc30afa2762: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8704657Z b004922a6f45: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.8705466Z 72fdf866b594: Waiting
+benchmark	Initialize containers	2025-12-27T15:21:39.9768452Z bab3dfaacd57: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:39.9770341Z bab3dfaacd57: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.0080374Z 6dd6fcdc9495: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.0919820Z b004922a6f45: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.0921602Z b004922a6f45: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.1709997Z 72fdf866b594: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.1993596Z 72fdf866b594: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.1996182Z 1733a4cd5954: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.1998773Z 1733a4cd5954: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.2137689Z c3ff19dd627c: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.2139915Z c3ff19dd627c: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.2990171Z 854c622dacff: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.2992562Z 854c622dacff: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.3444040Z f106a4619ad3: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.3446112Z f106a4619ad3: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.4032893Z 1a285618a7ed: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.4609561Z 807997f7ba63: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.5035763Z db5e628b821e: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.5038520Z db5e628b821e: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:40.5693057Z 1dc30afa2762: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:40.5695268Z 1dc30afa2762: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:41.0348368Z c063aa26ba0a: Verifying Checksum
+benchmark	Initialize containers	2025-12-27T15:21:41.0350436Z c063aa26ba0a: Download complete
+benchmark	Initialize containers	2025-12-27T15:21:41.3250570Z 1733a4cd5954: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.1714439Z bab3dfaacd57: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.3514914Z 6dd6fcdc9495: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.3915684Z b004922a6f45: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.7083730Z 72fdf866b594: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.7955939Z c3ff19dd627c: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.8053774Z 854c622dacff: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:44.8182793Z f106a4619ad3: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.8850790Z c063aa26ba0a: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.9386809Z 1a285618a7ed: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.9483750Z 807997f7ba63: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.9582135Z db5e628b821e: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.9690900Z 1dc30afa2762: Pull complete
+benchmark	Initialize containers	2025-12-27T15:21:47.9732102Z Digest: sha256:38d5c9d522037d8bf0864c9068e4df2f8a60127c6489ab06f98fdeda535560f9
+benchmark	Initialize containers	2025-12-27T15:21:47.9747708Z Status: Downloaded newer image for postgres:latest
+benchmark	Initialize containers	2025-12-27T15:21:47.9756466Z docker.io/library/postgres:latest
+benchmark	Initialize containers	2025-12-27T15:21:47.9826422Z ##[command]/usr/bin/docker create --name 34ee0c853f4e4ce0b285a851a94aac47_postgreslatest_4b9b42 --label 551e5c --network github_network_2106a5326de64e908e44e39a69e69ed8 --network-alias postgres -p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -e "POSTGRES_USER=postgres" -e "POSTGRES_PASSWORD=postgres" -e "POSTGRES_DB=postgres" -e GITHUB_ACTIONS=true -e CI=true postgres:latest
+benchmark	Initialize containers	2025-12-27T15:21:48.0091597Z ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:48.0114319Z ##[command]/usr/bin/docker start ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:48.2840818Z ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:48.2866059Z ##[command]/usr/bin/docker ps --all --filter id=ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+benchmark	Initialize containers	2025-12-27T15:21:48.3000284Z ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437 Up Less than a second (health: starting)
+benchmark	Initialize containers	2025-12-27T15:21:48.3016483Z ##[command]/usr/bin/docker port ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:48.3142100Z 5432/tcp -> 0.0.0.0:5432
+benchmark	Initialize containers	2025-12-27T15:21:48.3142539Z 5432/tcp -> [::]:5432
+benchmark	Initialize containers	2025-12-27T15:21:48.3197554Z ##[endgroup]
+benchmark	Initialize containers	2025-12-27T15:21:48.3206278Z ##[group]Waiting for all services to be ready
+benchmark	Initialize containers	2025-12-27T15:21:48.3219874Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:48.3363624Z starting
+benchmark	Initialize containers	2025-12-27T15:21:48.3389460Z postgres service is starting, waiting 2 seconds before checking again.
+benchmark	Initialize containers	2025-12-27T15:21:50.3401124Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:50.3544136Z starting
+benchmark	Initialize containers	2025-12-27T15:21:50.3558453Z postgres service is starting, waiting 3 seconds before checking again.
+benchmark	Initialize containers	2025-12-27T15:21:54.0835420Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:21:54.0963058Z starting
+benchmark	Initialize containers	2025-12-27T15:21:54.0982527Z postgres service is starting, waiting 8 seconds before checking again.
+benchmark	Initialize containers	2025-12-27T15:22:02.3922977Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Initialize containers	2025-12-27T15:22:02.4045484Z healthy
+benchmark	Initialize containers	2025-12-27T15:22:02.4063075Z postgres service is healthy.
+benchmark	Initialize containers	2025-12-27T15:22:02.4063812Z ##[endgroup]
+benchmark	Checkout repository	﻿2025-12-27T15:22:02.4381262Z ##[group]Run actions/checkout@v4
+benchmark	Checkout repository	2025-12-27T15:22:02.4381821Z with:
+benchmark	Checkout repository	2025-12-27T15:22:02.4382097Z   repository: linksplatform/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.4382543Z   token: ***
+benchmark	Checkout repository	2025-12-27T15:22:02.4382720Z   ssh-strict: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4382891Z   ssh-user: git
+benchmark	Checkout repository	2025-12-27T15:22:02.4383075Z   persist-credentials: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4383284Z   clean: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4383468Z   sparse-checkout-cone-mode: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4383699Z   fetch-depth: 1
+benchmark	Checkout repository	2025-12-27T15:22:02.4383870Z   fetch-tags: false
+benchmark	Checkout repository	2025-12-27T15:22:02.4384055Z   show-progress: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4384231Z   lfs: false
+benchmark	Checkout repository	2025-12-27T15:22:02.4384407Z   submodules: false
+benchmark	Checkout repository	2025-12-27T15:22:02.4384582Z   set-safe-directory: true
+benchmark	Checkout repository	2025-12-27T15:22:02.4384943Z env:
+benchmark	Checkout repository	2025-12-27T15:22:02.4385111Z   toolchain: nightly-2022-08-22
+benchmark	Checkout repository	2025-12-27T15:22:02.4385432Z   GITHUB_TOKEN: ***
+benchmark	Checkout repository	2025-12-27T15:22:02.4385609Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.5497300Z Syncing repository: linksplatform/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.5499118Z ##[group]Getting Git version info
+benchmark	Checkout repository	2025-12-27T15:22:02.5499779Z Working directory is '/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets'
+benchmark	Checkout repository	2025-12-27T15:22:02.5500535Z [command]/usr/bin/git version
+benchmark	Checkout repository	2025-12-27T15:22:02.5582958Z git version 2.52.0
+benchmark	Checkout repository	2025-12-27T15:22:02.5610254Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.5625634Z Temporarily overriding HOME='/home/runner/work/_temp/98f12a87-a9ee-4adb-b1a0-8b655b59c5ce' before making global git config changes
+benchmark	Checkout repository	2025-12-27T15:22:02.5626986Z Adding repository directory to the temporary git global config as a safe directory
+benchmark	Checkout repository	2025-12-27T15:22:02.5632245Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.5673005Z Deleting the contents of '/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets'
+benchmark	Checkout repository	2025-12-27T15:22:02.5676448Z ##[group]Initializing the repository
+benchmark	Checkout repository	2025-12-27T15:22:02.5681540Z [command]/usr/bin/git init /home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.5813653Z hint: Using 'master' as the name for the initial branch. This default branch name
+benchmark	Checkout repository	2025-12-27T15:22:02.5814551Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+benchmark	Checkout repository	2025-12-27T15:22:02.5815203Z hint: to use in all of your new repositories, which will suppress this warning,
+benchmark	Checkout repository	2025-12-27T15:22:02.5815567Z hint: call:
+benchmark	Checkout repository	2025-12-27T15:22:02.5815741Z hint:
+benchmark	Checkout repository	2025-12-27T15:22:02.5815991Z hint: 	git config --global init.defaultBranch <name>
+benchmark	Checkout repository	2025-12-27T15:22:02.5816291Z hint:
+benchmark	Checkout repository	2025-12-27T15:22:02.5816731Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+benchmark	Checkout repository	2025-12-27T15:22:02.5817640Z hint: 'development'. The just-created branch can be renamed via this command:
+benchmark	Checkout repository	2025-12-27T15:22:02.5818433Z hint:
+benchmark	Checkout repository	2025-12-27T15:22:02.5818625Z hint: 	git branch -m <name>
+benchmark	Checkout repository	2025-12-27T15:22:02.5818849Z hint:
+benchmark	Checkout repository	2025-12-27T15:22:02.5819349Z hint: Disable this message with "git config set advice.defaultBranchName false"
+benchmark	Checkout repository	2025-12-27T15:22:02.5820766Z Initialized empty Git repository in /home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/.git/
+benchmark	Checkout repository	2025-12-27T15:22:02.5830648Z [command]/usr/bin/git remote add origin https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.5866034Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.5866722Z ##[group]Disabling automatic garbage collection
+benchmark	Checkout repository	2025-12-27T15:22:02.5871321Z [command]/usr/bin/git config --local gc.auto 0
+benchmark	Checkout repository	2025-12-27T15:22:02.5900135Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.5900784Z ##[group]Setting up auth
+benchmark	Checkout repository	2025-12-27T15:22:02.5907670Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+benchmark	Checkout repository	2025-12-27T15:22:02.5937817Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+benchmark	Checkout repository	2025-12-27T15:22:02.6314002Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+benchmark	Checkout repository	2025-12-27T15:22:02.6344662Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+benchmark	Checkout repository	2025-12-27T15:22:02.6562652Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+benchmark	Checkout repository	2025-12-27T15:22:02.6592406Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+benchmark	Checkout repository	2025-12-27T15:22:02.6822446Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+benchmark	Checkout repository	2025-12-27T15:22:02.6856609Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.6857335Z ##[group]Fetching the repository
+benchmark	Checkout repository	2025-12-27T15:22:02.6866127Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3798004529e1893badbb176a75faf3abdbf2e9b2:refs/remotes/pull/14/merge
+benchmark	Checkout repository	2025-12-27T15:22:02.9215607Z From https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets
+benchmark	Checkout repository	2025-12-27T15:22:02.9216816Z  * [new ref]         3798004529e1893badbb176a75faf3abdbf2e9b2 -> pull/14/merge
+benchmark	Checkout repository	2025-12-27T15:22:02.9253202Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.9253998Z ##[group]Determining the checkout info
+benchmark	Checkout repository	2025-12-27T15:22:02.9254724Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.9261057Z [command]/usr/bin/git sparse-checkout disable
+benchmark	Checkout repository	2025-12-27T15:22:02.9303271Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+benchmark	Checkout repository	2025-12-27T15:22:02.9330792Z ##[group]Checking out the ref
+benchmark	Checkout repository	2025-12-27T15:22:02.9334732Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/14/merge
+benchmark	Checkout repository	2025-12-27T15:22:02.9413946Z Note: switching to 'refs/remotes/pull/14/merge'.
+benchmark	Checkout repository	2025-12-27T15:22:02.9414373Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9414685Z You are in 'detached HEAD' state. You can look around, make experimental
+benchmark	Checkout repository	2025-12-27T15:22:02.9415468Z changes and commit them, and you can discard any commits you make in this
+benchmark	Checkout repository	2025-12-27T15:22:02.9416262Z state without impacting any branches by switching back to a branch.
+benchmark	Checkout repository	2025-12-27T15:22:02.9416719Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9417009Z If you want to create a new branch to retain commits you create, you may
+benchmark	Checkout repository	2025-12-27T15:22:02.9417697Z do so (now or later) by using -c with the switch command. Example:
+benchmark	Checkout repository	2025-12-27T15:22:02.9418281Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9418437Z   git switch -c <new-branch-name>
+benchmark	Checkout repository	2025-12-27T15:22:02.9418710Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9418873Z Or undo this operation with:
+benchmark	Checkout repository	2025-12-27T15:22:02.9419118Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9419244Z   git switch -
+benchmark	Checkout repository	2025-12-27T15:22:02.9419452Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9419728Z Turn off this advice by setting config variable advice.detachedHead to false
+benchmark	Checkout repository	2025-12-27T15:22:02.9420040Z 
+benchmark	Checkout repository	2025-12-27T15:22:02.9420372Z HEAD is now at 3798004 Merge e99c5cdbb7a6689efe2b0f6924d7d0ef035a5830 into 1831e18a81d8e3934cec4d9838cfde1464c69091
+benchmark	Checkout repository	2025-12-27T15:22:02.9423628Z ##[endgroup]
+benchmark	Checkout repository	2025-12-27T15:22:02.9457861Z [command]/usr/bin/git log -1 --format=%H
+benchmark	Checkout repository	2025-12-27T15:22:02.9480767Z 3798004529e1893badbb176a75faf3abdbf2e9b2
+benchmark	Setup Rust	﻿2025-12-27T15:22:02.9739879Z ##[group]Run dtolnay/rust-toolchain@master
+benchmark	Setup Rust	2025-12-27T15:22:02.9740167Z with:
+benchmark	Setup Rust	2025-12-27T15:22:02.9740353Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:02.9740593Z   components: rustfmt, clippy
+benchmark	Setup Rust	2025-12-27T15:22:02.9740800Z env:
+benchmark	Setup Rust	2025-12-27T15:22:02.9740959Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:02.9741397Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:02.9741576Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:02.9842217Z ##[group]Run : parse toolchain version
+benchmark	Setup Rust	2025-12-27T15:22:02.9842574Z [36;1m: parse toolchain version[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9842830Z [36;1mif [[ -z $toolchain ]]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9843329Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9843822Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9844084Z [36;1m  exit 1[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9844366Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9844719Z [36;1m  if [[ Linux == macOS ]]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9845199Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9845611Z [36;1m  else[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9845948Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9846323Z [36;1m  fi[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9846580Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9847032Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9847425Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9847861Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9848411Z [36;1melse[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9848636Z [36;1m  echo "toolchain=$toolchain" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9848888Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:02.9887276Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:02.9887595Z env:
+benchmark	Setup Rust	2025-12-27T15:22:02.9887764Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:02.9888366Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:02.9888556Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:03.0025024Z ##[group]Run : construct rustup command line
+benchmark	Setup Rust	2025-12-27T15:22:03.0025342Z [36;1m: construct rustup command line[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0025739Z [36;1mecho "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0026513Z [36;1mecho "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0026947Z [36;1mecho "downgrade=" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0059703Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:03.0060016Z env:
+benchmark	Setup Rust	2025-12-27T15:22:03.0060208Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:03.0060617Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:03.0060796Z   targets: 
+benchmark	Setup Rust	2025-12-27T15:22:03.0060971Z   components: rustfmt, clippy
+benchmark	Setup Rust	2025-12-27T15:22:03.0061175Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:03.0142262Z ##[group]Run : set $CARGO_HOME
+benchmark	Setup Rust	2025-12-27T15:22:03.0142506Z [36;1m: set $CARGO_HOME[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0142788Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0173366Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:03.0173674Z env:
+benchmark	Setup Rust	2025-12-27T15:22:03.0173856Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:03.0174272Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:03.0174461Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:03.0252927Z ##[group]Run : install rustup if needed
+benchmark	Setup Rust	2025-12-27T15:22:03.0253218Z [36;1m: install rustup if needed[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0253477Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0254137Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0254954Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0255197Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0287017Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:03.0287333Z env:
+benchmark	Setup Rust	2025-12-27T15:22:03.0287510Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:03.0287887Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:03.0288301Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:03.0288530Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:03.0366850Z ##[group]Run rustup toolchain install nightly-2022-08-22 --component rustfmt --component clippy --profile minimal --no-self-update
+benchmark	Setup Rust	2025-12-27T15:22:03.0367696Z [36;1mrustup toolchain install nightly-2022-08-22 --component rustfmt --component clippy --profile minimal --no-self-update[0m
+benchmark	Setup Rust	2025-12-27T15:22:03.0399755Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:03.0400060Z env:
+benchmark	Setup Rust	2025-12-27T15:22:03.0400255Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:03.0400668Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:03.0400866Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:03.0401106Z   RUSTUP_PERMIT_COPY_RENAME: 1
+benchmark	Setup Rust	2025-12-27T15:22:03.0401313Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:03.1304190Z info: syncing channel updates for 'nightly-2022-08-22-x86_64-unknown-linux-gnu'
+benchmark	Setup Rust	2025-12-27T15:22:03.4295723Z info: latest update on 2022-08-22, rust version 1.65.0-nightly (c0941dfb5 2022-08-21)
+benchmark	Setup Rust	2025-12-27T15:22:03.4296387Z info: downloading component 'cargo'
+benchmark	Setup Rust	2025-12-27T15:22:03.4761744Z info: downloading component 'clippy'
+benchmark	Setup Rust	2025-12-27T15:22:03.4991033Z info: downloading component 'rust-std'
+benchmark	Setup Rust	2025-12-27T15:22:03.6123634Z info: downloading component 'rustc'
+benchmark	Setup Rust	2025-12-27T15:22:03.8290376Z info: downloading component 'rustfmt'
+benchmark	Setup Rust	2025-12-27T15:22:03.8515562Z info: installing component 'cargo'
+benchmark	Setup Rust	2025-12-27T15:22:04.3416089Z info: installing component 'clippy'
+benchmark	Setup Rust	2025-12-27T15:22:04.6186009Z info: installing component 'rust-std'
+benchmark	Setup Rust	2025-12-27T15:22:06.6872031Z info: installing component 'rustc'
+benchmark	Setup Rust	2025-12-27T15:22:10.0631953Z info: installing component 'rustfmt'
+benchmark	Setup Rust	2025-12-27T15:22:10.4724023Z 
+benchmark	Setup Rust	2025-12-27T15:22:10.4846900Z   nightly-2022-08-22-x86_64-unknown-linux-gnu installed - rustc 1.65.0-nightly (c0941dfb5 2022-08-21)
+benchmark	Setup Rust	2025-12-27T15:22:10.4847542Z 
+benchmark	Setup Rust	2025-12-27T15:22:10.4900752Z ##[group]Run rustup default nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.4901067Z [36;1mrustup default nightly-2022-08-22[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.4933211Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.4933706Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.4933883Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.4934465Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.4934674Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.4934898Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.5035065Z info: using existing install for 'nightly-2022-08-22-x86_64-unknown-linux-gnu'
+benchmark	Setup Rust	2025-12-27T15:22:10.5286392Z info: default toolchain set to 'nightly-2022-08-22-x86_64-unknown-linux-gnu'
+benchmark	Setup Rust	2025-12-27T15:22:10.5286947Z 
+benchmark	Setup Rust	2025-12-27T15:22:10.5405026Z   nightly-2022-08-22-x86_64-unknown-linux-gnu unchanged - rustc 1.65.0-nightly (c0941dfb5 2022-08-21)
+benchmark	Setup Rust	2025-12-27T15:22:10.5405469Z 
+benchmark	Setup Rust	2025-12-27T15:22:10.5406169Z info: note that the toolchain 'nightly-2022-08-22-x86_64-unknown-linux-gnu' is currently in use (overridden by '/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/rust-toolchain.toml')
+benchmark	Setup Rust	2025-12-27T15:22:10.5446563Z ##[group]Run : create cachekey
+benchmark	Setup Rust	2025-12-27T15:22:10.5446845Z [36;1m: create cachekey[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5447343Z [36;1mDATE=$(rustc +nightly-2022-08-22 --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5448326Z [36;1mHASH=$(rustc +nightly-2022-08-22 --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5448872Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5480553Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.5481043Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.5481218Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.5481611Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.5481816Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.5482037Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.5924642Z ##[group]Run : disable incremental compilation
+benchmark	Setup Rust	2025-12-27T15:22:10.5924990Z [36;1m: disable incremental compilation[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5925275Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5925575Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5925836Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.5958395Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.5958737Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.5958914Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.5959329Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.5959536Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.5959753Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.6033930Z ##[group]Run : enable colors in Cargo output
+benchmark	Setup Rust	2025-12-27T15:22:10.6034260Z [36;1m: enable colors in Cargo output[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6034538Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6034842Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6035097Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6065684Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.6065991Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.6066163Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.6066538Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.6066734Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.6066975Z   CARGO_INCREMENTAL: 0
+benchmark	Setup Rust	2025-12-27T15:22:10.6067158Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.6136308Z ##[group]Run : enable Cargo sparse registry
+benchmark	Setup Rust	2025-12-27T15:22:10.6136609Z [36;1m: enable Cargo sparse registry[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6136922Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6137539Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6138506Z [36;1m  if rustc +nightly-2022-08-22 --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6139036Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6139503Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6139965Z [36;1m  elif rustc +nightly-2022-08-22 --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6140705Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6141170Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6141468Z [36;1m  fi[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6141638Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6171281Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.6171601Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.6171782Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.6172181Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.6172384Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.6172608Z   CARGO_INCREMENTAL: 0
+benchmark	Setup Rust	2025-12-27T15:22:10.6172806Z   CARGO_TERM_COLOR: always
+benchmark	Setup Rust	2025-12-27T15:22:10.6172997Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.6589580Z ##[group]Run : work around spurious network errors in curl 8.0
+benchmark	Setup Rust	2025-12-27T15:22:10.6589996Z [36;1m: work around spurious network errors in curl 8.0[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6590505Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6591103Z [36;1mif rustc +nightly-2022-08-22 --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6591542Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6591812Z [36;1mfi[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6623333Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.6623824Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.6624002Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.6624398Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.6624598Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.6624829Z   CARGO_INCREMENTAL: 0
+benchmark	Setup Rust	2025-12-27T15:22:10.6625023Z   CARGO_TERM_COLOR: always
+benchmark	Setup Rust	2025-12-27T15:22:10.6625216Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.6875612Z ##[group]Run rustc +nightly-2022-08-22 --version --verbose
+benchmark	Setup Rust	2025-12-27T15:22:10.6875992Z [36;1mrustc +nightly-2022-08-22 --version --verbose[0m
+benchmark	Setup Rust	2025-12-27T15:22:10.6907485Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+benchmark	Setup Rust	2025-12-27T15:22:10.6907806Z env:
+benchmark	Setup Rust	2025-12-27T15:22:10.6908210Z   toolchain: nightly-2022-08-22
+benchmark	Setup Rust	2025-12-27T15:22:10.6908634Z   GITHUB_TOKEN: ***
+benchmark	Setup Rust	2025-12-27T15:22:10.6908834Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Setup Rust	2025-12-27T15:22:10.6909063Z   CARGO_INCREMENTAL: 0
+benchmark	Setup Rust	2025-12-27T15:22:10.6909251Z   CARGO_TERM_COLOR: always
+benchmark	Setup Rust	2025-12-27T15:22:10.6909457Z ##[endgroup]
+benchmark	Setup Rust	2025-12-27T15:22:10.7117551Z rustc 1.65.0-nightly (c0941dfb5 2022-08-21)
+benchmark	Setup Rust	2025-12-27T15:22:10.7118215Z binary: rustc
+benchmark	Setup Rust	2025-12-27T15:22:10.7118582Z commit-hash: c0941dfb5a7d07ef2d70cc54d319669d9d6f6c01
+benchmark	Setup Rust	2025-12-27T15:22:10.7119039Z commit-date: 2022-08-21
+benchmark	Setup Rust	2025-12-27T15:22:10.7119374Z host: x86_64-unknown-linux-gnu
+benchmark	Setup Rust	2025-12-27T15:22:10.7119731Z release: 1.65.0-nightly
+benchmark	Setup Rust	2025-12-27T15:22:10.7120064Z LLVM version: 15.0.0
+benchmark	Wait for PostgreSQL to be ready	﻿2025-12-27T15:22:10.7189170Z ##[group]Run echo "Waiting for PostgreSQL to be fully ready..."
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7189645Z [36;1mecho "Waiting for PostgreSQL to be fully ready..."[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7189948Z [36;1mfor i in {1..30}; do[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7190290Z [36;1m  if pg_isready -h localhost -p 5432 -U postgres > /dev/null 2>&1; then[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7190648Z [36;1m    echo "PostgreSQL is ready!"[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7190887Z [36;1m    break[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7191059Z [36;1m  fi[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7191280Z [36;1m  echo "Attempt $i: PostgreSQL not ready yet..."[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7191543Z [36;1m  sleep 2[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7191720Z [36;1mdone[0m
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7224307Z shell: /usr/bin/bash -e {0}
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7224534Z env:
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7224713Z   toolchain: nightly-2022-08-22
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7225126Z   GITHUB_TOKEN: ***
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7225334Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7225573Z   CARGO_INCREMENTAL: 0
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7225763Z   CARGO_TERM_COLOR: always
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7225998Z ##[endgroup]
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7276273Z Waiting for PostgreSQL to be fully ready...
+benchmark	Wait for PostgreSQL to be ready	2025-12-27T15:22:10.7790259Z PostgreSQL is ready!
+benchmark	Build benchmark	﻿2025-12-27T15:22:10.7817012Z ##[group]Run cargo build --release --all-features --manifest-path rust/Cargo.toml
+benchmark	Build benchmark	2025-12-27T15:22:10.7817561Z [36;1mcargo build --release --all-features --manifest-path rust/Cargo.toml[0m
+benchmark	Build benchmark	2025-12-27T15:22:10.7849279Z shell: /usr/bin/bash -e {0}
+benchmark	Build benchmark	2025-12-27T15:22:10.7849508Z env:
+benchmark	Build benchmark	2025-12-27T15:22:10.7849686Z   toolchain: nightly-2022-08-22
+benchmark	Build benchmark	2025-12-27T15:22:10.7850091Z   GITHUB_TOKEN: ***
+benchmark	Build benchmark	2025-12-27T15:22:10.7850297Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Build benchmark	2025-12-27T15:22:10.7850535Z   CARGO_INCREMENTAL: 0
+benchmark	Build benchmark	2025-12-27T15:22:10.7850734Z   CARGO_TERM_COLOR: always
+benchmark	Build benchmark	2025-12-27T15:22:10.7850929Z ##[endgroup]
+benchmark	Build benchmark	2025-12-27T15:22:10.9706119Z [0m[0m[1m[32m    Updating[0m git repository `https://github.com/linksplatform/doublets-rs.git`
+benchmark	Build benchmark	2025-12-27T15:22:11.1944829Z [0m[0m[1m[32m    Updating[0m git submodule `https://github.com/linksplatform/data-rs`
+benchmark	Build benchmark	2025-12-27T15:22:11.3566282Z [0m[0m[1m[32m    Updating[0m git submodule `https://github.com/linksplatform/mem-rs`
+benchmark	Build benchmark	2025-12-27T15:22:11.6578186Z [0m[0m[1m[32m    Updating[0m git submodule `https://github.com/linksplatform/trees-rs`
+benchmark	Build benchmark	2025-12-27T15:22:11.8088909Z [0m[0m[1m[32m    Updating[0m crates.io index
+benchmark	Build benchmark	2025-12-27T15:27:21.5973625Z [0m[0m[1m[32m Downloading[0m crates ...
+benchmark	Build benchmark	2025-12-27T15:27:21.7636832Z [0m[0m[1m[32m  Downloaded[0m block-buffer v0.10.4
+benchmark	Build benchmark	2025-12-27T15:27:21.7666653Z [0m[0m[1m[32m  Downloaded[0m bumpalo v3.11.1
+benchmark	Build benchmark	2025-12-27T15:27:21.7706785Z [0m[0m[1m[32m  Downloaded[0m autocfg v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7728696Z [0m[0m[1m[32m  Downloaded[0m tinyvec_macros v0.1.1
+benchmark	Build benchmark	2025-12-27T15:27:21.7742793Z [0m[0m[1m[32m  Downloaded[0m pin-utils v0.1.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7761782Z [0m[0m[1m[32m  Downloaded[0m beef v0.5.2
+benchmark	Build benchmark	2025-12-27T15:27:21.7781922Z [0m[0m[1m[32m  Downloaded[0m futures-task v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.7795532Z [0m[0m[1m[32m  Downloaded[0m rand_chacha v0.3.1
+benchmark	Build benchmark	2025-12-27T15:27:21.7809322Z [0m[0m[1m[32m  Downloaded[0m num_cpus v1.16.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7848539Z [0m[0m[1m[32m  Downloaded[0m byteorder v1.5.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7867644Z [0m[0m[1m[32m  Downloaded[0m sha2 v0.10.8
+benchmark	Build benchmark	2025-12-27T15:27:21.7898317Z [0m[0m[1m[32m  Downloaded[0m bitflags v2.5.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7944272Z [0m[0m[1m[32m  Downloaded[0m tinyvec v1.6.0
+benchmark	Build benchmark	2025-12-27T15:27:21.7979145Z [0m[0m[1m[32m  Downloaded[0m getrandom v0.2.12
+benchmark	Build benchmark	2025-12-27T15:27:21.8012689Z [0m[0m[1m[32m  Downloaded[0m async-trait v0.1.79
+benchmark	Build benchmark	2025-12-27T15:27:21.8057038Z [0m[0m[1m[32m  Downloaded[0m base64 v0.21.7
+benchmark	Build benchmark	2025-12-27T15:27:21.8105449Z [0m[0m[1m[32m  Downloaded[0m futures-util v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.8250404Z [0m[0m[1m[32m  Downloaded[0m generic-array v0.14.7
+benchmark	Build benchmark	2025-12-27T15:27:21.8271808Z [0m[0m[1m[32m  Downloaded[0m postgres-types v0.2.6
+benchmark	Build benchmark	2025-12-27T15:27:21.8299828Z [0m[0m[1m[32m  Downloaded[0m tracing v0.1.40
+benchmark	Build benchmark	2025-12-27T15:27:21.8356107Z [0m[0m[1m[32m  Downloaded[0m md-5 v0.10.6
+benchmark	Build benchmark	2025-12-27T15:27:21.8373546Z [0m[0m[1m[32m  Downloaded[0m scopeguard v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8390002Z [0m[0m[1m[32m  Downloaded[0m slab v0.4.9
+benchmark	Build benchmark	2025-12-27T15:27:21.8406081Z [0m[0m[1m[32m  Downloaded[0m tempfile v3.10.1
+benchmark	Build benchmark	2025-12-27T15:27:21.8435655Z [0m[0m[1m[32m  Downloaded[0m thiserror-impl v1.0.58
+benchmark	Build benchmark	2025-12-27T15:27:21.8450082Z [0m[0m[1m[32m  Downloaded[0m delegate v0.7.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8459225Z [0m[0m[1m[32m  Downloaded[0m unicode-ident v1.0.12
+benchmark	Build benchmark	2025-12-27T15:27:21.8491859Z [0m[0m[1m[32m  Downloaded[0m pin-project-lite v0.2.14
+benchmark	Build benchmark	2025-12-27T15:27:21.8548645Z [0m[0m[1m[32m  Downloaded[0m mio v0.8.11
+benchmark	Build benchmark	2025-12-27T15:27:21.8613489Z [0m[0m[1m[32m  Downloaded[0m cfg-if v1.0.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8626369Z [0m[0m[1m[32m  Downloaded[0m tracing-core v0.1.32
+benchmark	Build benchmark	2025-12-27T15:27:21.8658444Z [0m[0m[1m[32m  Downloaded[0m proc-macro2 v1.0.79
+benchmark	Build benchmark	2025-12-27T15:27:21.8687598Z [0m[0m[1m[32m  Downloaded[0m leak_slice v0.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8695830Z [0m[0m[1m[32m  Downloaded[0m crypto-common v0.1.6
+benchmark	Build benchmark	2025-12-27T15:27:21.8708257Z [0m[0m[1m[32m  Downloaded[0m postgres-protocol v0.6.6
+benchmark	Build benchmark	2025-12-27T15:27:21.8729889Z [0m[0m[1m[32m  Downloaded[0m tokio-macros v2.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8740637Z [0m[0m[1m[32m  Downloaded[0m subtle v2.5.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8752344Z [0m[0m[1m[32m  Downloaded[0m futures-macro v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.8764931Z [0m[0m[1m[32m  Downloaded[0m memchr v2.7.2
+benchmark	Build benchmark	2025-12-27T15:27:21.8827687Z [0m[0m[1m[32m  Downloaded[0m phf v0.11.2
+benchmark	Build benchmark	2025-12-27T15:27:21.8840974Z [0m[0m[1m[32m  Downloaded[0m postgres v0.19.7
+benchmark	Build benchmark	2025-12-27T15:27:21.8862756Z [0m[0m[1m[32m  Downloaded[0m funty v2.0.0
+benchmark	Build benchmark	2025-12-27T15:27:21.8872796Z [0m[0m[1m[32m  Downloaded[0m cpufeatures v0.2.12
+benchmark	Build benchmark	2025-12-27T15:27:21.8888380Z [0m[0m[1m[32m  Downloaded[0m parking_lot_core v0.9.9
+benchmark	Build benchmark	2025-12-27T15:27:21.8911724Z [0m[0m[1m[32m  Downloaded[0m version_check v0.9.4
+benchmark	Build benchmark	2025-12-27T15:27:21.8925420Z [0m[0m[1m[32m  Downloaded[0m futures-sink v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.8934083Z [0m[0m[1m[32m  Downloaded[0m tap v1.0.1
+benchmark	Build benchmark	2025-12-27T15:27:21.8944489Z [0m[0m[1m[32m  Downloaded[0m whoami v1.5.1
+benchmark	Build benchmark	2025-12-27T15:27:21.8965778Z [0m[0m[1m[32m  Downloaded[0m rand_core v0.6.4
+benchmark	Build benchmark	2025-12-27T15:27:21.8982904Z [0m[0m[1m[32m  Downloaded[0m digest v0.10.7
+benchmark	Build benchmark	2025-12-27T15:27:21.9002678Z [0m[0m[1m[32m  Downloaded[0m percent-encoding v2.3.1
+benchmark	Build benchmark	2025-12-27T15:27:21.9011500Z [0m[0m[1m[32m  Downloaded[0m phf_shared v0.11.2
+benchmark	Build benchmark	2025-12-27T15:27:21.9021297Z [0m[0m[1m[32m  Downloaded[0m siphasher v0.3.11
+benchmark	Build benchmark	2025-12-27T15:27:21.9034561Z [0m[0m[1m[32m  Downloaded[0m errno v0.3.8
+benchmark	Build benchmark	2025-12-27T15:27:21.9049707Z [0m[0m[1m[32m  Downloaded[0m finl_unicode v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.9191985Z [0m[0m[1m[32m  Downloaded[0m fallible-iterator v0.2.0
+benchmark	Build benchmark	2025-12-27T15:27:21.9206474Z [0m[0m[1m[32m  Downloaded[0m fastrand v2.0.2
+benchmark	Build benchmark	2025-12-27T15:27:21.9222607Z [0m[0m[1m[32m  Downloaded[0m futures-core v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.9237321Z [0m[0m[1m[32m  Downloaded[0m unicode-bidi v0.3.15
+benchmark	Build benchmark	2025-12-27T15:27:21.9265386Z [0m[0m[1m[32m  Downloaded[0m stringprep v0.1.4
+benchmark	Build benchmark	2025-12-27T15:27:21.9282562Z [0m[0m[1m[32m  Downloaded[0m memmap2 v0.5.10
+benchmark	Build benchmark	2025-12-27T15:27:21.9302952Z [0m[0m[1m[32m  Downloaded[0m parking_lot v0.12.1
+benchmark	Build benchmark	2025-12-27T15:27:21.9327535Z [0m[0m[1m[32m  Downloaded[0m socket2 v0.5.6
+benchmark	Build benchmark	2025-12-27T15:27:21.9349836Z [0m[0m[1m[32m  Downloaded[0m quote v1.0.35
+benchmark	Build benchmark	2025-12-27T15:27:21.9378443Z [0m[0m[1m[32m  Downloaded[0m ppv-lite86 v0.2.17
+benchmark	Build benchmark	2025-12-27T15:27:21.9394698Z [0m[0m[1m[32m  Downloaded[0m thiserror v1.0.58
+benchmark	Build benchmark	2025-12-27T15:27:21.9450344Z [0m[0m[1m[32m  Downloaded[0m futures-channel v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:21.9470711Z [0m[0m[1m[32m  Downloaded[0m once_cell v1.19.0
+benchmark	Build benchmark	2025-12-27T15:27:21.9498750Z [0m[0m[1m[32m  Downloaded[0m lock_api v0.4.11
+benchmark	Build benchmark	2025-12-27T15:27:21.9514977Z [0m[0m[1m[32m  Downloaded[0m signal-hook-registry v1.4.1
+benchmark	Build benchmark	2025-12-27T15:27:21.9527055Z [0m[0m[1m[32m  Downloaded[0m log v0.4.21
+benchmark	Build benchmark	2025-12-27T15:27:21.9552356Z [0m[0m[1m[32m  Downloaded[0m typenum v1.17.0
+benchmark	Build benchmark	2025-12-27T15:27:21.9579904Z [0m[0m[1m[32m  Downloaded[0m hmac v0.12.1
+benchmark	Build benchmark	2025-12-27T15:27:21.9602196Z [0m[0m[1m[32m  Downloaded[0m smallvec v1.13.2
+benchmark	Build benchmark	2025-12-27T15:27:21.9625293Z [0m[0m[1m[32m  Downloaded[0m bytes v1.6.0
+benchmark	Build benchmark	2025-12-27T15:27:21.9685911Z [0m[0m[1m[32m  Downloaded[0m tokio-postgres v0.7.10
+benchmark	Build benchmark	2025-12-27T15:27:21.9743039Z [0m[0m[1m[32m  Downloaded[0m tokio-util v0.7.10
+benchmark	Build benchmark	2025-12-27T15:27:21.9822483Z [0m[0m[1m[32m  Downloaded[0m rand v0.8.5
+benchmark	Build benchmark	2025-12-27T15:27:21.9867073Z [0m[0m[1m[32m  Downloaded[0m unicode-normalization v0.1.23
+benchmark	Build benchmark	2025-12-27T15:27:21.9914634Z [0m[0m[1m[32m  Downloaded[0m syn v1.0.109
+benchmark	Build benchmark	2025-12-27T15:27:22.0031102Z [0m[0m[1m[32m  Downloaded[0m syn v2.0.58
+benchmark	Build benchmark	2025-12-27T15:27:22.0153375Z [0m[0m[1m[32m  Downloaded[0m rustix v0.38.32
+benchmark	Build benchmark	2025-12-27T15:27:22.0450689Z [0m[0m[1m[32m  Downloaded[0m libc v0.2.153
+benchmark	Build benchmark	2025-12-27T15:27:22.0800328Z [0m[0m[1m[32m  Downloaded[0m tokio v1.37.0
+benchmark	Build benchmark	2025-12-27T15:27:22.1250671Z [0m[0m[1m[32m  Downloaded[0m linux-raw-sys v0.4.13
+benchmark	Build benchmark	2025-12-27T15:27:22.2217712Z [0m[0m[1m[32m   Compiling[0m libc v0.2.153
+benchmark	Build benchmark	2025-12-27T15:27:22.2219334Z [0m[0m[1m[32m   Compiling[0m proc-macro2 v1.0.79
+benchmark	Build benchmark	2025-12-27T15:27:22.2220304Z [0m[0m[1m[32m   Compiling[0m unicode-ident v1.0.12
+benchmark	Build benchmark	2025-12-27T15:27:22.2220880Z [0m[0m[1m[32m   Compiling[0m cfg-if v1.0.0
+benchmark	Build benchmark	2025-12-27T15:27:22.3016207Z [0m[0m[1m[32m   Compiling[0m typenum v1.17.0
+benchmark	Build benchmark	2025-12-27T15:27:22.3446913Z [0m[0m[1m[32m   Compiling[0m version_check v0.9.4
+benchmark	Build benchmark	2025-12-27T15:27:22.6963254Z [0m[0m[1m[32m   Compiling[0m autocfg v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:22.7262233Z [0m[0m[1m[32m   Compiling[0m subtle v2.5.0
+benchmark	Build benchmark	2025-12-27T15:27:22.7318617Z [0m[0m[1m[32m   Compiling[0m parking_lot_core v0.9.9
+benchmark	Build benchmark	2025-12-27T15:27:22.8900064Z [0m[0m[1m[32m   Compiling[0m tinyvec_macros v0.1.1
+benchmark	Build benchmark	2025-12-27T15:27:22.9009632Z [0m[0m[1m[32m   Compiling[0m smallvec v1.13.2
+benchmark	Build benchmark	2025-12-27T15:27:22.9708175Z [0m[0m[1m[32m   Compiling[0m ppv-lite86 v0.2.17
+benchmark	Build benchmark	2025-12-27T15:27:23.0043598Z [0m[0m[1m[32m   Compiling[0m pin-project-lite v0.2.14
+benchmark	Build benchmark	2025-12-27T15:27:23.1050477Z [0m[0m[1m[32m   Compiling[0m bytes v1.6.0
+benchmark	Build benchmark	2025-12-27T15:27:23.1246375Z [0m[0m[1m[32m   Compiling[0m thiserror v1.0.58
+benchmark	Build benchmark	2025-12-27T15:27:23.1649189Z [0m[0m[1m[32m   Compiling[0m scopeguard v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:23.2643155Z [0m[0m[1m[32m   Compiling[0m syn v1.0.109
+benchmark	Build benchmark	2025-12-27T15:27:23.4323081Z [0m[0m[1m[32m   Compiling[0m rustix v0.38.32
+benchmark	Build benchmark	2025-12-27T15:27:23.4624900Z [0m[0m[1m[32m   Compiling[0m futures-core v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:23.6126791Z [0m[0m[1m[32m   Compiling[0m once_cell v1.19.0
+benchmark	Build benchmark	2025-12-27T15:27:23.6235157Z [0m[0m[1m[32m   Compiling[0m finl_unicode v1.2.0
+benchmark	Build benchmark	2025-12-27T15:27:23.8445729Z [0m[0m[1m[32m   Compiling[0m futures-sink v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:23.9243410Z [0m[0m[1m[32m   Compiling[0m unicode-bidi v0.3.15
+benchmark	Build benchmark	2025-12-27T15:27:23.9449884Z [0m[0m[1m[32m   Compiling[0m cpufeatures v0.2.12
+benchmark	Build benchmark	2025-12-27T15:27:24.0115943Z [0m[0m[1m[32m   Compiling[0m siphasher v0.3.11
+benchmark	Build benchmark	2025-12-27T15:27:24.0305681Z [0m[0m[1m[32m   Compiling[0m memchr v2.7.2
+benchmark	Build benchmark	2025-12-27T15:27:24.2542617Z [0m[0m[1m[32m   Compiling[0m byteorder v1.5.0
+benchmark	Build benchmark	2025-12-27T15:27:24.3274379Z [0m[0m[1m[32m   Compiling[0m async-trait v0.1.79
+benchmark	Build benchmark	2025-12-27T15:27:24.5632922Z [0m[0m[1m[32m   Compiling[0m bitflags v2.5.0
+benchmark	Build benchmark	2025-12-27T15:27:24.6628848Z [0m[0m[1m[32m   Compiling[0m fallible-iterator v0.2.0
+benchmark	Build benchmark	2025-12-27T15:27:24.9602806Z [0m[0m[1m[32m   Compiling[0m linux-raw-sys v0.4.13
+benchmark	Build benchmark	2025-12-27T15:27:25.1061276Z [0m[0m[1m[32m   Compiling[0m base64 v0.21.7
+benchmark	Build benchmark	2025-12-27T15:27:25.9009257Z [0m[0m[1m[32m   Compiling[0m fastrand v2.0.2
+benchmark	Build benchmark	2025-12-27T15:27:25.9252161Z [0m[0m[1m[32m   Compiling[0m futures-task v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:25.9612698Z [0m[0m[1m[32m   Compiling[0m pin-utils v0.1.0
+benchmark	Build benchmark	2025-12-27T15:27:26.0546240Z [0m[0m[1m[32m   Compiling[0m funty v2.0.0
+benchmark	Build benchmark	2025-12-27T15:27:26.1114155Z [0m[0m[1m[32m   Compiling[0m beef v0.5.2
+benchmark	Build benchmark	2025-12-27T15:27:26.1729556Z [0m[0m[1m[32m   Compiling[0m log v0.4.21
+benchmark	Build benchmark	2025-12-27T15:27:26.2659154Z [0m[0m[1m[32m   Compiling[0m tap v1.0.1
+benchmark	Build benchmark	2025-12-27T15:27:26.3887727Z [0m[0m[1m[32m   Compiling[0m percent-encoding v2.3.1
+benchmark	Build benchmark	2025-12-27T15:27:26.4363710Z [0m[0m[1m[32m   Compiling[0m whoami v1.5.1
+benchmark	Build benchmark	2025-12-27T15:27:26.5208958Z [0m[0m[1m[32m   Compiling[0m leak_slice v0.2.0
+benchmark	Build benchmark	2025-12-27T15:27:26.6104693Z [0m[0m[1m[32m   Compiling[0m bumpalo v3.11.1
+benchmark	Build benchmark	2025-12-27T15:27:26.7996688Z [0m[0m[1m[32m   Compiling[0m generic-array v0.14.7
+benchmark	Build benchmark	2025-12-27T15:27:27.2263795Z [0m[0m[1m[32m   Compiling[0m tinyvec v1.6.0
+benchmark	Build benchmark	2025-12-27T15:27:27.2981915Z [0m[0m[1m[32m   Compiling[0m lock_api v0.4.11
+benchmark	Build benchmark	2025-12-27T15:27:27.5400842Z [0m[0m[1m[32m   Compiling[0m slab v0.4.9
+benchmark	Build benchmark	2025-12-27T15:27:27.7348692Z [0m[0m[1m[32m   Compiling[0m tracing-core v0.1.32
+benchmark	Build benchmark	2025-12-27T15:27:27.7741225Z [0m[0m[1m[32m   Compiling[0m futures-channel v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:27.8544191Z [0m[0m[1m[32m   Compiling[0m phf_shared v0.11.2
+benchmark	Build benchmark	2025-12-27T15:27:29.1957553Z [0m[0m[1m[32m   Compiling[0m phf v0.11.2
+benchmark	Build benchmark	2025-12-27T15:27:29.2214935Z [0m[0m[1m[32m   Compiling[0m tracing v0.1.40
+benchmark	Build benchmark	2025-12-27T15:27:29.2482710Z [0m[0m[1m[32m   Compiling[0m unicode-normalization v0.1.23
+benchmark	Build benchmark	2025-12-27T15:27:29.3799819Z [0m[0m[1m[32m   Compiling[0m quote v1.0.35
+benchmark	Build benchmark	2025-12-27T15:27:29.7088507Z [0m[0m[1m[32m   Compiling[0m getrandom v0.2.12
+benchmark	Build benchmark	2025-12-27T15:27:30.0201535Z [0m[0m[1m[32m   Compiling[0m socket2 v0.5.6
+benchmark	Build benchmark	2025-12-27T15:27:30.1027682Z [0m[0m[1m[32m   Compiling[0m mio v0.8.11
+benchmark	Build benchmark	2025-12-27T15:27:30.2268434Z [0m[0m[1m[32m   Compiling[0m signal-hook-registry v1.4.1
+benchmark	Build benchmark	2025-12-27T15:27:31.4042455Z [0m[0m[1m[32m   Compiling[0m num_cpus v1.16.0
+benchmark	Build benchmark	2025-12-27T15:27:31.4870161Z [0m[0m[1m[32m   Compiling[0m memmap2 v0.5.10
+benchmark	Build benchmark	2025-12-27T15:27:32.3774455Z [0m[0m[1m[32m   Compiling[0m syn v2.0.58
+benchmark	Build benchmark	2025-12-27T15:27:32.5487757Z [0m[0m[1m[32m   Compiling[0m stringprep v0.1.4
+benchmark	Build benchmark	2025-12-27T15:27:33.6594112Z [0m[0m[1m[32m   Compiling[0m rand_core v0.6.4
+benchmark	Build benchmark	2025-12-27T15:27:34.0029992Z [0m[0m[1m[32m   Compiling[0m tempfile v3.10.1
+benchmark	Build benchmark	2025-12-27T15:27:35.4703749Z [0m[0m[1m[32m   Compiling[0m parking_lot v0.12.1
+benchmark	Build benchmark	2025-12-27T15:27:35.8357632Z [0m[0m[1m[32m   Compiling[0m block-buffer v0.10.4
+benchmark	Build benchmark	2025-12-27T15:27:35.9889808Z [0m[0m[1m[32m   Compiling[0m crypto-common v0.1.6
+benchmark	Build benchmark	2025-12-27T15:27:36.1137097Z [0m[0m[1m[32m   Compiling[0m rand_chacha v0.3.1
+benchmark	Build benchmark	2025-12-27T15:27:36.9449140Z [0m[0m[1m[32m   Compiling[0m digest v0.10.7
+benchmark	Build benchmark	2025-12-27T15:27:37.1036699Z [0m[0m[1m[32m   Compiling[0m rand v0.8.5
+benchmark	Build benchmark	2025-12-27T15:27:37.2236272Z [0m[0m[1m[32m   Compiling[0m sha2 v0.10.8
+benchmark	Build benchmark	2025-12-27T15:27:38.2833178Z [0m[0m[1m[32m   Compiling[0m md-5 v0.10.6
+benchmark	Build benchmark	2025-12-27T15:27:38.3116029Z [0m[0m[1m[32m   Compiling[0m hmac v0.12.1
+benchmark	Build benchmark	2025-12-27T15:27:38.4418632Z [0m[0m[1m[32m   Compiling[0m thiserror-impl v1.0.58
+benchmark	Build benchmark	2025-12-27T15:27:38.4589145Z [0m[0m[1m[32m   Compiling[0m tokio-macros v2.2.0
+benchmark	Build benchmark	2025-12-27T15:27:38.7057125Z [0m[0m[1m[32m   Compiling[0m futures-macro v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:39.5011808Z [0m[0m[1m[32m   Compiling[0m postgres-protocol v0.6.6
+benchmark	Build benchmark	2025-12-27T15:27:40.0232348Z [0m[0m[1m[32m   Compiling[0m delegate v0.7.0
+benchmark	Build benchmark	2025-12-27T15:27:40.3391353Z [0m[0m[1m[32m   Compiling[0m tokio v1.37.0
+benchmark	Build benchmark	2025-12-27T15:27:40.8166175Z [0m[0m[1m[32m   Compiling[0m postgres-types v0.2.6
+benchmark	Build benchmark	2025-12-27T15:27:40.9445693Z [0m[0m[1m[32m   Compiling[0m futures-util v0.3.30
+benchmark	Build benchmark	2025-12-27T15:27:41.5353981Z [0m[0m[1m[32m   Compiling[0m platform-data v0.1.0-beta.3 (https://github.com/linksplatform/doublets-rs.git#5522d91c)
+benchmark	Build benchmark	2025-12-27T15:27:41.8835384Z [0m[0m[1m[32m   Compiling[0m platform-mem v0.1.0-pre+beta.2 (https://github.com/linksplatform/doublets-rs.git#5522d91c)
+benchmark	Build benchmark	2025-12-27T15:27:42.1262574Z [0m[0m[1m[32m   Compiling[0m platform-trees v0.1.0-beta.1 (https://github.com/linksplatform/doublets-rs.git#5522d91c)
+benchmark	Build benchmark	2025-12-27T15:27:42.3009922Z [0m[0m[1m[32m   Compiling[0m doublets v0.1.0-pre+beta.15 (https://github.com/linksplatform/doublets-rs.git#5522d91c)
+benchmark	Build benchmark	2025-12-27T15:27:44.4833559Z [0m[0m[1m[32m   Compiling[0m tokio-util v0.7.10
+benchmark	Build benchmark	2025-12-27T15:27:44.7861501Z [0m[0m[1m[32m   Compiling[0m tokio-postgres v0.7.10
+benchmark	Build benchmark	2025-12-27T15:27:46.7891317Z [0m[0m[1m[32m   Compiling[0m postgres v0.19.7
+benchmark	Build benchmark	2025-12-27T15:27:52.3687678Z [0m[0m[1m[32m   Compiling[0m linkspsql v0.1.0 (/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/rust)
+benchmark	Build benchmark	2025-12-27T15:27:53.8607839Z [0m[0m[1m[32m    Finished[0m release [optimized] target(s) in 5m 43s
+benchmark	Run benchmark	﻿2025-12-27T15:27:53.9243613Z ##[group]Run set -o pipefail
+benchmark	Run benchmark	2025-12-27T15:27:53.9243908Z [36;1mset -o pipefail[0m
+benchmark	Run benchmark	2025-12-27T15:27:53.9244235Z [36;1mcargo bench --bench bench -- --output-format bencher | tee out.txt[0m
+benchmark	Run benchmark	2025-12-27T15:27:53.9276415Z shell: /usr/bin/bash -e {0}
+benchmark	Run benchmark	2025-12-27T15:27:53.9276647Z env:
+benchmark	Run benchmark	2025-12-27T15:27:53.9276822Z   toolchain: nightly-2022-08-22
+benchmark	Run benchmark	2025-12-27T15:27:53.9277234Z   GITHUB_TOKEN: ***
+benchmark	Run benchmark	2025-12-27T15:27:53.9277435Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Run benchmark	2025-12-27T15:27:53.9277660Z   CARGO_INCREMENTAL: 0
+benchmark	Run benchmark	2025-12-27T15:27:53.9277852Z   CARGO_TERM_COLOR: always
+benchmark	Run benchmark	2025-12-27T15:27:53.9278646Z   POSTGRES_HOST: localhost
+benchmark	Run benchmark	2025-12-27T15:27:53.9278856Z   POSTGRES_PORT: 5432
+benchmark	Run benchmark	2025-12-27T15:27:53.9279053Z   POSTGRES_USER: postgres
+benchmark	Run benchmark	2025-12-27T15:27:53.9279254Z   POSTGRES_PASSWORD: postgres
+benchmark	Run benchmark	2025-12-27T15:27:53.9279462Z   POSTGRES_DB: postgres
+benchmark	Run benchmark	2025-12-27T15:27:53.9279643Z   BENCHMARK_LINKS: 10
+benchmark	Run benchmark	2025-12-27T15:27:53.9279838Z   BENCHMARK_BACKGROUND_LINKS: 100
+benchmark	Run benchmark	2025-12-27T15:27:53.9280049Z ##[endgroup]
+benchmark	Run benchmark	2025-12-27T15:27:54.0116012Z [0m[0m[1m[32m Downloading[0m crates ...
+benchmark	Run benchmark	2025-12-27T15:27:54.2003892Z [0m[0m[1m[32m  Downloaded[0m clap_lex v0.2.4
+benchmark	Run benchmark	2025-12-27T15:27:54.2017942Z [0m[0m[1m[32m  Downloaded[0m rayon-core v1.12.1
+benchmark	Run benchmark	2025-12-27T15:27:54.2064276Z [0m[0m[1m[32m  Downloaded[0m textwrap v0.16.1
+benchmark	Run benchmark	2025-12-27T15:27:54.2093404Z [0m[0m[1m[32m  Downloaded[0m criterion v0.4.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2172439Z [0m[0m[1m[32m  Downloaded[0m ciborium v0.2.2
+benchmark	Run benchmark	2025-12-27T15:27:54.2199320Z [0m[0m[1m[32m  Downloaded[0m anes v0.1.6
+benchmark	Run benchmark	2025-12-27T15:27:54.2228844Z [0m[0m[1m[32m  Downloaded[0m aho-corasick v1.1.3
+benchmark	Run benchmark	2025-12-27T15:27:54.2295414Z [0m[0m[1m[32m  Downloaded[0m same-file v1.0.6
+benchmark	Run benchmark	2025-12-27T15:27:54.2313604Z [0m[0m[1m[32m  Downloaded[0m serde_derive v1.0.197
+benchmark	Run benchmark	2025-12-27T15:27:54.2341980Z [0m[0m[1m[32m  Downloaded[0m oorandom v11.1.3
+benchmark	Run benchmark	2025-12-27T15:27:54.2352476Z [0m[0m[1m[32m  Downloaded[0m itertools v0.10.5
+benchmark	Run benchmark	2025-12-27T15:27:54.2424155Z [0m[0m[1m[32m  Downloaded[0m ciborium-ll v0.2.2
+benchmark	Run benchmark	2025-12-27T15:27:54.2437132Z [0m[0m[1m[32m  Downloaded[0m num-traits v0.2.18
+benchmark	Run benchmark	2025-12-27T15:27:54.2472741Z [0m[0m[1m[32m  Downloaded[0m plotters-backend v0.3.5
+benchmark	Run benchmark	2025-12-27T15:27:54.2486474Z [0m[0m[1m[32m  Downloaded[0m itoa v1.0.11
+benchmark	Run benchmark	2025-12-27T15:27:54.2501882Z [0m[0m[1m[32m  Downloaded[0m cast v0.3.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2515197Z [0m[0m[1m[32m  Downloaded[0m atty v0.2.14
+benchmark	Run benchmark	2025-12-27T15:27:54.2527842Z [0m[0m[1m[32m  Downloaded[0m plotters-svg v0.3.5
+benchmark	Run benchmark	2025-12-27T15:27:54.2536736Z [0m[0m[1m[32m  Downloaded[0m ciborium-io v0.2.2
+benchmark	Run benchmark	2025-12-27T15:27:54.2546440Z [0m[0m[1m[32m  Downloaded[0m lazy_static v1.4.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2561164Z [0m[0m[1m[32m  Downloaded[0m tinytemplate v1.2.1
+benchmark	Run benchmark	2025-12-27T15:27:54.2580207Z [0m[0m[1m[32m  Downloaded[0m crossbeam-deque v0.8.5
+benchmark	Run benchmark	2025-12-27T15:27:54.2596606Z [0m[0m[1m[32m  Downloaded[0m walkdir v2.5.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2616805Z [0m[0m[1m[32m  Downloaded[0m os_str_bytes v6.6.1
+benchmark	Run benchmark	2025-12-27T15:27:54.2640997Z [0m[0m[1m[32m  Downloaded[0m criterion-plot v0.5.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2661394Z [0m[0m[1m[32m  Downloaded[0m bitflags v1.3.2
+benchmark	Run benchmark	2025-12-27T15:27:54.2697363Z [0m[0m[1m[32m  Downloaded[0m half v2.2.1
+benchmark	Run benchmark	2025-12-27T15:27:54.2726093Z [0m[0m[1m[32m  Downloaded[0m crossbeam-utils v0.8.19
+benchmark	Run benchmark	2025-12-27T15:27:54.2759222Z [0m[0m[1m[32m  Downloaded[0m either v1.10.0
+benchmark	Run benchmark	2025-12-27T15:27:54.2775063Z [0m[0m[1m[32m  Downloaded[0m crossbeam-epoch v0.9.18
+benchmark	Run benchmark	2025-12-27T15:27:54.2805529Z [0m[0m[1m[32m  Downloaded[0m indexmap v1.9.3
+benchmark	Run benchmark	2025-12-27T15:27:54.2841449Z [0m[0m[1m[32m  Downloaded[0m ryu v1.0.17
+benchmark	Run benchmark	2025-12-27T15:27:54.2876463Z [0m[0m[1m[32m  Downloaded[0m serde v1.0.197
+benchmark	Run benchmark	2025-12-27T15:27:54.2917379Z [0m[0m[1m[32m  Downloaded[0m hashbrown v0.12.3
+benchmark	Run benchmark	2025-12-27T15:27:54.2966947Z [0m[0m[1m[32m  Downloaded[0m regex v1.10.4
+benchmark	Run benchmark	2025-12-27T15:27:54.3121752Z [0m[0m[1m[32m  Downloaded[0m rayon v1.10.0
+benchmark	Run benchmark	2025-12-27T15:27:54.3261177Z [0m[0m[1m[32m  Downloaded[0m serde_json v1.0.115
+benchmark	Run benchmark	2025-12-27T15:27:54.3380155Z [0m[0m[1m[32m  Downloaded[0m plotters v0.3.5
+benchmark	Run benchmark	2025-12-27T15:27:54.3527547Z [0m[0m[1m[32m  Downloaded[0m clap v3.2.25
+benchmark	Run benchmark	2025-12-27T15:27:54.3677726Z [0m[0m[1m[32m  Downloaded[0m regex-syntax v0.8.3
+benchmark	Run benchmark	2025-12-27T15:27:54.3765136Z [0m[0m[1m[32m  Downloaded[0m regex-automata v0.4.6
+benchmark	Run benchmark	2025-12-27T15:27:54.4103835Z [0m[0m[1m[32m   Compiling[0m crossbeam-utils v0.8.19
+benchmark	Run benchmark	2025-12-27T15:27:54.4107573Z [0m[0m[1m[32m   Compiling[0m serde v1.0.197
+benchmark	Run benchmark	2025-12-27T15:27:54.4110309Z [0m[0m[1m[32m   Compiling[0m either v1.10.0
+benchmark	Run benchmark	2025-12-27T15:27:54.4127820Z [0m[0m[1m[32m   Compiling[0m rayon-core v1.12.1
+benchmark	Run benchmark	2025-12-27T15:27:54.6846327Z [0m[0m[1m[32m   Compiling[0m serde_json v1.0.115
+benchmark	Run benchmark	2025-12-27T15:27:54.6961958Z [0m[0m[1m[32m   Compiling[0m regex-syntax v0.8.3
+benchmark	Run benchmark	2025-12-27T15:27:54.7856254Z [0m[0m[1m[32m   Compiling[0m ciborium-io v0.2.2
+benchmark	Run benchmark	2025-12-27T15:27:54.7958276Z [0m[0m[1m[32m   Compiling[0m os_str_bytes v6.6.1
+benchmark	Run benchmark	2025-12-27T15:27:54.8883729Z [0m[0m[1m[32m   Compiling[0m ryu v1.0.17
+benchmark	Run benchmark	2025-12-27T15:27:54.9489634Z [0m[0m[1m[32m   Compiling[0m itoa v1.0.11
+benchmark	Run benchmark	2025-12-27T15:27:55.1109778Z [0m[0m[1m[32m   Compiling[0m half v2.2.1
+benchmark	Run benchmark	2025-12-27T15:27:55.2269770Z [0m[0m[1m[32m   Compiling[0m hashbrown v0.12.3
+benchmark	Run benchmark	2025-12-27T15:27:55.2664324Z [0m[0m[1m[32m   Compiling[0m plotters-backend v0.3.5
+benchmark	Run benchmark	2025-12-27T15:27:55.7899513Z [0m[0m[1m[32m   Compiling[0m cast v0.3.0
+benchmark	Run benchmark	2025-12-27T15:27:55.8175422Z [0m[0m[1m[32m   Compiling[0m same-file v1.0.6
+benchmark	Run benchmark	2025-12-27T15:27:55.9176704Z [0m[0m[1m[32m   Compiling[0m textwrap v0.16.1
+benchmark	Run benchmark	2025-12-27T15:27:56.0189666Z [0m[0m[1m[32m   Compiling[0m bitflags v1.3.2
+benchmark	Run benchmark	2025-12-27T15:27:56.0386236Z [0m[0m[1m[32m   Compiling[0m anes v0.1.6
+benchmark	Run benchmark	2025-12-27T15:27:56.1065492Z [0m[0m[1m[32m   Compiling[0m lazy_static v1.4.0
+benchmark	Run benchmark	2025-12-27T15:27:56.2103788Z [0m[0m[1m[32m   Compiling[0m oorandom v11.1.3
+benchmark	Run benchmark	2025-12-27T15:27:56.3655196Z [0m[0m[1m[32m   Compiling[0m indexmap v1.9.3
+benchmark	Run benchmark	2025-12-27T15:27:56.4162316Z [0m[0m[1m[32m   Compiling[0m num-traits v0.2.18
+benchmark	Run benchmark	2025-12-27T15:27:56.6087781Z [0m[0m[1m[32m   Compiling[0m itertools v0.10.5
+benchmark	Run benchmark	2025-12-27T15:27:56.7432115Z [0m[0m[1m[32m   Compiling[0m clap_lex v0.2.4
+benchmark	Run benchmark	2025-12-27T15:27:57.5502546Z [0m[0m[1m[32m   Compiling[0m ciborium-ll v0.2.2
+benchmark	Run benchmark	2025-12-27T15:27:57.6563538Z [0m[0m[1m[32m   Compiling[0m plotters-svg v0.3.5
+benchmark	Run benchmark	2025-12-27T15:27:57.9514222Z [0m[0m[1m[32m   Compiling[0m walkdir v2.5.0
+benchmark	Run benchmark	2025-12-27T15:27:58.1520986Z [0m[0m[1m[32m   Compiling[0m regex-automata v0.4.6
+benchmark	Run benchmark	2025-12-27T15:27:59.4995935Z [0m[0m[1m[32m   Compiling[0m criterion-plot v0.5.0
+benchmark	Run benchmark	2025-12-27T15:28:00.3712724Z [0m[0m[1m[32m   Compiling[0m atty v0.2.14
+benchmark	Run benchmark	2025-12-27T15:28:01.1035013Z [0m[0m[1m[32m   Compiling[0m regex v1.10.4
+benchmark	Run benchmark	2025-12-27T15:28:02.4716413Z [0m[0m[1m[32m   Compiling[0m crossbeam-epoch v0.9.18
+benchmark	Run benchmark	2025-12-27T15:28:03.4320309Z [0m[0m[1m[32m   Compiling[0m clap v3.2.25
+benchmark	Run benchmark	2025-12-27T15:28:03.5374445Z [0m[0m[1m[32m   Compiling[0m plotters v0.3.5
+benchmark	Run benchmark	2025-12-27T15:28:04.8887150Z [0m[0m[1m[32m   Compiling[0m crossbeam-deque v0.8.5
+benchmark	Run benchmark	2025-12-27T15:28:05.1272646Z [0m[0m[1m[32m   Compiling[0m serde_derive v1.0.197
+benchmark	Run benchmark	2025-12-27T15:28:08.1926547Z [0m[0m[1m[32m   Compiling[0m rayon v1.10.0
+benchmark	Run benchmark	2025-12-27T15:28:14.2013161Z [0m[0m[1m[32m   Compiling[0m ciborium v0.2.2
+benchmark	Run benchmark	2025-12-27T15:28:14.9629057Z [0m[0m[1m[32m   Compiling[0m tinytemplate v1.2.1
+benchmark	Run benchmark	2025-12-27T15:28:15.3079657Z [0m[0m[1m[32m   Compiling[0m criterion v0.4.0
+benchmark	Run benchmark	2025-12-27T15:28:25.6522722Z [0m[0m[1m[32m   Compiling[0m linkspsql v0.1.0 (/home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/rust)
+benchmark	Run benchmark	2025-12-27T15:28:34.2141729Z [0m[0m[1m[32m    Finished[0m bench [optimized] target(s) in 40.24s
+benchmark	Run benchmark	2025-12-27T15:28:34.2221905Z [0m[0m[1m[32m     Running[0m benches/bench.rs (target/release/deps/bench-fd9ca8da16cd7e51)
+benchmark	Run benchmark	2025-12-27T15:28:40.1407791Z 
+benchmark	Run benchmark	2025-12-27T15:28:40.1408941Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 15.2s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:28:55.7839030Z test Create/PSQL_NonTransaction ... bench:    13272856 ns/iter (+/- 756455)
+benchmark	Run benchmark	2025-12-27T15:28:59.5108972Z 
+benchmark	Run benchmark	2025-12-27T15:28:59.5110007Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.0s, or reduce sample count to 40.
+benchmark	Run benchmark	2025-12-27T15:29:11.6064407Z test Create/PSQL_Transaction ... bench:    10496669 ns/iter (+/- 177236)
+benchmark	Run benchmark	2025-12-27T15:29:20.9936501Z test Create/Doublets_United_Volatile ... bench:         800 ns/iter (+/- 12)
+benchmark	Run benchmark	2025-12-27T15:29:30.1932790Z test Create/Doublets_United_NonVolatile ... bench:         791 ns/iter (+/- 5)
+benchmark	Run benchmark	2025-12-27T15:29:38.4371607Z test Create/Doublets_Split_Volatile ... bench:         942 ns/iter (+/- 14)
+benchmark	Run benchmark	2025-12-27T15:29:49.2887520Z test Create/Doublets_Split_NonVolatile ... bench:         926 ns/iter (+/- 17)
+benchmark	Run benchmark	2025-12-27T15:29:49.2907880Z 
+benchmark	Run benchmark	2025-12-27T15:29:54.3013227Z 
+benchmark	Run benchmark	2025-12-27T15:29:54.3014361Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 16.1s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:30:10.4801929Z test Delete/PSQL_NonTransaction ... bench:     5492907 ns/iter (+/- 547744)
+benchmark	Run benchmark	2025-12-27T15:30:14.3757464Z 
+benchmark	Run benchmark	2025-12-27T15:30:14.3758502Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.5s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:30:27.0500096Z test Delete/PSQL_Transaction ... bench:     3969479 ns/iter (+/- 95753)
+benchmark	Run benchmark	2025-12-27T15:30:36.4698510Z test Delete/Doublets_United_Volatile ... bench:        1429 ns/iter (+/- 35)
+benchmark	Run benchmark	2025-12-27T15:30:45.6668387Z test Delete/Doublets_United_NonVolatile ... bench:        1284 ns/iter (+/- 14)
+benchmark	Run benchmark	2025-12-27T15:30:53.8996431Z test Delete/Doublets_Split_Volatile ... bench:        1631 ns/iter (+/- 23)
+benchmark	Run benchmark	2025-12-27T15:31:04.7840709Z test Delete/Doublets_Split_NonVolatile ... bench:        1630 ns/iter (+/- 35)
+benchmark	Run benchmark	2025-12-27T15:31:04.7847891Z 
+benchmark	Run benchmark	2025-12-27T15:31:10.2302551Z 
+benchmark	Run benchmark	2025-12-27T15:31:10.2303657Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 17.5s, or reduce sample count to 20.
+benchmark	Run benchmark	2025-12-27T15:31:28.1533339Z test Each_Identity/PSQL_NonTransaction ... bench:    37143974 ns/iter (+/- 1031794)
+benchmark	Run benchmark	2025-12-27T15:31:32.6717722Z 
+benchmark	Run benchmark	2025-12-27T15:31:32.6718866Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 14.5s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:31:47.5050864Z test Each_Identity/PSQL_Transaction ... bench:    34653681 ns/iter (+/- 1421140)
+benchmark	Run benchmark	2025-12-27T15:31:58.3174959Z test Each_Identity/Doublets_United_Volatile ... bench:        3434 ns/iter (+/- 94)
+benchmark	Run benchmark	2025-12-27T15:32:09.0069026Z test Each_Identity/Doublets_United_NonVolatile ... bench:        3438 ns/iter (+/- 11)
+benchmark	Run benchmark	2025-12-27T15:32:17.9637117Z test Each_Identity/Doublets_Split_Volatile ... bench:        3408 ns/iter (+/- 61)
+benchmark	Run benchmark	2025-12-27T15:32:26.6877926Z test Each_Identity/Doublets_Split_NonVolatile ... bench:        3411 ns/iter (+/- 32)
+benchmark	Run benchmark	2025-12-27T15:32:26.6882008Z 
+benchmark	Run benchmark	2025-12-27T15:32:32.2492827Z 
+benchmark	Run benchmark	2025-12-27T15:32:32.2493812Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 17.9s, or reduce sample count to 20.
+benchmark	Run benchmark	2025-12-27T15:32:50.3930787Z test Each_Concrete/PSQL_NonTransaction ... bench:    38902435 ns/iter (+/- 662442)
+benchmark	Run benchmark	2025-12-27T15:32:54.9873440Z 
+benchmark	Run benchmark	2025-12-27T15:32:54.9874421Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 14.8s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:33:09.9006466Z test Each_Concrete/PSQL_Transaction ... bench:    37471456 ns/iter (+/- 778777)
+benchmark	Run benchmark	2025-12-27T15:33:21.1077651Z test Each_Concrete/Doublets_United_Volatile ... bench:        4828 ns/iter (+/- 71)
+benchmark	Run benchmark	2025-12-27T15:33:32.0663857Z test Each_Concrete/Doublets_United_NonVolatile ... bench:        4843 ns/iter (+/- 23)
+benchmark	Run benchmark	2025-12-27T15:33:41.1733463Z test Each_Concrete/Doublets_Split_Volatile ... bench:        4476 ns/iter (+/- 28)
+benchmark	Run benchmark	2025-12-27T15:33:50.0809511Z test Each_Concrete/Doublets_Split_NonVolatile ... bench:        4473 ns/iter (+/- 14)
+benchmark	Run benchmark	2025-12-27T15:33:50.0817906Z 
+benchmark	Run benchmark	2025-12-27T15:33:55.5236700Z 
+benchmark	Run benchmark	2025-12-27T15:33:55.5239757Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 17.5s, or reduce sample count to 20.
+benchmark	Run benchmark	2025-12-27T15:34:13.3576979Z test Each_Outgoing/PSQL_NonTransaction ... bench:    37461392 ns/iter (+/- 490406)
+benchmark	Run benchmark	2025-12-27T15:34:17.9068838Z 
+benchmark	Run benchmark	2025-12-27T15:34:17.9069826Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 14.6s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:34:32.5865874Z test Each_Outgoing/PSQL_Transaction ... bench:    34988858 ns/iter (+/- 1428250)
+benchmark	Run benchmark	2025-12-27T15:34:41.1686080Z test Each_Outgoing/Doublets_United_Volatile ... bench:        7126 ns/iter (+/- 596)
+benchmark	Run benchmark	2025-12-27T15:34:49.8861763Z test Each_Outgoing/Doublets_United_NonVolatile ... bench:        8781 ns/iter (+/- 711)
+benchmark	Run benchmark	2025-12-27T15:34:58.9439879Z test Each_Outgoing/Doublets_Split_Volatile ... bench:        4022 ns/iter (+/- 265)
+benchmark	Run benchmark	2025-12-27T15:35:07.7064268Z test Each_Outgoing/Doublets_Split_NonVolatile ... bench:        4001 ns/iter (+/- 24)
+benchmark	Run benchmark	2025-12-27T15:35:07.7071687Z 
+benchmark	Run benchmark	2025-12-27T15:35:13.1392058Z 
+benchmark	Run benchmark	2025-12-27T15:35:13.1393248Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 17.5s, or reduce sample count to 20.
+benchmark	Run benchmark	2025-12-27T15:35:30.9531217Z test Each_Incoming/PSQL_NonTransaction ... bench:    37213862 ns/iter (+/- 941578)
+benchmark	Run benchmark	2025-12-27T15:35:35.4756388Z 
+benchmark	Run benchmark	2025-12-27T15:35:35.4757330Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 14.6s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:35:50.0469033Z test Each_Incoming/PSQL_Transaction ... bench:    34239748 ns/iter (+/- 902741)
+benchmark	Run benchmark	2025-12-27T15:35:58.5229352Z test Each_Incoming/Doublets_United_Volatile ... bench:        6103 ns/iter (+/- 1042)
+benchmark	Run benchmark	2025-12-27T15:36:07.1757466Z test Each_Incoming/Doublets_United_NonVolatile ... bench:        9109 ns/iter (+/- 456)
+benchmark	Run benchmark	2025-12-27T15:36:16.1328457Z test Each_Incoming/Doublets_Split_Volatile ... bench:        4038 ns/iter (+/- 25)
+benchmark	Run benchmark	2025-12-27T15:36:24.9286885Z test Each_Incoming/Doublets_Split_NonVolatile ... bench:        4014 ns/iter (+/- 24)
+benchmark	Run benchmark	2025-12-27T15:36:24.9295866Z 
+benchmark	Run benchmark	2025-12-27T15:36:29.2688990Z 
+benchmark	Run benchmark	2025-12-27T15:36:29.2690036Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 14.0s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:36:43.3451373Z test Each_All/PSQL_NonTransaction ... bench:      389726 ns/iter (+/- 19350)
+benchmark	Run benchmark	2025-12-27T15:36:46.7628869Z 
+benchmark	Run benchmark	2025-12-27T15:36:46.7629827Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 11.0s, or reduce sample count to 40.
+benchmark	Run benchmark	2025-12-27T15:36:57.9815902Z test Each_All/PSQL_Transaction ... bench:      365560 ns/iter (+/- 55234)
+benchmark	Run benchmark	2025-12-27T15:37:06.9764850Z test Each_All/Doublets_United_Volatile ... bench:         521 ns/iter (+/- 13)
+benchmark	Run benchmark	2025-12-27T15:37:15.7382342Z test Each_All/Doublets_United_NonVolatile ... bench:         554 ns/iter (+/- 5)
+benchmark	Run benchmark	2025-12-27T15:37:26.4951216Z test Each_All/Doublets_Split_Volatile ... bench:         550 ns/iter (+/- 14)
+benchmark	Run benchmark	2025-12-27T15:37:36.8854830Z test Each_All/Doublets_Split_NonVolatile ... bench:         540 ns/iter (+/- 7)
+benchmark	Run benchmark	2025-12-27T15:37:36.8861043Z 
+benchmark	Run benchmark	2025-12-27T15:37:41.8268576Z 
+benchmark	Run benchmark	2025-12-27T15:37:41.8269578Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 15.9s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:37:57.8882560Z test Update/PSQL_NonTransaction ... bench:    16990514 ns/iter (+/- 798730)
+benchmark	Run benchmark	2025-12-27T15:38:01.8143458Z 
+benchmark	Run benchmark	2025-12-27T15:38:01.8144351Z Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.6s, or reduce sample count to 30.
+benchmark	Run benchmark	2025-12-27T15:38:14.6599547Z test Update/PSQL_Transaction ... bench:    14026148 ns/iter (+/- 853600)
+benchmark	Run benchmark	2025-12-27T15:38:24.5642844Z test Update/Doublets_United_Volatile ... bench:        2530 ns/iter (+/- 26)
+benchmark	Run benchmark	2025-12-27T15:38:34.1270012Z test Update/Doublets_United_NonVolatile ... bench:        2506 ns/iter (+/- 24)
+benchmark	Run benchmark	2025-12-27T15:38:45.0919288Z test Update/Doublets_Split_Volatile ... bench:         865 ns/iter (+/- 7)
+benchmark	Run benchmark	2025-12-27T15:38:55.7677240Z test Update/Doublets_Split_NonVolatile ... bench:         899 ns/iter (+/- 52)
+benchmark	Run benchmark	2025-12-27T15:38:55.7686621Z 
+benchmark	Save benchmark results	﻿2025-12-27T15:38:55.7764487Z ##[group]Run actions/upload-artifact@v4
+benchmark	Save benchmark results	2025-12-27T15:38:55.7764771Z with:
+benchmark	Save benchmark results	2025-12-27T15:38:55.7764947Z   name: Benchmark results
+benchmark	Save benchmark results	2025-12-27T15:38:55.7765244Z   path: rust/bench_rust.png
+benchmark	Save benchmark results	rust/bench_rust_log_scale.png
+benchmark	Save benchmark results	rust/out.txt
+benchmark	Save benchmark results	
+benchmark	Save benchmark results	2025-12-27T15:38:55.7765582Z   if-no-files-found: warn
+benchmark	Save benchmark results	2025-12-27T15:38:55.7765791Z   compression-level: 6
+benchmark	Save benchmark results	2025-12-27T15:38:55.7765971Z   overwrite: false
+benchmark	Save benchmark results	2025-12-27T15:38:55.7766157Z   include-hidden-files: false
+benchmark	Save benchmark results	2025-12-27T15:38:55.7766554Z env:
+benchmark	Save benchmark results	2025-12-27T15:38:55.7766720Z   toolchain: nightly-2022-08-22
+benchmark	Save benchmark results	2025-12-27T15:38:55.7767097Z   GITHUB_TOKEN: ***
+benchmark	Save benchmark results	2025-12-27T15:38:55.7767298Z   CARGO_HOME: /home/runner/.cargo
+benchmark	Save benchmark results	2025-12-27T15:38:55.7767523Z   CARGO_INCREMENTAL: 0
+benchmark	Save benchmark results	2025-12-27T15:38:55.7767708Z   CARGO_TERM_COLOR: always
+benchmark	Save benchmark results	2025-12-27T15:38:55.7767904Z ##[endgroup]
+benchmark	Save benchmark results	2025-12-27T15:38:56.0230986Z Multiple search paths detected. Calculating the least common ancestor of all paths
+benchmark	Save benchmark results	2025-12-27T15:38:56.0237806Z The least common ancestor is /home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets/rust. This will be the root directory of the artifact
+benchmark	Save benchmark results	2025-12-27T15:38:56.0239931Z With the provided path, there will be 1 file uploaded
+benchmark	Save benchmark results	2025-12-27T15:38:56.0245609Z Artifact name is valid!
+benchmark	Save benchmark results	2025-12-27T15:38:56.0247261Z Root directory input is valid!
+benchmark	Save benchmark results	2025-12-27T15:38:56.1480329Z Beginning upload of artifact content to blob storage
+benchmark	Save benchmark results	2025-12-27T15:38:56.2841144Z Uploaded bytes 770
+benchmark	Save benchmark results	2025-12-27T15:38:56.3178231Z Finished uploading artifact content to blob storage!
+benchmark	Save benchmark results	2025-12-27T15:38:56.3182156Z SHA256 digest of uploaded artifact zip is f433dcbf6e942bc06a14629bae2400114817fc1ad65f1e23698d105291d711d7
+benchmark	Save benchmark results	2025-12-27T15:38:56.3184866Z Finalizing artifact upload
+benchmark	Save benchmark results	2025-12-27T15:38:56.4757689Z Artifact Benchmark results.zip successfully finalized. Artifact ID 4975514936
+benchmark	Save benchmark results	2025-12-27T15:38:56.4759236Z Artifact Benchmark results has been successfully uploaded! Final size is 770 bytes. Artifact ID is 4975514936
+benchmark	Save benchmark results	2025-12-27T15:38:56.4766960Z Artifact download URL: https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/20540822758/artifacts/4975514936
+benchmark	Post Checkout repository	﻿2025-12-27T15:38:56.4903956Z Post job cleanup.
+benchmark	Post Checkout repository	2025-12-27T15:38:56.5883370Z [command]/usr/bin/git version
+benchmark	Post Checkout repository	2025-12-27T15:38:56.5933485Z git version 2.52.0
+benchmark	Post Checkout repository	2025-12-27T15:38:56.5979512Z Temporarily overriding HOME='/home/runner/work/_temp/47cc0a27-0fd1-4619-ad7c-2233063b4679' before making global git config changes
+benchmark	Post Checkout repository	2025-12-27T15:38:56.5980817Z Adding repository directory to the temporary git global config as a safe directory
+benchmark	Post Checkout repository	2025-12-27T15:38:56.5986512Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Comparisons.PostgreSQLVSDoublets/Comparisons.PostgreSQLVSDoublets
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6027296Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6065994Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6344888Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6368317Z http.https://github.com/.extraheader
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6381528Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6413711Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6644249Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+benchmark	Post Checkout repository	2025-12-27T15:38:56.6678355Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+benchmark	Stop containers	﻿2025-12-27T15:38:56.7054083Z Print service container logs: 34ee0c853f4e4ce0b285a851a94aac47_postgreslatest_4b9b42
+benchmark	Stop containers	2025-12-27T15:38:56.7059051Z ##[command]/usr/bin/docker logs --details ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Stop containers	2025-12-27T15:38:56.7206957Z  The files belonging to this database system will be owned by user "postgres".
+benchmark	Stop containers	2025-12-27T15:38:56.7207822Z  This user must also own the server process.
+benchmark	Stop containers	2025-12-27T15:38:56.7208433Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7208907Z  The database cluster will be initialized with locale "en_US.utf8".
+benchmark	Stop containers	2025-12-27T15:38:56.7209768Z  The default database encoding has accordingly been set to "UTF8".
+benchmark	Stop containers	2025-12-27T15:38:56.7210887Z  The default text search configuration will be set to "english".
+benchmark	Stop containers	2025-12-27T15:38:56.7211404Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7211697Z  Data page checksums are enabled.
+benchmark	Stop containers	2025-12-27T15:38:56.7212101Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7212580Z  fixing permissions on existing directory /var/lib/postgresql/18/docker ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7213224Z  creating subdirectories ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7213772Z  selecting dynamic shared memory implementation ... posix
+benchmark	Stop containers	2025-12-27T15:38:56.7214325Z  selecting default "max_connections" ... 100
+benchmark	Stop containers	2025-12-27T15:38:56.7214823Z  selecting default "shared_buffers" ... 128MB
+benchmark	Stop containers	2025-12-27T15:38:56.7215291Z  selecting default time zone ... Etc/UTC
+benchmark	Stop containers	2025-12-27T15:38:56.7217252Z  initdb: warning: enabling "trust" authentication for local connections
+benchmark	Stop containers	2025-12-27T15:38:56.7218515Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+benchmark	Stop containers	2025-12-27T15:38:56.7219967Z  2025-12-27 15:21:49.170 UTC [1] LOG:  starting PostgreSQL 18.1 (Debian 18.1-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+benchmark	Stop containers	2025-12-27T15:38:56.7221114Z  2025-12-27 15:21:49.170 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+benchmark	Stop containers	2025-12-27T15:38:56.7221845Z  2025-12-27 15:21:49.170 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+benchmark	Stop containers	2025-12-27T15:38:56.7222619Z  2025-12-27 15:21:49.171 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+benchmark	Stop containers	2025-12-27T15:38:56.7223465Z  2025-12-27 15:21:49.175 UTC [72] LOG:  database system was shut down at 2025-12-27 15:21:49 UTC
+benchmark	Stop containers	2025-12-27T15:38:56.7224236Z  2025-12-27 15:21:49.178 UTC [1] LOG:  database system is ready to accept connections
+benchmark	Stop containers	2025-12-27T15:38:56.7224898Z  2025-12-27 15:21:58.350 UTC [83] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7225484Z  2025-12-27 15:22:08.421 UTC [91] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7226080Z  2025-12-27 15:22:18.488 UTC [100] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7226678Z  2025-12-27 15:22:28.564 UTC [109] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7227267Z  2025-12-27 15:22:38.648 UTC [117] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7227842Z  2025-12-27 15:22:48.714 UTC [125] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7228623Z  2025-12-27 15:22:58.780 UTC [134] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7229220Z  2025-12-27 15:23:08.844 UTC [142] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7229795Z  2025-12-27 15:23:18.909 UTC [150] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7230364Z  2025-12-27 15:23:28.981 UTC [159] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7230953Z  2025-12-27 15:23:39.053 UTC [167] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7231532Z  2025-12-27 15:23:49.120 UTC [175] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7232096Z  2025-12-27 15:23:59.198 UTC [184] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7232663Z  2025-12-27 15:24:09.270 UTC [192] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7233250Z  2025-12-27 15:24:19.341 UTC [201] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7233816Z  2025-12-27 15:24:29.412 UTC [209] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7234390Z  2025-12-27 15:24:39.479 UTC [217] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7234960Z  2025-12-27 15:24:49.550 UTC [226] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7235847Z  2025-12-27 15:24:59.629 UTC [234] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7236407Z  2025-12-27 15:25:09.700 UTC [242] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7236962Z  2025-12-27 15:25:19.769 UTC [251] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7237537Z  2025-12-27 15:25:29.837 UTC [259] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7238301Z  2025-12-27 15:25:39.904 UTC [267] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7238881Z  2025-12-27 15:25:49.972 UTC [276] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7239871Z  2025-12-27 15:26:00.060 UTC [284] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7240495Z  2025-12-27 15:26:10.127 UTC [292] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7241086Z  2025-12-27 15:26:20.194 UTC [301] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7241689Z  2025-12-27 15:26:30.262 UTC [309] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7242109Z  2025-12-27 15:26:40.335 UTC [317] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7242486Z  2025-12-27 15:26:49.252 UTC [70] LOG:  checkpoint starting: time
+benchmark	Stop containers	2025-12-27T15:38:56.7242848Z  2025-12-27 15:26:50.403 UTC [326] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7243805Z  2025-12-27 15:26:53.464 UTC [70] LOG:  checkpoint complete: wrote 42 buffers (0.3%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.210 s, sync=0.001 s, total=4.213 s; sync files=11, longest=0.001 s, average=0.001 s; distance=317 kB, estimate=317 kB; lsn=0/17AF058, redo lsn=0/17AF000
+benchmark	Stop containers	2025-12-27T15:38:56.7244773Z  2025-12-27 15:27:00.473 UTC [334] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7245126Z  2025-12-27 15:27:10.540 UTC [342] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7245466Z  2025-12-27 15:27:20.605 UTC [351] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7245800Z  2025-12-27 15:27:30.718 UTC [360] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7246133Z  2025-12-27 15:27:40.858 UTC [368] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7246464Z  2025-12-27 15:27:50.986 UTC [377] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7246794Z  2025-12-27 15:28:01.082 UTC [385] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7247099Z  creating configuration files ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7247343Z  running bootstrap script ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7247620Z  performing post-bootstrap initialization ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7247904Z  syncing data to disk ... ok
+benchmark	Stop containers	2025-12-27T15:38:56.7248369Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7248526Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7248737Z  Success. You can now start the database server using:
+benchmark	Stop containers	2025-12-27T15:38:56.7249012Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7249233Z      pg_ctl -D /var/lib/postgresql/18/docker -l logfile start
+benchmark	Stop containers	2025-12-27T15:38:56.7249510Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7250051Z  waiting for server to start....2025-12-27 15:21:48.929 UTC [52] LOG:  starting PostgreSQL 18.1 (Debian 18.1-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+benchmark	Stop containers	2025-12-27T15:38:56.7250799Z  2025-12-27 15:21:48.930 UTC [52] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+benchmark	Stop containers	2025-12-27T15:38:56.7251286Z  2025-12-27 15:21:48.933 UTC [58] LOG:  database system was shut down at 2025-12-27 15:21:48 UTC
+benchmark	Stop containers	2025-12-27T15:38:56.7251729Z  2025-12-27 15:21:48.936 UTC [52] LOG:  database system is ready to accept connections
+benchmark	Stop containers	2025-12-27T15:38:56.7252046Z   done
+benchmark	Stop containers	2025-12-27T15:38:56.7252206Z  server started
+benchmark	Stop containers	2025-12-27T15:38:56.7252379Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7252671Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+benchmark	Stop containers	2025-12-27T15:38:56.7253029Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7253247Z  2025-12-27 15:21:49.049 UTC [52] LOG:  received fast shutdown request
+benchmark	Stop containers	2025-12-27T15:38:56.7253701Z  waiting for server to shut down....2025-12-27 15:21:49.049 UTC [52] LOG:  aborting any active transactions
+benchmark	Stop containers	2025-12-27T15:38:56.7254300Z  2025-12-27 15:21:49.051 UTC [52] LOG:  background worker "logical replication launcher" (PID 61) exited with exit code 1
+benchmark	Stop containers	2025-12-27T15:38:56.7254948Z  2025-12-27 15:21:49.051 UTC [56] LOG:  shutting down
+benchmark	Stop containers	2025-12-27T15:38:56.7255287Z  2025-12-27 15:21:49.052 UTC [56] LOG:  checkpoint starting: shutdown immediate
+benchmark	Stop containers	2025-12-27T15:38:56.7256218Z  2025-12-27 15:21:49.054 UTC [56] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.003 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/175F8E0, redo lsn=0/175F8E0
+benchmark	Stop containers	2025-12-27T15:38:56.7257138Z  2025-12-27 15:21:49.061 UTC [52] LOG:  database system is shut down
+benchmark	Stop containers	2025-12-27T15:38:56.7257552Z   done
+benchmark	Stop containers	2025-12-27T15:38:56.7257704Z  server stopped
+benchmark	Stop containers	2025-12-27T15:38:56.7257876Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7258298Z  PostgreSQL init process complete; ready for start up.
+benchmark	Stop containers	2025-12-27T15:38:56.7258573Z  
+benchmark	Stop containers	2025-12-27T15:38:56.7258825Z  2025-12-27 15:28:11.231 UTC [393] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7259175Z  2025-12-27 15:28:21.370 UTC [402] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7259512Z  2025-12-27 15:28:31.514 UTC [410] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7259844Z  2025-12-27 15:28:41.593 UTC [419] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7260184Z  2025-12-27 15:28:51.675 UTC [428] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7260518Z  2025-12-27 15:29:01.760 UTC [437] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7260845Z  2025-12-27 15:29:11.825 UTC [445] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7261176Z  2025-12-27 15:29:21.891 UTC [454] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7261518Z  2025-12-27 15:29:31.961 UTC [462] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7261847Z  2025-12-27 15:29:42.028 UTC [470] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7262172Z  2025-12-27 15:29:52.111 UTC [480] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7262505Z  2025-12-27 15:30:02.199 UTC [488] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7262832Z  2025-12-27 15:30:12.280 UTC [497] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7263162Z  2025-12-27 15:30:22.362 UTC [506] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7263494Z  2025-12-27 15:30:32.431 UTC [514] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7263818Z  2025-12-27 15:30:42.499 UTC [522] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7264154Z  2025-12-27 15:30:52.564 UTC [531] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7264498Z  2025-12-27 15:31:02.628 UTC [539] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7264842Z  2025-12-27 15:31:12.712 UTC [548] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7265171Z  2025-12-27 15:31:22.792 UTC [557] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7265505Z  2025-12-27 15:31:32.880 UTC [566] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7265833Z  2025-12-27 15:31:42.965 UTC [574] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7266204Z  2025-12-27 15:31:49.751 UTC [70] LOG:  checkpoint starting: time
+benchmark	Stop containers	2025-12-27T15:38:56.7266546Z  2025-12-27 15:31:53.033 UTC [583] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7266875Z  2025-12-27 15:32:03.100 UTC [591] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7267210Z  2025-12-27 15:32:13.169 UTC [599] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7267536Z  2025-12-27 15:32:23.239 UTC [608] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7268700Z  2025-12-27 15:32:24.102 UTC [70] LOG:  checkpoint complete: wrote 342 buffers (2.1%), wrote 35 SLRU buffers; 0 WAL file(s) added, 0 removed, 4 recycled; write=34.266 s, sync=0.024 s, total=34.351 s; sync files=3987, longest=0.001 s, average=0.001 s; distance=66918 kB, estimate=66918 kB; lsn=0/5A3ADB8, redo lsn=0/59088B8
+benchmark	Stop containers	2025-12-27T15:38:56.7269654Z  2025-12-27 15:32:33.325 UTC [617] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7269990Z  2025-12-27 15:32:43.407 UTC [625] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7270474Z  2025-12-27 15:32:53.496 UTC [635] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7270802Z  2025-12-27 15:33:03.581 UTC [643] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7271132Z  2025-12-27 15:33:13.647 UTC [651] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7271462Z  2025-12-27 15:33:23.713 UTC [660] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7271794Z  2025-12-27 15:33:33.780 UTC [668] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7272124Z  2025-12-27 15:33:43.850 UTC [676] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7272563Z  2025-12-27 15:33:53.934 UTC [686] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7272894Z  2025-12-27 15:34:04.014 UTC [694] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7273220Z  2025-12-27 15:34:14.093 UTC [703] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7273549Z  2025-12-27 15:34:24.179 UTC [712] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7273877Z  2025-12-27 15:34:34.248 UTC [720] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7274212Z  2025-12-27 15:34:44.313 UTC [728] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7274547Z  2025-12-27 15:34:54.389 UTC [737] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7274873Z  2025-12-27 15:35:04.455 UTC [745] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7275204Z  2025-12-27 15:35:14.538 UTC [754] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7275529Z  2025-12-27 15:35:24.625 UTC [763] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7275886Z  2025-12-27 15:35:34.707 UTC [772] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7276215Z  2025-12-27 15:35:44.792 UTC [780] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7276551Z  2025-12-27 15:35:54.856 UTC [789] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7276882Z  2025-12-27 15:36:04.923 UTC [797] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7277233Z  2025-12-27 15:36:14.987 UTC [805] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7277578Z  2025-12-27 15:36:25.064 UTC [815] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7277911Z  2025-12-27 15:36:35.148 UTC [823] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7278454Z  2025-12-27 15:36:45.231 UTC [832] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7278804Z  2025-12-27 15:36:49.876 UTC [70] LOG:  checkpoint starting: time
+benchmark	Stop containers	2025-12-27T15:38:56.7279150Z  2025-12-27 15:36:55.310 UTC [841] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7279482Z  2025-12-27 15:37:05.377 UTC [849] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7279822Z  2025-12-27 15:37:15.446 UTC [857] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7280762Z  2025-12-27 15:37:23.241 UTC [70] LOG:  checkpoint complete: wrote 325 buffers (2.0%), wrote 36 SLRU buffers; 0 WAL file(s) added, 0 removed, 5 recycled; write=33.262 s, sync=0.032 s, total=33.366 s; sync files=5296, longest=0.001 s, average=0.001 s; distance=79625 kB, estimate=79625 kB; lsn=0/AD70920, redo lsn=0/A6CAFE8
+benchmark	Stop containers	2025-12-27T15:38:56.7281739Z  2025-12-27 15:37:25.514 UTC [866] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7282073Z  2025-12-27 15:37:35.581 UTC [874] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7282405Z  2025-12-27 15:37:45.663 UTC [883] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7282729Z  2025-12-27 15:37:55.747 UTC [892] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7283062Z  2025-12-27 15:38:05.840 UTC [901] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7283393Z  2025-12-27 15:38:15.906 UTC [909] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7283730Z  2025-12-27 15:38:25.974 UTC [918] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7284101Z  2025-12-27 15:38:36.042 UTC [926] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7284531Z  2025-12-27 15:38:46.109 UTC [934] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7300054Z  2025-12-27 15:38:56.200 UTC [943] FATAL:  role "root" does not exist
+benchmark	Stop containers	2025-12-27T15:38:56.7307344Z Stop and remove container: 34ee0c853f4e4ce0b285a851a94aac47_postgreslatest_4b9b42
+benchmark	Stop containers	2025-12-27T15:38:56.7314084Z ##[command]/usr/bin/docker rm --force ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Stop containers	2025-12-27T15:38:56.8765232Z ba58d67dd1831f9af1a3bd09afe14a8387170b26f9ebdb3d79e939838d989437
+benchmark	Stop containers	2025-12-27T15:38:56.8795375Z Remove container network: github_network_2106a5326de64e908e44e39a69e69ed8
+benchmark	Stop containers	2025-12-27T15:38:56.8800221Z ##[command]/usr/bin/docker network rm github_network_2106a5326de64e908e44e39a69e69ed8
+benchmark	Stop containers	2025-12-27T15:38:57.0127621Z github_network_2106a5326de64e908e44e39a69e69ed8
+benchmark	Complete job	﻿2025-12-27T15:38:57.0193638Z Cleaning up orphan processes
