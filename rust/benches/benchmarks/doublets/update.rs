@@ -1,15 +1,31 @@
-use {
-    crate::tri,
-    criterion::{BenchmarkGroup, Criterion, measurement::WallTime},
-    doublets::{
-        Doublets,
-        mem::{Alloc, FileMapped},
-        parts::LinkPart,
-        split::{self, DataPart, IndexPart}, unit,
-    },
-    linkspsql::{bench, background_links, benchmark_links, Benched, Client, connect, Exclusive, Fork, Transaction},
-    std::{alloc::Global, time::{Duration, Instant}},
+//! # Doublets Update Links Benchmark
+//!
+//! This benchmark measures the performance of updating links in Doublets.
+//!
+//! ## Implementation
+//!
+//! Doublets updates links by:
+//! - Modifying source and target values in storage
+//! - Re-indexing if source or target changed
+//! - Time complexity: O(log n) for index updates
+
+use std::{
+    alloc::Global,
+    time::{Duration, Instant},
 };
+
+use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use doublets::{
+    mem::{Alloc, FileMapped},
+    split::{self, DataPart, IndexPart},
+    unit::{self, LinkPart},
+    Doublets,
+};
+use linkspsql::{background_links, bench, benchmark_links, Benched, Fork};
+
+use crate::tri;
+
+/// Runs the update benchmark on a Doublets backend.
 fn bench<B: Benched + Doublets<usize>>(
     group: &mut BenchmarkGroup<WallTime>,
     id: &str,
@@ -19,29 +35,18 @@ fn bench<B: Benched + Doublets<usize>>(
     let links = benchmark_links();
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            for _prepare in bg_links..bg_links + links {
-                let _ = fork.create_point();
-            }
-            for id in (bg_links..=bg_links + links).rev() {
-                let _ = elapsed! {fork.delete(id)?};
+            for id in bg_links - (links - 1)..=bg_links {
+                let _ = elapsed! {fork.update(id, 0, 0)?};
+                let _ = elapsed! {fork.update(id, id, id)?};
             }
         })(bencher, &mut benched);
     });
 }
 
-pub fn delete_links(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Delete");
-    tri! {
-        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
-    }
-    tri! {
-        let mut client = connect().unwrap();
-        bench(
-            &mut group,
-            "PSQL_Transaction",
-            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
-        );
-    }
+/// Creates benchmark for Doublets backends on link updates.
+pub fn update_links(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Update");
+
     tri! {
         bench(
             &mut group,
@@ -70,5 +75,6 @@ pub fn delete_links(c: &mut Criterion) {
             split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
         )
     }
+
     group.finish();
 }

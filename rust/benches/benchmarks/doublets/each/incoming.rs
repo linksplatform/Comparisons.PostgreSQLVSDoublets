@@ -1,20 +1,31 @@
-use {
-    crate::tri,
-    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
-    doublets::{
-        data::{Flow, LinksConstants},
-        mem::{Alloc, FileMapped},
-        parts::LinkPart,
-        split::{self, DataPart, IndexPart},
-        unit, Doublets,
-    },
-    linkspsql::{background_links, bench, connect, Benched, Client, Exclusive, Fork, Transaction},
-    std::{
-        alloc::Global,
-        time::{Duration, Instant},
-    },
+//! # Doublets Each Incoming Benchmark
+//!
+//! This benchmark measures the performance of querying links by target in Doublets.
+//!
+//! ## Implementation
+//!
+//! Query pattern: `[*, *, tgt]` - matches links by target
+//! - Target index tree traversal
+//! - Time complexity: O(log n + k) where k is the number of matching links
+
+use std::{
+    alloc::Global,
+    time::{Duration, Instant},
 };
 
+use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use doublets::{
+    data::{Flow, LinksConstants},
+    mem::{Alloc, FileMapped},
+    parts::LinkPart,
+    split::{self, DataPart, IndexPart},
+    unit, Doublets,
+};
+use linkspsql::{background_links, bench, Benched, Fork};
+
+use crate::tri;
+
+/// Runs the each_incoming benchmark on a Doublets backend.
 fn bench<B: Benched + Doublets<usize>>(
     group: &mut BenchmarkGroup<WallTime>,
     id: &str,
@@ -26,25 +37,16 @@ fn bench<B: Benched + Doublets<usize>>(
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
             for index in 1..=bg_links {
-                elapsed! {fork.each_by([index, any, any], handler)};
+                elapsed! {fork.each_by([any, any, index], handler)};
             }
         })(bencher, &mut benched);
     });
 }
 
-pub fn each_identity(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Each_Identity");
-    tri! {
-        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
-    }
-    tri! {
-        let mut client = connect().unwrap();
-        bench(
-            &mut group,
-            "PSQL_Transaction",
-            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
-        );
-    }
+/// Creates benchmark for Doublets backends on querying links by target.
+pub fn each_incoming(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Each_Incoming");
+
     tri! {
         bench(
             &mut group,
@@ -73,5 +75,6 @@ pub fn each_identity(c: &mut Criterion) {
             split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
         )
     }
+
     group.finish();
 }
