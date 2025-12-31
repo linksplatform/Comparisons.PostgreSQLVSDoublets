@@ -1,21 +1,32 @@
-use {
-    crate::tri,
-    criterion::{measurement::WallTime, BenchmarkGroup, Criterion},
-    doublets::{
-        data::{Flow, LinkType},
-        mem::{Alloc, FileMapped},
-        parts::LinkPart,
-        split::{self, DataPart, IndexPart},
-        unit, Doublets,
-    },
-    linkspsql::{bench, connect, Benched, Client, Exclusive, Fork, Transaction},
-    std::{
-        alloc::Global,
-        time::{Duration, Instant},
-    },
+//! # Doublets Each All Benchmark
+//!
+//! This benchmark measures the performance of querying all links in Doublets.
+//!
+//! ## Implementation
+//!
+//! Query pattern: `[*, *, *]` - matches all links
+//! - Sequential iteration through the internal array
+//! - Time complexity: O(n) where n is the number of links
+
+use std::{
+    alloc::Global,
+    time::{Duration, Instant},
 };
 
-fn bench<T: LinkType, B: Benched + Doublets<T>>(
+use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use doublets::{
+    data::Flow,
+    mem::{Alloc, FileMapped},
+    parts::LinkPart,
+    split::{self, DataPart, IndexPart},
+    unit, Doublets,
+};
+use linkspsql::{bench, Benched, Fork};
+
+use crate::tri;
+
+/// Runs the each_all benchmark on a Doublets backend.
+fn bench<B: Benched + Doublets<usize>>(
     group: &mut BenchmarkGroup<WallTime>,
     id: &str,
     mut benched: B,
@@ -28,19 +39,10 @@ fn bench<T: LinkType, B: Benched + Doublets<T>>(
     });
 }
 
+/// Creates benchmark for Doublets backends on querying all links.
 pub fn each_all(c: &mut Criterion) {
     let mut group = c.benchmark_group("Each_All");
-    tri! {
-        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
-    }
-    tri! {
-        let mut client = connect().unwrap();
-        bench(
-            &mut group,
-            "PSQL_Transaction",
-            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
-        );
-    }
+
     tri! {
         bench(
             &mut group,
@@ -69,5 +71,6 @@ pub fn each_all(c: &mut Criterion) {
             split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
         )
     }
+
     group.finish();
 }

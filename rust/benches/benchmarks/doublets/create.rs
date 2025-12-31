@@ -1,44 +1,51 @@
-use {
-    crate::tri,
-    criterion::{BenchmarkGroup, Criterion, measurement::WallTime},
-    doublets::{
-        Doublets,
-        mem::{Alloc, FileMapped}, split, split::{DataPart, IndexPart},
-        unit, unit::LinkPart,
-    },
-    linkspsql::{background_links, benchmark_links, bench, Benched, Transaction, Exclusive, connect, Client, Fork},
-    std::{alloc::Global, time::{Duration, Instant}},
+//! # Doublets Create Links Benchmark
+//!
+//! This benchmark measures the performance of creating new links in Doublets.
+//!
+//! ## Implementation
+//!
+//! Doublets creates links by:
+//! - Allocating next available ID from internal counter
+//! - Writing (id, id, id) tuple directly to memory/file
+//! - Updating source and target indexes
+//! - Time complexity: O(log n) for index updates
+
+use std::{
+    alloc::Global,
+    time::{Duration, Instant},
 };
 
+use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use doublets::{
+    mem::{Alloc, FileMapped},
+    parts::LinkPart,
+    split::{self, DataPart, IndexPart},
+    unit, Doublets,
+};
+use linkspsql::{bench, benchmark_links, Benched, Fork};
+
+use crate::tri;
+
+/// Runs the create benchmark on a Doublets backend.
 fn bench<B: Benched + Doublets<usize>>(
     group: &mut BenchmarkGroup<WallTime>,
     id: &str,
     mut benched: B,
 ) {
-    let bg_links = background_links();
     let links = benchmark_links();
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            for id in bg_links - (links - 1)..=bg_links {
-                let _ = elapsed! {fork.update(id, 0, 0)?};
-                let _ = elapsed! {fork.update(id, id, id)?};
+            for _ in 0..links {
+                let _ = elapsed! {fork.create_point()?};
             }
         })(bencher, &mut benched);
     });
 }
-pub fn update_links(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Update");
-    tri! {
-        bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
-    }
-    tri! {
-        let mut client = connect().unwrap();
-        bench(
-            &mut group,
-            "PSQL_Transaction",
-            Exclusive::<Transaction<'_, usize>>::setup(&mut client).unwrap(),
-        );
-    }
+
+/// Creates benchmark for Doublets backends on link creation.
+pub fn create_links(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Create");
+
     tri! {
         bench(
             &mut group,
@@ -67,5 +74,6 @@ pub fn update_links(c: &mut Criterion) {
             split::Store::<usize, FileMapped<_>, FileMapped<_>>::setup(("split_index.links", "split_data.links")).unwrap()
         )
     }
+
     group.finish();
 }
