@@ -22,7 +22,7 @@ Both databases used to store and retrieve doublet-links representation. To suppo
 ## Results
 The results below represent the amount of time (ns) the operation takes per iteration.
 - First picture shows time in a pixel scale (for doublets just minimum value is shown, otherwise it will be not present on the graph).
-- Second picture shows time in a logarithmic scale (to see diffrence clearly, because it is around 2-3 orders of magnitude).
+- Second picture shows time in a logarithmic scale (to see difference clearly, because it is around 2-3 orders of magnitude).
 
 ### Rust
 ![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/main/Docs/bench_rust.png?raw=true)
