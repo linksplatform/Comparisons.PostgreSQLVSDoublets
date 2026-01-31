@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  doublets-gql:
+    build: 
+      context: ./doublets-gql
+      dockerfile: Dockerfile
+    ports:
+      - "60341:60341"
+    volumes:
+      - doublets-data:/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:60341/v1/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  doublets-data:
