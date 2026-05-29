@@ -11,7 +11,7 @@ on:
       - master
 
 env:
-  toolchain: nightly-2022-08-22
+  toolchain: stable
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:

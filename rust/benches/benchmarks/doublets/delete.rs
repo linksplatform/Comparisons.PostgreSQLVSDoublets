@@ -9,17 +9,14 @@
 //! - Marking the slot as free for reuse
 //! - Time complexity: O(log n) for index updates
 
-use std::{
-    alloc::Global,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
 use doublets::{
-    mem::{Alloc, FileMapped},
-    parts::LinkPart,
+    mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
-    unit, Doublets,
+    unit::{self, LinkPart},
+    Doublets,
 };
 use linkspsql::{background_links, bench, benchmark_links, Benched, Fork};
 
@@ -53,7 +50,7 @@ pub fn delete_links(c: &mut Criterion) {
         bench(
             &mut group,
             "Doublets_United_Volatile",
-            unit::Store::<usize, Alloc<LinkPart<_>, Global>>::setup(()).unwrap()
+            unit::Store::<usize, Global<LinkPart<_>>>::setup(()).unwrap()
         )
     }
     tri! {
@@ -67,7 +64,7 @@ pub fn delete_links(c: &mut Criterion) {
         bench(
             &mut group,
             "Doublets_Split_Volatile",
-            split::Store::<usize, Alloc<DataPart<_>, _>, Alloc<IndexPart<_>, _>>::setup(()).unwrap()
+            split::Store::<usize, Global<DataPart<_>>, Global<IndexPart<_>>>::setup(()).unwrap()
         )
     }
     tri! {

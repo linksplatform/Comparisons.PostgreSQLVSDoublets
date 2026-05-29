@@ -1,5 +1,3 @@
-#![feature(allocator_api)]
-
 use {
     benchmarks::{
         doublets_create_links, doublets_delete_links, doublets_each_all, doublets_each_concrete,

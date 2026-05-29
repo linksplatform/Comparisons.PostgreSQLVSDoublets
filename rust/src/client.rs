@@ -1,17 +1,17 @@
 use {
-    crate::{transaction::Transaction, Exclusive, Result, Sql},
+    crate::{as_i64, transaction::Transaction, Exclusive, Result, Sql},
     doublets::{
-        data::{Error, Flow, LinkType, LinksConstants, ReadHandler, WriteHandler},
+        data::{Error, Flow, LinkReference, LinksConstants, ReadHandler, WriteHandler},
         Doublets, Link, Links,
     },
 };
 
-pub struct Client<T: LinkType> {
+pub struct Client<T: LinkReference> {
     client: postgres::Client,
     constants: LinksConstants<T>,
 }
 
-impl<T: LinkType> Client<T> {
+impl<T: LinkReference> Client<T> {
     pub fn new(mut client: postgres::Client) -> Result<Self> {
         client.query(
             "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
@@ -27,7 +27,7 @@ impl<T: LinkType> Client<T> {
     }
 }
 
-impl<T: LinkType> Sql for Client<T> {
+impl<T: LinkReference> Sql for Client<T> {
     fn create_table(&mut self) -> Result<()> {
         self.client.query(
             "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
@@ -45,7 +45,7 @@ impl<T: LinkType> Sql for Client<T> {
     }
 }
 
-impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
+impl<'c, T: LinkReference> Links<T> for Exclusive<Client<T>> {
     fn constants(&self) -> &LinksConstants<T> {
         &self.constants
     }
@@ -63,7 +63,7 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
                 let result = self
                     .get()
                     .client
-                    .query("SELECT COUNT(*) FROM Links WHERE id = $1;", &[&query[0].as_i64()])
+                    .query("SELECT COUNT(*) FROM Links WHERE id = $1;", &[&as_i64(query[0])])
                     .unwrap();
                 result[0].get::<_, i64>(0).try_into().unwrap()
             }
@@ -92,7 +92,7 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
             .unwrap();
         Ok(handler(
             Link::nothing(),
-            Link::new(result[0].get::<_, i64>(0).try_into().unwrap(), T::ZERO, T::ZERO),
+            Link::new(result[0].get::<_, i64>(0).try_into().unwrap(), T::from_byte(0), T::from_byte(0)),
         ))
     }
 
@@ -101,11 +101,13 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
         if query.is_empty() {
             let result = self.get().client.query("SELECT * FROM Links;", &[]).unwrap();
             for row in result {
-                handler(Link::new(
+                if handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
                     row.get::<_, i64>(1).try_into().unwrap(),
                     row.get::<_, i64>(2).try_into().unwrap(),
-                ))?
+                )).is_break() {
+                    return Flow::Break;
+                }
             }
             Flow::Continue
         } else if query.len() == 1 {
@@ -115,14 +117,16 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
                 let result = self
                     .get()
                     .client
-                    .query("SELECT * FROM Links WHERE id = %1;", &[&query[0].as_i64()])
+                    .query("SELECT * FROM Links WHERE id = %1;", &[&as_i64(query[0])])
                     .unwrap();
                 for row in result {
-                    handler(Link::new(
+                    if handler(Link::new(
                         row.get::<_, i64>(0).try_into().unwrap(),
                         row.get::<_, i64>(1).try_into().unwrap(),
                         row.get::<_, i64>(2).try_into().unwrap(),
-                    ))?
+                    )).is_break() {
+                        return Flow::Break;
+                    }
                 }
                 Flow::Continue
             }
@@ -142,11 +146,13 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
             let statement = &format!("SELECT * FROM Links WHERE {id}{source}{target}");
             let result = self.get().client.query(statement, &[]).unwrap();
             for row in result {
-                handler(Link::new(
+                if handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
                     row.get::<_, i64>(1).try_into().unwrap(),
                     row.get::<_, i64>(2).try_into().unwrap(),
-                ))?
+                )).is_break() {
+                    return Flow::Break;
+                }
             }
             Flow::Continue
         } else {
@@ -164,14 +170,14 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
         let source = change[1];
         let target = change[2];
         let old_links =
-            self.client.query("SELECT * FROM Links WHERE id = $1;", &[&id.as_i64()]).unwrap();
+            self.client.query("SELECT * FROM Links WHERE id = $1;", &[&as_i64(id)]).unwrap();
         let (old_source, old_target) = (
             old_links[0].get::<_, i64>(1).try_into().unwrap(),
             old_links[0].get::<_, i64>(2).try_into().unwrap(),
         );
         let _ = self.client.query(
             "UPDATE Links SET from_id = $1, to_id = $2 WHERE id = $3;",
-            &[&source.as_i64(), &target.as_i64(), &id.as_i64()],
+            &[&as_i64(source), &as_i64(target), &as_i64(id)],
         );
         Ok(handler(Link::new(id, old_source, old_target), Link::new(id, source, target)))
     }
@@ -180,7 +186,7 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
         let id = query[0];
         let result = self
             .client
-            .query("DELETE FROM Links WHERE id = $1 RETURNING from_id, to_id", &[&id.as_i64()])
+            .query("DELETE FROM Links WHERE id = $1 RETURNING from_id, to_id", &[&as_i64(id)])
             .unwrap();
         let row = if result.is_empty() {
             return Err(Error::<T>::NotExists(id));
@@ -198,10 +204,10 @@ impl<'c, T: LinkType> Links<T> for Exclusive<Client<T>> {
     }
 }
 
-impl<'c, T: LinkType> Doublets<T> for Exclusive<Client<T>> {
+impl<'c, T: LinkReference> Doublets<T> for Exclusive<Client<T>> {
     fn get_link(&self, index: T) -> Option<Link<T>> {
         let result =
-            self.get().client.query("SELECT * FROM Links WHERE id = $1", &[&index.as_i64()]);
+            self.get().client.query("SELECT * FROM Links WHERE id = $1", &[&as_i64(index)]);
         match result {
             Ok(rows) => {
                 let row = &rows[0];

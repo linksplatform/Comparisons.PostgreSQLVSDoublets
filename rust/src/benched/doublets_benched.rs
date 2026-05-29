@@ -8,9 +8,9 @@
 //! | Backend                          | Description                    |
 //! |----------------------------------|--------------------------------|
 //! | `unit::Store<T, FileMapped<_>>`  | File-mapped unit storage       |
-//! | `unit::Store<T, Alloc<_>>`       | In-memory unit storage         |
+//! | `unit::Store<T, Global<_>>`      | In-memory unit storage          |
 //! | `split::Store<T, FileMapped<_>>` | File-mapped split storage      |
-//! | `split::Store<T, Alloc<_>>`      | In-memory split storage        |
+//! | `split::Store<T, Global<_>>`     | In-memory split storage        |
 //!
 //! ## Cleanup Strategy
 //!
@@ -19,18 +19,17 @@
 
 use crate::{map_file, Result};
 use doublets::{
-    data::LinkType,
-    mem::{Alloc, FileMapped},
+    data::LinkReference,
+    mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
     unit::{self, LinkPart},
     Doublets,
 };
-use std::alloc::Global;
 
 use super::Benched;
 
 /// Benched implementation for file-mapped unit storage.
-impl<T: LinkType> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
+impl<T: LinkReference> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
     type Builder<'a> = &'a str;
 
     fn setup(builder: Self::Builder<'_>) -> Result<Self> {
@@ -43,11 +42,11 @@ impl<T: LinkType> Benched for unit::Store<T, FileMapped<LinkPart<T>>> {
 }
 
 /// Benched implementation for in-memory unit storage.
-impl<T: LinkType> Benched for unit::Store<T, Alloc<LinkPart<T>, Global>> {
+impl<T: LinkReference> Benched for unit::Store<T, Global<LinkPart<T>>> {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
-        Self::new(Alloc::new(Global)).map_err(Into::into)
+        Self::new(Global::new()).map_err(Into::into)
     }
 
     unsafe fn unfork(&mut self) {
@@ -56,7 +55,7 @@ impl<T: LinkType> Benched for unit::Store<T, Alloc<LinkPart<T>, Global>> {
 }
 
 /// Benched implementation for file-mapped split storage.
-impl<T: LinkType> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>> {
+impl<T: LinkReference> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>> {
     type Builder<'a> = (&'a str, &'a str);
 
     fn setup((data, index): Self::Builder<'_>) -> Result<Self> {
@@ -69,13 +68,13 @@ impl<T: LinkType> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMappe
 }
 
 /// Benched implementation for in-memory split storage.
-impl<T: LinkType> Benched
-    for split::Store<T, Alloc<DataPart<T>, Global>, Alloc<IndexPart<T>, Global>>
+impl<T: LinkReference> Benched
+    for split::Store<T, Global<DataPart<T>>, Global<IndexPart<T>>>
 {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
-        Self::new(Alloc::new(Global), Alloc::new(Global)).map_err(Into::into)
+        Self::new(Global::new(), Global::new()).map_err(Into::into)
     }
 
     unsafe fn unfork(&mut self) {

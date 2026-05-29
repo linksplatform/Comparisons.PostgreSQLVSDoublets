@@ -28,12 +28,12 @@
 //! ```
 
 use crate::{Client, Exclusive, Fork, Result, Sql, Transaction};
-use doublets::data::LinkType;
+use doublets::data::LinkReference;
 
 use super::Benched;
 
 /// Benched implementation for PostgreSQL client (non-transactional).
-impl<T: LinkType> Benched for Exclusive<Client<T>> {
+impl<T: LinkReference> Benched for Exclusive<Client<T>> {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
@@ -41,7 +41,7 @@ impl<T: LinkType> Benched for Exclusive<Client<T>> {
         unsafe { Ok(Exclusive::new(crate::connect()?)) }
     }
 
-    fn fork(&mut self) -> Fork<Self> {
+    fn fork(&mut self) -> Fork<'_, Self> {
         let _ = self.create_table();
         Fork(self)
     }
@@ -52,7 +52,7 @@ impl<T: LinkType> Benched for Exclusive<Client<T>> {
 }
 
 /// Benched implementation for PostgreSQL transaction.
-impl<'a, T: LinkType> Benched for Exclusive<Transaction<'a, T>> {
+impl<'a, T: LinkReference> Benched for Exclusive<Transaction<'a, T>> {
     type Builder<'b> = &'a mut Client<T>;
 
     fn setup(builder: Self::Builder<'_>) -> Result<Self> {
@@ -62,7 +62,7 @@ impl<'a, T: LinkType> Benched for Exclusive<Transaction<'a, T>> {
         unsafe { Ok(Exclusive::new(transaction)) }
     }
 
-    fn fork(&mut self) -> Fork<Self> {
+    fn fork(&mut self) -> Fork<'_, Self> {
         let _ = self.create_table();
         Fork(self)
     }

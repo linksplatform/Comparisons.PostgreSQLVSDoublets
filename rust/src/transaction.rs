@@ -1,17 +1,17 @@
 use {
-    crate::{Exclusive, Result, Sql},
+    crate::{as_i64, Exclusive, Result, Sql},
     doublets::{
-        data::{Flow, LinkType, LinksConstants, ReadHandler, WriteHandler},
+        data::{Flow, LinkReference, LinksConstants, ReadHandler, WriteHandler},
         Doublets, Error, Link, Links,
     },
 };
 
-pub struct Transaction<'a, T: LinkType> {
+pub struct Transaction<'a, T: LinkReference> {
     transaction: postgres::Transaction<'a>,
     constants: LinksConstants<T>,
 }
 
-impl<'a, T: LinkType> Transaction<'a, T> {
+impl<'a, T: LinkReference> Transaction<'a, T> {
     pub fn new(transaction: postgres::Transaction<'a>) -> Self {
         Self { transaction, constants: LinksConstants::<T>::new() }
     }
@@ -23,7 +23,7 @@ impl<'a, T: LinkType> Transaction<'a, T> {
     }
 }
 
-impl<'a, T: LinkType> Sql for Transaction<'a, T> {
+impl<'a, T: LinkReference> Sql for Transaction<'a, T> {
     fn create_table(&mut self) -> Result<()> {
         self.transaction.query(
             "CREATE TABLE IF NOT EXISTS Links (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, from_id bigint, to_id bigint);",
@@ -42,7 +42,7 @@ impl<'a, T: LinkType> Sql for Transaction<'a, T> {
     }
 }
 
-impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
+impl<T: LinkReference> Links<T> for Exclusive<Transaction<'_, T>> {
     fn constants(&self) -> &LinksConstants<T> {
         &self.constants
     }
@@ -60,7 +60,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
                 let result = self
                     .get()
                     .transaction
-                    .query("SELECT COUNT(*) FROM Links WHERE id = $1;", &[&query[0].as_i64()])
+                    .query("SELECT COUNT(*) FROM Links WHERE id = $1;", &[&as_i64(query[0])])
                     .unwrap();
                 result[0].get::<_, i64>(0).try_into().unwrap()
             }
@@ -92,7 +92,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
             .unwrap();
         Ok(handler(
             Link::nothing(),
-            Link::new(result[0].get::<_, i64>(0).try_into().unwrap(), T::ZERO, T::ZERO),
+            Link::new(result[0].get::<_, i64>(0).try_into().unwrap(), T::from_byte(0), T::from_byte(0)),
         ))
     }
 
@@ -101,11 +101,13 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
         if query.is_empty() {
             let result = self.get().transaction.query("SELECT * FROM Links;", &[]).unwrap();
             for row in result {
-                handler(Link::new(
+                if handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
                     row.get::<_, i64>(1).try_into().unwrap(),
                     row.get::<_, i64>(2).try_into().unwrap(),
-                ))?
+                )).is_break() {
+                    return Flow::Break;
+                }
             }
             Flow::Continue
         } else if query.len() == 1 {
@@ -115,14 +117,16 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
                 let result = self
                     .get()
                     .transaction
-                    .query("SELECT * FROM Links WHERE id = $1;", &[&query[0].as_i64()])
+                    .query("SELECT * FROM Links WHERE id = $1;", &[&as_i64(query[0])])
                     .unwrap();
                 for row in result {
-                    handler(Link::new(
+                    if handler(Link::new(
                         row.get::<_, i64>(0).try_into().unwrap(),
                         row.get::<_, i64>(1).try_into().unwrap(),
                         row.get::<_, i64>(2).try_into().unwrap(),
-                    ))?
+                    )).is_break() {
+                        return Flow::Break;
+                    }
                 }
                 Flow::Continue
             }
@@ -142,11 +146,13 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
             let statement = &format!("SELECT * FROM Links WHERE {id}{source}{target}");
             let result = self.get().transaction.query(statement, &[]).unwrap();
             for row in result {
-                handler(Link::new(
+                if handler(Link::new(
                     row.get::<_, i64>(0).try_into().unwrap(),
                     row.get::<_, i64>(1).try_into().unwrap(),
                     row.get::<_, i64>(2).try_into().unwrap(),
-                ))?
+                )).is_break() {
+                    return Flow::Break;
+                }
             }
             Flow::Continue
         } else {
@@ -164,7 +170,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
         let source = change[1];
         let target = change[2];
         let old_links =
-            self.transaction.query("SELECT * FROM Links WHERE id = $1;", &[&id.as_i64()]).unwrap();
+            self.transaction.query("SELECT * FROM Links WHERE id = $1;", &[&as_i64(id)]).unwrap();
         let (old_source, old_target) = (
             old_links[0].get::<_, i64>(1).try_into().unwrap(),
             old_links[0].get::<_, i64>(2).try_into().unwrap(),
@@ -172,7 +178,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
         self.transaction
             .query(
                 "UPDATE Links SET from_id = $1, to_id = $2 WHERE id = $3;",
-                &[&source.as_i64(), &target.as_i64(), &id.as_i64()],
+                &[&as_i64(source), &as_i64(target), &as_i64(id)],
             )
             .unwrap();
         Ok(handler(Link::new(id, old_source, old_target), Link::new(id, source, target)))
@@ -182,7 +188,7 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
         let id = query[0];
         let result = self
             .transaction
-            .query("DELETE FROM Links WHERE id = $1 RETURNING from_id, to_id", &[&id.as_i64()])
+            .query("DELETE FROM Links WHERE id = $1 RETURNING from_id, to_id", &[&as_i64(id)])
             .unwrap();
         let row = if result.is_empty() {
             return Err(Error::<T>::NotExists(id));
@@ -200,10 +206,10 @@ impl<T: LinkType> Links<T> for Exclusive<Transaction<'_, T>> {
     }
 }
 
-impl<T: LinkType> Doublets<T> for Exclusive<Transaction<'_, T>> {
+impl<T: LinkReference> Doublets<T> for Exclusive<Transaction<'_, T>> {
     fn get_link(&self, index: T) -> Option<Link<T>> {
         let result =
-            self.get().transaction.query("SELECT * FROM Links WHERE id = $1", &[&index.as_i64()]);
+            self.get().transaction.query("SELECT * FROM Links WHERE id = $1", &[&as_i64(index)]);
         match result {
             Ok(rows) => {
                 let ref row = rows[0];
