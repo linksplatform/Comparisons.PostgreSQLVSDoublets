@@ -32,7 +32,7 @@ pub trait Benched: Sized {
     /// Create a fork for a single benchmark iteration.
     ///
     /// This allows each iteration to run in isolation without affecting others.
-    fn fork(&mut self) -> Fork<Self> {
+    fn fork(&mut self) -> Fork<'_, Self> {
         Fork(self)
     }
 

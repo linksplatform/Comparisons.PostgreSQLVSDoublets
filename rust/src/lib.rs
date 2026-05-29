@@ -1,5 +1,3 @@
-#![feature(allocator_api, generic_associated_types)]
-
 #[macro_export]
 macro_rules! bench {
     {|$fork:ident| as $B:ident { $($body:tt)* }} => {
@@ -35,7 +33,7 @@ pub use {
 };
 
 use {
-    doublets::{data::LinkType, mem::FileMapped},
+    doublets::{data::LinkReference, mem::FileMapped},
     postgres::NoTls,
     std::{env, error, fs::File, io, result},
 };
@@ -69,8 +67,17 @@ pub fn benchmark_links() -> usize {
 }
 const PARAMS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
-pub fn connect<T: LinkType>() -> Result<Client<T>> {
+pub fn connect<T: LinkReference>() -> Result<Client<T>> {
     Client::new(postgres::Client::connect(PARAMS, NoTls)?).map_err(Into::into)
+}
+
+/// Converts a link value into the `i64` used by PostgreSQL `bigint` columns.
+///
+/// The previous `doublets` API exposed a `LinkType::as_i64` helper. The current
+/// `LinkReference` trait instead provides the standard `TryInto<i64>` conversion,
+/// which this function wraps for convenience.
+pub fn as_i64<T: LinkReference>(value: T) -> i64 {
+    value.try_into().expect("link value does not fit into i64")
 }
 
 pub fn map_file<T: Default>(filename: &str) -> io::Result<FileMapped<T>> {
