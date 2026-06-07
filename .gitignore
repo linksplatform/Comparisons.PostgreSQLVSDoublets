@@ -370,3 +370,12 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Airlines demo benchmark results
+bench/results/*.csv
+bench/results/*.txt
+bench/results/*.log
+
+# Docker volumes and temporary files
+docker/init/*.sql.gz
+docker/init/*.disabled
