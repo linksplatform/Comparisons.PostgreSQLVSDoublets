@@ -1,0 +1,75 @@
+{
+  "version": 3,
+  "sources": [
+    {
+      "name": "default",
+      "kind": "postgres",
+      "tables": [
+        {
+          "table": {
+            "schema": "public",
+            "name": "links"
+          },
+          "select_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": ["id", "source", "target"],
+                "filter": {}
+              }
+            }
+          ],
+          "insert_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "check": {},
+                "columns": ["source", "target"]
+              }
+            }
+          ],
+          "update_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": ["source", "target"],
+                "filter": {}
+              }
+            }
+          ],
+          "delete_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "filter": {}
+              }
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "function": {
+            "schema": "public",
+            "name": "create_point_link"
+          }
+        }
+      ],
+      "configuration": {
+        "connection_info": {
+          "use_prepared_statements": true,
+          "database_url": {
+            "from_env": "DATABASE_URL"
+          },
+          "isolation_level": "read-committed",
+          "pool_settings": {
+            "connection_lifetime": 600,
+            "retries": 1,
+            "idle_timeout": 180,
+            "max_connections": 50
+          }
+        }
+      }
+    }
+  ]
+}

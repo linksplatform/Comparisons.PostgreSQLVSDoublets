@@ -1,0 +1,98 @@
+name: GraphQL Benchmark Comparison
+
+on: [push, pull_request]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  graphql-benchmark:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Start PostgreSQL + Hasura stack
+        run: |
+          docker-compose -f docker-compose.postgresql-hasura.yml up -d
+          echo "Waiting for Hasura to be ready..."
+          timeout 120s bash -c 'until curl -f http://localhost:8080/healthz; do sleep 2; done'
+
+      - name: Apply Hasura metadata
+        run: |
+          # Install Hasura CLI
+          curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
+          export PATH=$PATH:$HOME/.hasura/bin
+          # Apply metadata
+          cd postgresql-hasura
+          hasura metadata apply --endpoint http://localhost:8080
+
+      - name: Build and start Doublets GraphQL stack
+        run: |
+          docker-compose -f docker-compose.doublets-gql.yml up -d --build
+          echo "Waiting for Doublets GraphQL to be ready..."
+          timeout 180s bash -c 'until curl -f http://localhost:60341/v1/graphql; do sleep 5; done'
+
+      - name: Run Hasura GraphQL benchmarks
+        run: |
+          cd benchmarks/k6
+          k6 run --out json=hasura-results.json hasura-benchmark.js
+        continue-on-error: true
+
+      - name: Run Doublets GraphQL benchmarks  
+        run: |
+          cd benchmarks/k6
+          k6 run --out json=doublets-results.json doublets-benchmark.js
+        continue-on-error: true
+
+      - name: Process benchmark results
+        run: |
+          cd benchmarks
+          pip install matplotlib numpy
+          python process-results.py k6/hasura-results.json k6/doublets-results.json | tee results.txt
+
+      - name: Publish benchmark results to gh-pages
+        run: |
+          git config --global user.email "linksplatform@gmail.com"
+          git config --global user.name "LinksPlatformBencher"
+          cd benchmarks
+          git fetch
+          git checkout gh-pages || git checkout --orphan gh-pages
+          mkdir -p Docs
+          mv -f bench_graphql.png Docs/
+          mv -f bench_graphql_log_scale.png Docs/
+          mv -f results.txt Docs/graphql-results.txt
+          git add Docs/
+          git commit -m "Publish GraphQL benchmark results" || echo "No changes to commit"
+          git push origin gh-pages || echo "No changes to push"
+
+      - name: Save benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: GraphQL benchmark results
+          path: |
+            benchmarks/bench_graphql.png
+            benchmarks/bench_graphql_log_scale.png
+            benchmarks/results.txt
+            benchmarks/k6/hasura-results.json
+            benchmarks/k6/doublets-results.json
+
+      - name: Stop services
+        if: always()
+        run: |
+          docker-compose -f docker-compose.postgresql-hasura.yml down
+          docker-compose -f docker-compose.doublets-gql.yml down
