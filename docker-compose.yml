@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: links
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  hasura:
+    image: hasura/graphql-engine:v2.36.0
+    depends_on:
+      - postgres
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://user:pass@postgres:5432/links
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret
+    ports:
+      - "8080:8080"
+
+  doublets-gql:
+    image: linksplatform/doublets-gql:latest
+    environment:
+      STORAGE_PATH: /data/doublets.links
+    ports:
+      - "8081:8081"
+    volumes:
+      - dbdata:/data
+
+volumes:
+  dbdata:
