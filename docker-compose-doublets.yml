@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  doublets-gql:
+    image: linksplatform/doublets-gql:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_PATH=/data/doublets.db
+    volumes:
+      - doublets_data:/data
+    command: ["--db-path", "/data/doublets.db"]
+
+volumes:
+  doublets_data:
