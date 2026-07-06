@@ -1,0 +1,17 @@
+{
+  "hasura": {
+    "url": "http://localhost:8080/v1/graphql",
+    "headers": {
+      "x-hasura-admin-secret": "myadminsecretkey"
+    }
+  },
+  "doublets": {
+    "url": "http://localhost:5000/graphql",
+    "headers": {}
+  },
+  "queries": [
+    "users.graphql"
+  ],
+  "runs": 100,
+  "warmup": 5
+}
