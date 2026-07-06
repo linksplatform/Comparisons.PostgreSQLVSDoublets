@@ -1,0 +1,11 @@
+query ComplexLinks {
+  link(where: {type: {_eq: 1}}, limit: 10) {
+    id
+    source
+    target
+    linkBySource {
+      id
+      target
+    }
+  }
+}

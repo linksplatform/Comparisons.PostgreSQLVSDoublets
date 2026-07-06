@@ -1,0 +1,10 @@
+{
+  "hasura": {
+    "times": [1000000, 1100000, 980000]
+  },
+  "doublets": {
+    "times": [800000, 850000, 820000]
+  },
+  "average_hasura_ms": 1.03,
+  "average_doublets_ms": 0.82
+}
