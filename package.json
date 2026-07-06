@@ -1,0 +1,12 @@
+{
+  "name": "comparisons.postgresqlvsdoublets",
+  "version": "1.0.0",
+  "description": "Benchmarking GraphQL: Hasura vs Doublets",
+  "main": "benchmark.js",
+  "scripts": {
+    "benchmark": "node benchmark.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
