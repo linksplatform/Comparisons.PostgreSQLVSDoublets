@@ -1,0 +1,11 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "scripts": {
+    "bench": "node run.js",
+    "patch": "node graphql-bench-patch.js"
+  },
+  "dependencies": {
+    "graphql-bench": "^2.0.0"
+  }
+}

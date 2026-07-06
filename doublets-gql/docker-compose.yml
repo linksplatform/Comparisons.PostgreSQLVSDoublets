@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  doublets:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      - DOUBLE_TYPES_STORAGE=Void
+      - GQL_PORT=4000
+    volumes:
+      - ./data:/app/data
