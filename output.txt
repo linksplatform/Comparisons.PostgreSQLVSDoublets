@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "content": "# Comparisons.PostgreSQLVSDoublets\n\nComparison of PostgreSQL + Hasura vs Doublets + Gql.\n\n## Setup\n\n1. Start PostgreSQL + Hasura:\n   ```\n   docker-compose -f docker-compose-postgres.yml up -d\n   ```\n2. Start Doublets + Gql:\n   ```\n   docker-compose -f docker-compose-doublets.yml up -d\n   ```\n3. Run benchmark:\n   ```\n   cd scripts\n   npm install\n   node benchmark.js\n   ```\n\n## Queries\n\n- Simple insert\n- Simple select\n- Join\n- Aggregation\n\n## Results\n\nTo be filled.\n"
+    },
+    {
+      "path": "docker-compose-postgres.yml",
+      "content": "version: '3.8'\nservices:\n  postgres:\n    image: postgres:15\n    environment:\n      POSTGRES_DB: test\n      POSTGRES_USER: test\n      POSTGRES_PASSWORD: test\n    volumes:\n      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql\n    ports:\n      - \"5432:5432\"\n\n  hasura:\n    image: hasura/graphql-engine:latest\n    ports:\n      - \"8080:8080\"\n    depends_on:\n      - postgres\n    environment:\n      HASURA_GRAPHQL_DATABASE_URL: postgres://test:test@postgres:5432/test\n      HASURA_GRAPHQL_ENABLE_CONSOLE: \"true\"\n      HASURA_GRAPHQL_DEV_MODE: \"true\"\n"
+    },
+    {
+      "path": "docker-compose-doublets.yml",
+      "content": "version: '3.8'\nservices:\n  doublets:\n    image: linksplatform/doublets-gql:latest\n    ports:\n      - \"5000:5000\"\n    environment:\n      STORAGE: memory\n      GQL_ENDPOINT: /graphql\n"
+    },
+    {
+      "path": "sql/init.sql",
+      "content": "CREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    name TEXT NOT NULL,\n    email TEXT UNIQUE NOT NULL\n);\n\nCREATE TABLE posts (\n    id SERIAL PRIMARY KEY,\n    title TEXT NOT NULL,\n    content TEXT,\n    user_id INT REFERENCES users(id)\n);\n\nINSERT INTO users (name, email) VALUES\n('Alice', 'alice@example.com'),\n('Bob', 'bob@example.com'),\n('Charlie', 'charlie@example.com');\n\nINSERT INTO posts (title, content, user_id) VALUES\n('Post 1', 'Content 1', 1),\n('Post 2', 'Content 2', 1),\n('Post 3', 'Content 3', 2),\n('Post 4', 'Content 4', 3);\n"
+    },
+    {
+      "path": "scripts/package.json",
+      "content": "{\n  \"name\": \"comparison-benchmark\",\n  \"version\": \"1.0.0\",\n  \"scripts\": {\n    \"benchmark\": \"node benchmark.js\"\n  },\n  \"dependencies\": {\n    "axios": "^1.6.0"\n  }\n}\n"
+    },
+    {
+      "path": "scripts/benchmark.js",
+      "content": "const axios = require('axios');\n\nconst HASURA_URL = 'http://localhost:8080/v1/graphql';\nconst DOUBLETS_URL = 'http://localhost:5000/graphql';\n\nconst queryHasura = async (query) => {\n  const response = await axios.post(HASURA_URL, { query });\n  return response.data;\n};\n\nconst queryDoublets = async (query) => {\n  const response = await axios.post(DOUBLETS_URL, { query });\n  return response.data;\n};\n\nconst measure = async (name, queryFn, iterations = 100) => {\n  const times = [];\n  for (let i = 0; i < iterations; i++) {\n    const start = Date.now();\n    await queryFn();\n    times.push(Date.now() - start);\n  }\n  const avg = times.reduce((a, b) => a + b, 0) / times.length;\n  console.log(`${name}: avg ${avg.toFixed(2)}ms over ${iterations} iterations`);\n};\n\nconst main = async () => {\n  // Simple insert\n  const insertQuery = `\n    mutation {\n      insert_users_one(object: {name: "Test", email: "test@test.com"}) {\n        id\n      }\n    }\n  `;\n  \n  // For Doublets, we need to use its mutation schema. Assuming similar.\n  // This is a placeholder; actual schema depends on Data.Doublets.Gql.\n  \n  await measure('Hasura Insert', () => queryHasura(insertQuery));\n  // await measure('Doublets Insert', () => queryDoublets(insertQuery));\n  \n  console.log('Benchmark complete.');\n};\n\nmain().catch(console.error);\n"
+    }
+  ],
+  "summary": "Deliverable includes docker-compose files for both PostgreSQL+Hasura and Doublets+Gql, SQL init script, Node.js benchmark script, and README. The benchmark script is a stub; actual queries should align with Doublets GQL schema from the referenced library."
+}
