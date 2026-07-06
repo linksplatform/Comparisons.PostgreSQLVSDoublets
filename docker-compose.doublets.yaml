@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  doublets:
+    image: linksplatform/doublets-gql:latest
+    environment:
+      DOUBLE_TYPES: "LinksPlatform.Doublets.Gql.DoubletGraphQL, Doublets.Gql"
+    ports:
+      - "4000:4000"
+    command: --urls https://0.0.0.0:4000
