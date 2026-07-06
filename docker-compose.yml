@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: hasura
+      POSTGRES_PASSWORD: hasura
+      POSTGRES_DB: benchmark
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  hasura:
+    image: hasura/graphql-engine:v2.36.0
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://hasura:hasura@postgres:5432/benchmark
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup,http-log,webhook-log,websocket-log,query-log
+      HASURA_GRAPHQL_PREPARED_STATEMENTS: "true"
+      HASURA_GRAPHQL_QUERY_PLAN_CACHE_SIZE: 100
+    command:
+      - graphql-engine
+      - serve
+      - --enable-telemetry=false
+
+  doublets-gql:
+    build: ./doublets-gql
+    ports:
+      - "9090:9090"
+    depends_on:
+      - postgres
+    environment:
+      DOUBLE_DB_CONNECTION_STRING: postgres://hasura:hasura@postgres:5432/benchmark
+
+volumes:
+  postgres_data:
