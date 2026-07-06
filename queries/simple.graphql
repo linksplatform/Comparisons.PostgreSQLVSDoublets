@@ -1,0 +1,7 @@
+query Simple {
+  doublets(limit: 10) {
+    id
+    source
+    target
+  }
+}
