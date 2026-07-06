@@ -1,0 +1,21 @@
+authentication:
+  # No auth for simplicity
+defaults:
+  queryTimeout: 5000
+  threads: 10
+
+queries:
+  - name: "getUser"
+    file: "queries/get-user.graphql"
+    variables:
+      id: 1
+  - name: "listUsers"
+    file: "queries/list-users.graphql"
+
+endpoints:
+  - name: "Hasura"
+    url: "http://localhost:8080/v1/graphql"
+    headers:
+      X-Hasura-Admin-Secret: "myadminsecretkey"
+  - name: "Doublets"
+    url: "http://localhost:4000/graphql"
