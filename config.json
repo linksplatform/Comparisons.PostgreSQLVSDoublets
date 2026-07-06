@@ -1,0 +1,6 @@
+{
+  "hasura_endpoint": "http://localhost:8080/v1/graphql",
+  "doublets_endpoint": "http://localhost:5000/graphql",
+  "iterations": 100,
+  "warmup_iterations": 10
+}
