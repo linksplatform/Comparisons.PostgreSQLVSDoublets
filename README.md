@@ -19,6 +19,12 @@ Both databases used to store and retrieve doublet-links representation. To suppo
 - **Each Concrete** – take all links matching `[*, source, target]` constraint
 - **Each Identity** – take all links matching `[id, *, *]` constraint
 
+## GraphQL comparison
+
+[Run the correctness-checked PostgreSQL/Hasura and Doublets GraphQL comparison](graphql/README.md).
+The harness uses real local servers, records actual k6 measurements, and keeps
+its results separate from the Rust results below.
+
 ## Results
 The results below represent the amount of time (ns) the operation takes per iteration.
 - First picture shows time in a pixel scale (for doublets just minimum value is shown, otherwise it will be not present on the graph).

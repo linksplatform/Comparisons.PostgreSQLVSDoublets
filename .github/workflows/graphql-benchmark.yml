@@ -1,0 +1,45 @@
+name: GraphQL comparison
+on:
+  pull_request:
+    paths: ['graphql/**', '.github/workflows/graphql-benchmark.yml']
+  workflow_dispatch:
+    inputs:
+      background:
+        description: Background point links (1..3000)
+        default: '3000'
+        required: true
+      iterations:
+        description: Sequential iterations per server (1..1000)
+        default: '1000'
+        required: true
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BACKGROUND: ${{ inputs.background || '30' }}
+      ITERATIONS: ${{ inputs.iterations || '3' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: linksplatform/Data.Doublets.Gql
+          ref: b11f33b4080a7ef6b6d1c056c40bbf758d6cdd7e
+          path: graphql/source
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test result validation
+        run: python3 -m unittest discover -s graphql -v
+      - name: Run real local GraphQL servers and k6
+        run: ./graphql/run.sh
+      - name: Upload measured results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: graphql-comparison
+          path: graphql/results/

@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:78235e09001f52b6592c458ac010775ebac6725422e80cd0c1650590f67b2743 AS build
+WORKDIR /src
+COPY source/ .
+RUN dotnet publish csharp/Platform.Data.Doublets.Gql.Server/Platform.Data.Doublets.Gql.Server.csproj \
+    --configuration Release --framework net6 --no-self-contained --output /app \
+    --source https://api.nuget.org/v3/index.json
+FROM mcr.microsoft.com/dotnet/aspnet:6.0@sha256:e70c493f8af7f95bf459cb2b15c7e7a6173228929c2b7a9a6836b19377890e78
+WORKDIR /app
+COPY --from=build /app/ .
+ENTRYPOINT ["dotnet", "Platform.Data.Doublets.Gql.Server.dll", "/data/benchmark.links"]

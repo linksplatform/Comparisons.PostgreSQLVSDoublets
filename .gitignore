@@ -370,3 +370,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Disposable GraphQL benchmark source and measured outputs
+graphql/source/
+graphql/results/
