@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:15-alpine@sha256:f7d23353e1b15400d22ebe31189f4d314b87a4c129cc400c8c2d8d4ca127bf81
+    environment:
+      POSTGRES_USER: benchmark
+      POSTGRES_PASSWORD: benchmark-local-only
+      POSTGRES_DB: benchmark
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U benchmark -d benchmark"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  hasura:
+    image: hasura/graphql-engine:v2.44.0@sha256:4d34476840601fa0c372bce9b1ed15aac6ffc3f0a0db677e81062764c08e1dc5
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://benchmark:benchmark-local-only@postgres:5432/benchmark
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup
+    depends_on:
+      postgres:
+        condition: service_healthy
+  doublets:
+    build:
+      context: .
+      dockerfile: Dockerfile.doublets
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ASPNETCORE_ENVIRONMENT: Production
+      Logging__LogLevel__Default: Warning
+    volumes:
+      - doublets-data:/data
+  k6:
+    image: grafana/k6:0.54.0@sha256:1f40432b1cbe7234e977f96c362c9bc550a2d2b583d014dd8669fe40d3e9e755
+    profiles: [benchmark]
+    user: "${BENCH_UID:-1000}:${BENCH_GID:-1000}"
+    environment:
+      BACKGROUND: "${BACKGROUND:-3000}"
+      ITERATIONS: "${ITERATIONS:-1000}"
+    volumes:
+      - ./benchmark.js:/scripts/benchmark.js:ro
+      - ${BENCH_RESULTS:-./results}:/results
+volumes:
+  postgres-data:
+  doublets-data:

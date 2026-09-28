@@ -1,0 +1,49 @@
+{
+  "started_at_utc": "2026-09-28T04:41:10.251697+00:00",
+  "doublets_commit": "b11f33b4080a7ef6b6d1c056c40bbf758d6cdd7e",
+  "settings_commit": "f08ce8fc84f8ab7ccdcf9293b5566007305254c1",
+  "benchmark_sha256": "6432ed55223f71d1c6aae01a5d2c120da221776b4446ccb8200c5b5dde3c7264",
+  "compose_sha256": "30ce2ea1854649867e77e7199eb3daff0256d51ac06eb5c378736b0f6b477bc3",
+  "doublets_dockerfile": "FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:78235e09001f52b6592c458ac010775ebac6725422e80cd0c1650590f67b2743 AS build\nWORKDIR /src\nCOPY source/ .\nRUN dotnet publish csharp/Platform.Data.Doublets.Gql.Server/Platform.Data.Doublets.Gql.Server.csproj \\\n    --configuration Release --framework net6 --no-self-contained --output /app \\\n    --source https://api.nuget.org/v3/index.json\nFROM mcr.microsoft.com/dotnet/aspnet:6.0@sha256:e70c493f8af7f95bf459cb2b15c7e7a6173228929c2b7a9a6836b19377890e78\nWORKDIR /app\nCOPY --from=build /app/ .\nENTRYPOINT [\"dotnet\", \"Platform.Data.Doublets.Gql.Server.dll\", \"/data/benchmark.links\"]\n",
+  "platform": "Linux-7.2.8-1-cachyos-x86_64-with-glibc2.44",
+  "logical_cpus": 16,
+  "docker_version": "29.8.1",
+  "background": 3000,
+  "iterations": 1000,
+  "server_order": [
+    "hasura",
+    "doublets"
+  ],
+  "virtual_users": 1,
+  "images": [
+    {
+      "tags": [
+        "postgres:15-alpine"
+      ],
+      "digests": [
+        "postgres@sha256:f7d23353e1b15400d22ebe31189f4d314b87a4c129cc400c8c2d8d4ca127bf81"
+      ],
+      "id": "sha256:f7d23353e1b15400d22ebe31189f4d314b87a4c129cc400c8c2d8d4ca127bf81"
+    },
+    {
+      "tags": [
+        "hasura/graphql-engine:v2.44.0"
+      ],
+      "digests": [
+        "hasura/graphql-engine@sha256:4d34476840601fa0c372bce9b1ed15aac6ffc3f0a0db677e81062764c08e1dc5"
+      ],
+      "id": "sha256:4d34476840601fa0c372bce9b1ed15aac6ffc3f0a0db677e81062764c08e1dc5"
+    },
+    {
+      "tags": [
+        "grafana/k6:0.54.0",
+        "grafana/k6@sha256:1f40432b1cbe7234e977f96c362c9bc550a2d2b583d014dd8669fe40d3e9e755"
+      ],
+      "digests": [
+        "grafana/k6@sha256:1f40432b1cbe7234e977f96c362c9bc550a2d2b583d014dd8669fe40d3e9e755"
+      ],
+      "id": "sha256:1f40432b1cbe7234e977f96c362c9bc550a2d2b583d014dd8669fe40d3e9e755"
+    }
+  ],
+  "measurement": "HTTP response duration, milliseconds; Create sums two requests"
+}
