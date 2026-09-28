@@ -35,12 +35,14 @@ class ReportTests(unittest.TestCase):
 
     def test_rejects_invalid_background_or_request_count(self):
         for key, value in [('background', -1), ('background', True), ('create_http_requests', 1)]:
-            left = fixture('hasura'); left[key] = value
+            left = fixture('hasura')
+            left[key] = value
             with self.assertRaises(ValueError): compare(left, fixture('doublets'))
 
     def test_rejects_wrong_target_or_unit(self):
         for key, value in [('target', 'doublets'), ('unit', 'nanoseconds')]:
-            left = fixture('hasura'); left[key] = value
+            left = fixture('hasura')
+            left[key] = value
             with self.assertRaises(ValueError): compare(left, fixture('doublets'))
 
 
