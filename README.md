@@ -1,48 +1,90 @@
 # Comparisons.PostgreSQLVSDoublets
 
-The comparison between PostgreSQL and LinksPlatform's Doublets (links) on basic database operations with links (create, read, delete, update).
-All benchmarks ran with 3000 links in background to increase size of indexes and 1000 are actively created/updated/deleted.
+PostgreSQL and LinksPlatform Doublets compared on the same basic link operations in Rust and C#. A doublet link has an ID, a source and a target. See [the links theory](https://habr.com/ru/articles/895896) for the representation.
 
-In this particular benchmark we decided not to increase the number of links as PostgreSQL will not be able to handle it at all in timeframe what GitHub Actions limit allows to use for free. Remember that to get accurate result we ran this benchmark multiple times.
-
-## Task
-
-Both databases used to store and retrieve doublet-links representation. To support storage, and all basic CRUD operations that provide Turing completeness for links as in [the links theory](https://habr.com/ru/articles/895896).
+Each language runs four Doublets stores (united/split, in RAM/memory-mapped files) and two PostgreSQL modes (autocommit/explicit transaction). PostgreSQL uses a `bigint` identity primary key and separate B-tree indexes on source and target. Doublets runs inside the benchmark process; PostgreSQL uses a local server and includes driver and network costs. Memory-mapped Doublets writes use the OS page cache without an explicit disk flush; their durability differs from PostgreSQL commits.
 
 ## Operations
-- **Create** – insert point link (link with id = source = target)
-- **Update** – basic link update operation
-- **Delete** – basic link delete operation
-- **Each All** – take all links matching `[*, *, *]` constraint
-- **Each Incoming** – take all links matching `[*, *, target]` constraint
-- **Each Outgoing** – take all links matching `[*, source, *]` constraint
-- **Each Concrete** – take all links matching `[*, source, target]` constraint
-- **Each Identity** – take all links matching `[id, *, *]` constraint
+
+- **Create**: create `BENCHMARK_LINKS` point links (`id = source = target`).
+- **Update**: change the last `BENCHMARK_LINKS` background points to `(0, 0)` and back, timing both updates.
+- **Delete**: prepare `BENCHMARK_LINKS` additional points, then delete those points in reverse order.
+- **Each All**: enumerate all background links once (`[*, *, *]`).
+- **Each Identity**: enumerate `[id, *, *]` for each background point.
+- **Each Concrete**: enumerate `[*, source, target]` for each background point.
+- **Each Outgoing**: enumerate `[*, source, *]` for each background point.
+- **Each Incoming**: enumerate `[*, *, target]` for each background point.
+
+Both languages recreate `BENCHMARK_BACKGROUND_LINKS` points before each iteration and clear the store afterwards. Background creation, delete preparation, table/index setup and cleanup are excluded from the measured time. In transaction mode the timed SQL operations run inside an explicit transaction; its begin and commit happen outside the timed interval. Thus these numbers measure operation batches, rather than committed transactions or individual links. Indexed reads perform one query per background point, independently of `BENCHMARK_LINKS`.
+
+Both harnesses use one second of warm-up, ten flat samples and a one-second measurement target. Iteration counts are calibrated using total wall time including preparation, as Criterion 0.4 does for `iter_custom`; reported samples include only timed operations. The report shows medians and compares each Doublets median with the fastest PostgreSQL median. Medians within 5%, or overlapping ± one standard deviation ranges, are labelled `≈ same`. Other cells show `× faster` or `× slower`. Linear charts give very short bars a minimum visible width; log charts use the measured values.
 
 ## Results
-The results below represent the amount of time (ns) the operation takes per iteration.
-- First picture shows time in a pixel scale (for doublets just minimum value is shown, otherwise it will be not present on the graph).
-- Second picture shows time in a logarithmic scale (to see difference clearly, because it is around 2-3 orders of magnitude).
 
+Every generated table records the server and library versions, CPU, UTC date and source Actions run. CI runs on separate runners for each language, backend and size. PRs use 100 background / 10 active links. Default-branch runs also measure 1,000 background / 100 active links. A report job assembles all tables and linear/log charts, uploads them for PR review, and commits results after default-branch pushes. Changes only to this README or the charts do not start benchmarks.
+
+<!-- results:start -->
 ### Rust
-![Image of Rust benchmark (pixel scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/main/Docs/bench_rust.png?raw=true)
-![Image of Rust benchmark (log scale)](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/blob/main/Docs/bench_rust_log_scale.png?raw=true)
 
-### Raw benchmark results (all numbers are in nanoseconds)
+_Updated results will be recorded after the first run of the new workflow._
 
-| Operation     | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PSQL NonTransaction | PSQL Transaction |
-|---------------|--------------------------|-----------------------------|-------------------------|----------------------------|---------------------|------------------|
-| Create        | 9035 (12162.4x faster)   | 8807 (12477.2x faster)      | 7005 (15686.9x faster)  | 7086 (15507.6x faster)     | 145975967           | 109886881        |
-| Update        | 33210 (4323.7x faster)   | 32724 (4387.9x faster)      | 7826 (18347.9x faster)  | 7756 (18513.5x faster)     | 181785688           | 143590948        |
-| Delete        | 17427 (2096.8x faster)   | 17237 (2119.9x faster)      | 12612 (2897.4x faster)  | 12659 (2886.6x faster)     | 54113187            | 36541411         |
-| Each All      | 1903 (394.1x faster)     | 1903 (394.1x faster)        | 2520 (297.6x faster)    | 2220 (337.8x faster)       | 772260              | 750025           |
-| Each Identity | 32364 (10720.2x faster)  | 32376 (10716.2x faster)     | 32675 (10618.2x faster) | 32678 (10617.2x faster)    | 365907001           | 346948519        |
-| Each Concrete | 47228 (7710.2x faster)   | 46435 (7841.9x faster)      | 42978 (8472.6x faster)  | 43041 (8460.2x faster)     | 388005509           | 364137549        |
-| Each Outgoing | 60270 (5830.3x faster)   | 59978 (5858.7x faster)      | 36132 (9725.2x faster)  | 36206 (9705.3x faster)     | 369609106           | 351390605        |
-| Each Incoming | 59812 (5849.0x faster)   | 59956 (5835.0x faster)      | 36733 (9523.9x faster)  | 36753 (9518.7x faster)     | 362811363           | 349842592        |
+### C#
 
-## Conclusion
+_Updated results will be recorded after the first run of the new workflow._
+<!-- results:end -->
 
-As we can see in this comparison, Doublets are from 1746 to 15745 times faster than PostgreSQL in write operations, and from 100 to 9694 times faster in read operations.
+Results depend on workload, server configuration, versions and runner hardware. Use the provenance and sizes above each table when comparing runs.
 
-To get fresh numbers, please fork the repository and rerun benchmark in GitHub Actions.
+## Running locally
+
+Install stable Rust, .NET 10, Python 3.11+ and PostgreSQL. The CI server image is pinned to `postgres:17.6`. Use a disposable database: the benchmarks create and drop a table named `links`, and correctness tests reset that table.
+
+```bash
+docker run -d --name comparison-postgres -p 5432:5432 \
+  -e POSTGRES_PASSWORD=postgres postgres:17.6
+export POSTGRES_CONNECTION='host=localhost port=5432 user=postgres password=postgres dbname=postgres'
+export NPGSQL_CONNECTION='Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=postgres'
+export POSTGRES_VERSION=17.6
+export BENCHMARK_BACKGROUND_LINKS=100
+export BENCHMARK_LINKS=10
+python3 -m pip install -r scripts/requirements.txt
+
+# Report regressions and backend correctness.
+python3 -m unittest discover -s scripts -v
+cargo fmt --manifest-path rust/Cargo.toml -- --check
+cargo clippy --locked --manifest-path rust/Cargo.toml --all-targets --all-features -- -D warnings
+cargo test --locked --manifest-path rust/Cargo.toml -- --include-ignored
+dotnet restore csharp/PostgreSQLVSDoublets.slnx --locked-mode
+dotnet format csharp/PostgreSQLVSDoublets.slnx --verify-no-changes --no-restore
+dotnet build csharp/PostgreSQLVSDoublets.slnx -c Release --no-restore --warnaserror
+dotnet test csharp/PostgreSQLVSDoublets.slnx -c Release --no-build --blame-hang-timeout 2m
+
+# Run backends sequentially to avoid CPU contention.
+mkdir -p results
+for language in rust csharp; do
+  for backend in psql doublets; do
+    export BENCHMARK_BACKEND="$backend"
+    output="results/$language-$BENCHMARK_BACKGROUND_LINKS-$backend.txt"
+    python3 scripts/benchmark_header.py "$language" "$backend" > "$output"
+    if [ "$language" = rust ]; then
+      (cd rust && cargo bench --locked --bench bench -- --output-format bencher --noplot) >> "$output"
+    else
+      dotnet run --project csharp/PostgreSQLVSDoublets -c Release --no-build >> "$output"
+    fi
+  done
+done
+python3 scripts/benchmark_report.py results --readme README.md --charts Docs
+```
+
+`rust/out.py` remains an entry point to the same report generator and accepts the same arguments. Output files must be named `<rust|csharp>-<background>-<psql|doublets>.txt`; a report requires both complete backends for each language and size it publishes. The C++ prototype and its dormant workflow have been removed.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `BENCHMARK_BACKGROUND_LINKS` | `1000` | Background point links per iteration; must be positive. |
+| `BENCHMARK_LINKS` | `100` | Active links for writes; must be positive and no greater than the background. |
+| `BENCHMARK_BACKEND` | `all` | `psql`, `doublets` or `all`; select one for isolated measurements. |
+| `POSTGRES_CONNECTION` | `user=postgres dbname=postgres password=postgres host=localhost port=5432` | Rust connection string in postgres/libpq format, including custom hosts, ports and credentials. |
+| `NPGSQL_CONNECTION` | `Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=postgres` | C# Npgsql connection string. |
+| `POSTGRES_VERSION` | `unknown version` | Server version recorded by the header script; CI reads `SHOW server_version`. |
+
+Rust PostgreSQL tests are ignored unless `--include-ignored` is supplied. C# PostgreSQL tests are explicitly skipped without `NPGSQL_CONNECTION`; CI configures both connections and runs all variants. Report tracing is off by default; set `DEBUG = True` in `scripts/benchmark_report.py` when investigating parsing.

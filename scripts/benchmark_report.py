@@ -62,8 +62,6 @@ IMPLEMENTATION_IDS = {implementation for implementation, _, _ in IMPLEMENTATIONS
 DOUBLETS_IDS = {implementation for implementation, _, _ in DOUBLETS}
 BACKENDS = {"doublets": DOUBLETS, "psql": PSQL}
 
-# Each All is one statement already, so it has no batch variant.
-NOT_MEASURED = set()
 
 # Name in the README, and how to find the versions of the PostgreSQL driver and of
 # the Doublets library in the repository: (file, regex with the version).
@@ -138,11 +136,18 @@ def load(directory):
             (operation, implementation)
             for operation in OPERATIONS
             for implementation, _, _ in BACKENDS[backend]
-        } - NOT_MEASURED
+        }
         if set(times) != expected:
             missing = sorted(expected - set(times))
             unexpected = sorted(set(times) - expected)
             raise ValueError(f"{path}: missing results {missing}, unexpected results {unexpected}")
+        required = {"links", "background", "cpu", "date", "driver", "doublets", "postgresql"}
+        if required - set(metadata):
+            raise ValueError(f"{path}: missing provenance {sorted(required - set(metadata))}")
+        if int(metadata["background"]) != background:
+            raise ValueError(f"{path}: background metadata does not match filename")
+        if not 0 < int(metadata["links"]) <= background:
+            raise ValueError(f"{path}: invalid active link count")
         result = results.setdefault((language, background), {"times": {}, "metadata": {}})
         result["times"].update(times)
         result["metadata"][backend] = metadata
@@ -255,6 +260,9 @@ def links_per_iteration(result):
     counts = {metadata.get("links") for metadata in result["metadata"].values()}
     if len(counts) != 1 or None in counts:
         raise ValueError(f"the backends were measured with different or unknown links per iteration: {counts}")
+    runs = {metadata.get("run") for metadata in result["metadata"].values()}
+    if len(runs) != 1:
+        raise ValueError("the backends were measured in different runs")
     return int(counts.pop())
 
 

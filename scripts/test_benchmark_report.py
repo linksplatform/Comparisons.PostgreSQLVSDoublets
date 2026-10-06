@@ -76,6 +76,19 @@ class ReportTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 report.load(directory)
 
+    def test_reject_mismatched_provenance(self):
+        for old, new in [('# background: 100', '# background: 999'),
+                         ('# cpu: Test CPU', 'no cpu metadata'),
+                         ('# links: 10', '# links: 0')]:
+            with self.subTest(old=old), tempfile.TemporaryDirectory() as directory:
+                for backend in report.BACKENDS:
+                    output = self.output(backend)
+                    if backend == 'psql':
+                        output = output.replace(old, new)
+                    (Path(directory) / f'rust-100-{backend}.txt').write_text(output)
+                with self.assertRaises(ValueError):
+                    report.load(directory)
+
     def test_fastest_postgresql_baseline(self):
         times = {(op, implementation): (200, 0)
                  for op in report.OPERATIONS for implementation, _, _ in report.IMPLEMENTATIONS}

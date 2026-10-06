@@ -1,132 +1,191 @@
-name: Benchmark Rust version
+name: Test and benchmark Rust and C#
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+    paths: ['rust/**', 'csharp/**', 'scripts/**', 'experiments/**', 'rust-toolchain.toml', 'rustfmt.toml', '.github/workflows/rust.yml']
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+    paths: ['rust/**', 'csharp/**', 'scripts/**', 'experiments/**', 'rust-toolchain.toml', 'rustfmt.toml', '.github/workflows/rust.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  toolchain: stable
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  POSTGRES_CONNECTION: 'host=localhost port=5432 user=postgres password=postgres dbname=postgres'
+  NPGSQL_CONNECTION: 'Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=postgres'
+  POSTGRES_VERSION: '17.6'
 
 jobs:
-  benchmark:
+  sizes:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      background: ${{ steps.matrix.outputs.background }}
+    steps:
+      - id: matrix
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            echo 'background=[100]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'background=[100,1000]' >> "$GITHUB_OUTPUT"
+          fi
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:17.6
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+        ports: ['5432:5432']
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: ${{env.toolchain}}
           components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m unittest discover -s scripts -v
+      - run: python3 experiments/reproduce_report_ratio.py
+      - run: cargo fmt --manifest-path rust/Cargo.toml -- --check
+      - run: cargo clippy --locked --manifest-path rust/Cargo.toml --all-targets --all-features -- -D warnings
+      - run: cargo test --locked --manifest-path rust/Cargo.toml -- --include-ignored
 
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          echo "Waiting for PostgreSQL to be fully ready..."
-          for i in {1..30}; do
-            if pg_isready -h localhost -p 5432 -U postgres > /dev/null 2>&1; then
-              echo "PostgreSQL is ready!"
-              break
-            fi
-            echo "Attempt $i: PostgreSQL not ready yet..."
-            sleep 2
-          done
-
-      - name: Build benchmark
-        run: cargo build --release --all-features --manifest-path rust/Cargo.toml
-
-      - name: Run benchmark
-        working-directory: rust
+  test-csharp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17.6
         env:
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-          # Use 100 links for main/master branch benchmarks, 10 for pull requests
-          BENCHMARK_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '100' || '10' }}
-          # Use 1000 background links for main/master branch, 100 for pull requests
-          BENCHMARK_BACKGROUND_LINKS: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) && '1000' || '100' }}
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+        ports: ['5432:5432']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore csharp/PostgreSQLVSDoublets.slnx --locked-mode
+      - run: dotnet format csharp/PostgreSQLVSDoublets.slnx --verify-no-changes --no-restore
+      - run: dotnet build csharp/PostgreSQLVSDoublets.slnx -c Release --no-restore --warnaserror
+      - run: dotnet test csharp/PostgreSQLVSDoublets.slnx -c Release --no-build --blame-hang-timeout 2m
+
+  benchmark:
+    needs: [sizes, test, test-csharp]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [rust, csharp]
+        backend: [psql, doublets]
+        background: ${{ fromJSON(needs.sizes.outputs.background) }}
+    services:
+      postgres:
+        image: ${{ matrix.backend == 'psql' && 'postgres:17.6' || '' }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+        ports: ['5432:5432']
+    env:
+      BENCHMARK_BACKEND: ${{ matrix.backend }}
+      BENCHMARK_BACKGROUND_LINKS: ${{ matrix.background }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.language == 'rust'
+      - uses: actions/setup-dotnet@v4
+        if: matrix.language == 'csharp'
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build benchmark before measuring
+        env:
+          LANGUAGE: ${{ matrix.language }}
+        run: |
+          if [ "$LANGUAGE" = rust ]; then
+            cargo bench --locked --manifest-path rust/Cargo.toml --bench bench --no-run
+          else
+            dotnet restore csharp/PostgreSQLVSDoublets/PostgreSQLVSDoublets.csproj --locked-mode
+            dotnet build csharp/PostgreSQLVSDoublets/PostgreSQLVSDoublets.csproj -c Release --no-restore --warnaserror
+          fi
+      - name: Measure one backend and size
+        env:
+          LANGUAGE: ${{ matrix.language }}
         run: |
           set -o pipefail
-          cargo bench --bench bench -- --output-format bencher | tee out.txt
-
-      - name: Prepare benchmark results
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        run: |
-          git config --global user.email "linksplatform@gmail.com"
-          git config --global user.name "LinksPlatformBencher"
-          cd rust
-          pip install numpy matplotlib
-          python3 out.py
-          cd ..
-
-          # Create Docs directory if it doesn't exist
-          mkdir -p Docs
-
-          # Copy generated images
-          cp -f rust/bench_rust.png Docs/
-          cp -f rust/bench_rust_log_scale.png Docs/
-
-          # Update README with latest results
-          if [ -f rust/results.md ]; then
-            # Replace the results section in README.md
-            python3 -c "
-          import re
-
-          with open('rust/results.md', 'r') as f:
-              results = f.read()
-
-          with open('README.md', 'r') as f:
-              readme = f.read()
-
-          # Pattern to find and replace the results table
-          pattern = r'(\| Operation.*?\n\|[-|]+\n(?:\|.*?\n)*)'
-          if re.search(pattern, readme):
-              readme = re.sub(pattern, results.strip() + '\n', readme)
-
-          with open('README.md', 'w') as f:
-              f.write(readme)
-          "
+          export BENCHMARK_LINKS=$((BENCHMARK_BACKGROUND_LINKS / 10))
+          mkdir -p results
+          output="results/$LANGUAGE-$BENCHMARK_BACKGROUND_LINKS-$BENCHMARK_BACKEND.txt"
+          if [ "$BENCHMARK_BACKEND" = psql ]; then
+            export POSTGRES_VERSION=$(psql "$POSTGRES_CONNECTION" -Atc 'SHOW server_version')
           fi
-
-          # Commit changes if any
-          git add Docs README.md
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
+          python3 scripts/benchmark_header.py "$LANGUAGE" "$BENCHMARK_BACKEND" > "$output"
+          if [ "$LANGUAGE" = rust ]; then
+            (cd rust && cargo bench --locked --bench bench -- --output-format bencher --noplot) | tee -a "$output"
           else
-            git commit -m "Update benchmark results"
-            git push origin HEAD
+            dotnet run --project csharp/PostgreSQLVSDoublets -c Release --no-build | tee -a "$output"
           fi
-
-      - name: Save benchmark results
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: Benchmark results
+          name: results-${{ matrix.language }}-${{ matrix.background }}-${{ matrix.backend }}
+          path: results/*.txt
+          if-no-files-found: error
+
+  report:
+    needs: benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: results
+          merge-multiple: true
+      - run: python3 -m pip install -r scripts/requirements.txt
+      - name: Generate tables and charts
+        run: python3 scripts/benchmark_report.py results --readme README.md --charts Docs > results/report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
           path: |
-            rust/bench_rust.png
-            rust/bench_rust_log_scale.png
-            rust/out.txt
+            README.md
+            Docs/bench_*.png
+            results/
+      - name: Publish results on the default branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.email 'linksplatform@gmail.com'
+          git config user.name 'LinksPlatformBencher'
+          git add README.md Docs
+          if ! git diff --staged --quiet; then
+            git commit -m 'Update Rust and C# benchmark results'
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi

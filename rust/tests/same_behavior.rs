@@ -40,20 +40,35 @@ fn exercise(store: &mut impl Doublets<usize>) {
     assert_eq!(store.count(), 0);
 }
 
+fn lifecycle(store: &mut (impl Benched + Doublets<usize>)) {
+    {
+        let mut fork = store.fork();
+        exercise(&mut *fork);
+    }
+    {
+        let mut fork = store.fork();
+        assert_eq!(fork.create_point().unwrap(), 1);
+        assert_eq!(fork.create_point().unwrap(), 2);
+    }
+    let mut fork = store.fork();
+    assert_eq!(fork.count(), 0);
+    assert_eq!(fork.create_point().unwrap(), 1);
+}
+
 #[test]
 fn doublets_same_behavior() {
-    exercise(&mut unit::Store::<usize, Global<_>>::setup(()).unwrap());
-    exercise(&mut split::Store::<usize, Global<_>, Global<_>>::setup(()).unwrap());
+    lifecycle(&mut unit::Store::<usize, Global<_>>::setup(()).unwrap());
+    lifecycle(&mut split::Store::<usize, Global<_>, Global<_>>::setup(()).unwrap());
     let directory = std::env::temp_dir().join(format!("linkspsql-test-{}", std::process::id()));
     std::fs::create_dir_all(&directory).unwrap();
     let united = directory.join("united.links");
-    exercise(
+    lifecycle(
         &mut unit::Store::<usize, doublets::mem::FileMapped<_>>::setup(united.to_str().unwrap())
             .unwrap(),
     );
     let data = directory.join("data.links");
     let index = directory.join("index.links");
-    exercise(&mut split::Store::<usize, doublets::mem::FileMapped<_>, doublets::mem::FileMapped<_>>::setup((data.to_str().unwrap(), index.to_str().unwrap())).unwrap());
+    lifecycle(&mut split::Store::<usize, doublets::mem::FileMapped<_>, doublets::mem::FileMapped<_>>::setup((data.to_str().unwrap(), index.to_str().unwrap())).unwrap());
     std::fs::remove_dir_all(directory).unwrap();
 }
 
@@ -63,11 +78,8 @@ fn postgresql_same_behavior() {
     let mut client = Exclusive::<Client<usize>>::new(linkspsql::connect().unwrap());
     client.drop_table().unwrap();
     client.create_table().unwrap();
-    exercise(&mut client);
-    client.drop_table().unwrap();
-    client.create_table().unwrap();
+    lifecycle(&mut client);
     let mut connection = linkspsql::connect().unwrap();
     let mut transaction = Exclusive::<Transaction<'_, usize>>::setup(&mut connection).unwrap();
-    exercise(&mut transaction);
-    transaction.drop_table().unwrap();
+    lifecycle(&mut transaction);
 }
