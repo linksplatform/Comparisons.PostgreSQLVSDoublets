@@ -14,12 +14,12 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
 use doublets::{
-    data::{Flow, LinksConstants},
     Doublets,
+    data::{Flow, LinksConstants},
 };
-use linkspsql::{background_links, bench, connect, Benched, Client, Exclusive, Fork, Transaction};
+use linkspsql::{Benched, Client, Exclusive, Fork, Transaction, background_links, bench, connect};
 
 use crate::tri;
 
@@ -44,6 +44,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for PostgreSQL backends on querying links by ID.
 pub fn each_identity(c: &mut Criterion) {
     let mut group = c.benchmark_group("Each_Identity");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());

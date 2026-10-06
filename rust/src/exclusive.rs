@@ -1,17 +1,16 @@
-use std::{
-    cell::UnsafeCell,
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
 
-pub struct Exclusive<T>(UnsafeCell<T>);
+/// Compatibility wrapper around backends whose SQL clients use a mutex.
+/// Shared reads lock the client, as required by the Doublets `Send + Sync` API.
+pub struct Exclusive<T>(T);
 
 impl<T> Exclusive<T> {
-    pub unsafe fn new(t: T) -> Self {
-        Exclusive(UnsafeCell::new(t))
+    pub fn new(value: T) -> Self {
+        Self(value)
     }
 
-    pub fn get(&self) -> &mut T {
-        unsafe { &mut *self.0.get() }
+    pub fn get(&self) -> &T {
+        &self.0
     }
 }
 
@@ -19,14 +18,12 @@ impl<T> Deref for Exclusive<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get()
+        &self.0
     }
 }
 
 impl<T> DerefMut for Exclusive<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get()
+        &mut self.0
     }
 }
-
-unsafe impl<T> Sync for Exclusive<T> {}

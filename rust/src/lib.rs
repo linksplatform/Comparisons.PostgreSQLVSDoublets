@@ -12,7 +12,7 @@ macro_rules! bench {
                         __ret
                     }};
                 }
-                crate::tri! {
+                tri! {
                     let background_links = linkspsql::background_links();
                     for _iter in 0..iters {
                         let mut $fork: Fork<$B> = Benched::fork(&mut *benched);
@@ -50,25 +50,43 @@ pub type Result<T, E = Box<dyn error::Error + Sync + Send>> = result::Result<T, 
 /// Configurable via BENCHMARK_BACKGROUND_LINKS environment variable.
 /// Default: 1000 (for local testing), CI uses 100 for PRs and 1000 for main branch.
 pub fn background_links() -> usize {
-    env::var("BENCHMARK_BACKGROUND_LINKS")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(1_000)
+    size("BENCHMARK_BACKGROUND_LINKS", 1_000)
 }
 
-/// Number of links to create/update/delete in each benchmark operation.
-/// Configurable via BENCHMARK_LINKS environment variable.
-/// Default: 100 (for local testing), CI uses 10 for PRs and 100 for main branch.
+/// Number of active links; must fit in the background for update benchmarks.
 pub fn benchmark_links() -> usize {
-    env::var("BENCHMARK_LINKS")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(100)
+    let links = size("BENCHMARK_LINKS", 100);
+    assert!(
+        links <= background_links(),
+        "BENCHMARK_LINKS must not exceed BENCHMARK_BACKGROUND_LINKS"
+    );
+    links
 }
+
+fn size(key: &str, default: usize) -> usize {
+    match env::var(key) {
+        Ok(value) => value
+            .parse()
+            .ok()
+            .filter(|value| *value > 0)
+            .unwrap_or_else(|| panic!("{key} must be a positive integer")),
+        Err(env::VarError::NotPresent) => default,
+        Err(_) => panic!("{key} must be a positive integer"),
+    }
+}
+
+/// IDs created after the background links; used by both delete benchmarks.
+pub fn created_links(background: usize, links: usize) -> std::ops::RangeInclusive<usize> {
+    background + 1..=background + links
+}
+
 const PARAMS: &str = "user=postgres dbname=postgres password=postgres host=localhost port=5432";
 
 pub fn connect<T: LinkReference>() -> Result<Client<T>> {
-    Client::new(postgres::Client::connect(PARAMS, NoTls)?).map_err(Into::into)
+    Client::new(postgres::Client::connect(
+        &env::var("POSTGRES_CONNECTION").unwrap_or_else(|_| PARAMS.to_owned()),
+        NoTls,
+    )?)
 }
 
 /// Converts a link value into the `i64` used by PostgreSQL `bigint` columns.
@@ -81,7 +99,8 @@ pub fn as_i64<T: LinkReference>(value: T) -> i64 {
 }
 
 pub fn map_file<T: Default>(filename: &str) -> io::Result<FileMapped<T>> {
-    let file = File::options().create(true).write(true).read(true).open(filename)?;
+    let file =
+        File::options().create(true).truncate(false).write(true).read(true).open(filename)?;
     FileMapped::new(file)
 }
 

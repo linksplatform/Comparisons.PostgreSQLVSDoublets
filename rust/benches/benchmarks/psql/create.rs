@@ -15,9 +15,9 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
 use doublets::Doublets;
-use linkspsql::{bench, benchmark_links, connect, Benched, Client, Exclusive, Fork, Transaction};
+use linkspsql::{Benched, Client, Exclusive, Fork, Transaction, bench, benchmark_links, connect};
 
 use crate::tri;
 
@@ -40,6 +40,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for PostgreSQL backends on link creation.
 pub fn create_links(c: &mut Criterion) {
     let mut group = c.benchmark_group("Create");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());

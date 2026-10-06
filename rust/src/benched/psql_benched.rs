@@ -38,7 +38,7 @@ impl<T: LinkReference> Benched for Exclusive<Client<T>> {
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {
         // Safety: Exclusive wrapper ensures single-threaded access
-        unsafe { Ok(Exclusive::new(crate::connect()?)) }
+        Ok(Exclusive::new(crate::connect()?))
     }
 
     fn fork(&mut self) -> Fork<'_, Self> {
@@ -59,7 +59,7 @@ impl<'a, T: LinkReference> Benched for Exclusive<Transaction<'a, T>> {
         let mut transaction = builder.transaction()?;
         transaction.create_table()?;
         // Safety: Exclusive wrapper ensures single-threaded access
-        unsafe { Ok(Exclusive::new(transaction)) }
+        Ok(Exclusive::new(transaction))
     }
 
     fn fork(&mut self) -> Fork<'_, Self> {
