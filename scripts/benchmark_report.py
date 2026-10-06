@@ -9,7 +9,7 @@ the bencher format of Criterion,
     test Create/PSQL_Transaction ... bench:  44,055,505 ns/iter (+/- 5,345,991)
 
 with the median time of one iteration and its standard deviation, after
-`# key: value` lines that describe the run (see `scripts/benchmark_header.sh`).
+`# key: value` lines that describe the run (see `scripts/benchmark_header.py`).
 
 Output, for every language and number of background links:
 - a Markdown table, written into the README between the markers;
@@ -56,7 +56,7 @@ DOUBLETS = [
 PSQL = [
     ("PSQL_NonTransaction", "PostgreSQL NonTransaction", "lightblue"),
     ("PSQL_Transaction", "PostgreSQL Transaction", "blue"),
-    ]
+]
 IMPLEMENTATIONS = DOUBLETS + PSQL
 IMPLEMENTATION_IDS = {implementation for implementation, _, _ in IMPLEMENTATIONS}
 DOUBLETS_IDS = {implementation for implementation, _, _ in DOUBLETS}
