@@ -12,14 +12,14 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
 use doublets::{
+    Doublets,
     mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
     unit::{self, LinkPart},
-    Doublets,
 };
-use linkspsql::{bench, benchmark_links, Benched, Fork};
+use linkspsql::{Benched, Fork, bench, benchmark_links};
 
 use crate::tri;
 
@@ -42,6 +42,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for Doublets backends on link creation.
 pub fn create_links(c: &mut Criterion) {
     let mut group = c.benchmark_group("Create");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(

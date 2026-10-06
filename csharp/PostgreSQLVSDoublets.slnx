@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PostgreSQLVSDoublets.Tests/PostgreSQLVSDoublets.Tests.csproj" />
+  <Project Path="PostgreSQLVSDoublets/PostgreSQLVSDoublets.csproj" />
+</Solution>

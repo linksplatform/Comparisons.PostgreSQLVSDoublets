@@ -1,8 +1,0 @@
-[requires]
-benchmark/1.8.0
-libpqxx/7.7.5
-platform.data.doublets/0.1.0
-
-[generators]
-CMakeToolchain
-CMakeDeps

@@ -11,14 +11,14 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
 use doublets::{
+    Doublets,
     mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
     unit::{self, LinkPart},
-    Doublets,
 };
-use linkspsql::{background_links, bench, benchmark_links, Benched, Fork};
+use linkspsql::{Benched, Fork, background_links, bench, benchmark_links};
 
 use crate::tri;
 
@@ -35,7 +35,7 @@ fn bench<B: Benched + Doublets<usize>>(
             for _prepare in bg_links..bg_links + links {
                 let _ = fork.create_point();
             }
-            for id in (bg_links..=bg_links + links).rev() {
+            for id in linkspsql::created_links(bg_links, links).rev() {
                 let _ = elapsed! {fork.delete(id)?};
             }
         })(bencher, &mut benched);
@@ -45,6 +45,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for Doublets backends on link deletion.
 pub fn delete_links(c: &mut Criterion) {
     let mut group = c.benchmark_group("Delete");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(

@@ -6,16 +6,18 @@ use {
         psql_each_concrete, psql_each_identity, psql_each_incoming, psql_each_outgoing,
         psql_update_links,
     },
-    criterion::{criterion_group, criterion_main},
+    criterion::criterion_group,
 };
 
 mod benchmarks;
 
 macro_rules! tri {
     ($($body:tt)*) => {
-        let _ = (|| -> linkspsql::Result<()> {
-            Ok({ $($body)* })
-        })().unwrap();
+        let mut run = || -> linkspsql::Result<()> {
+            { $($body)* };
+            Ok(())
+        };
+        run().unwrap();
     };
 }
 
@@ -23,7 +25,9 @@ pub(crate) use tri;
 
 // PostgreSQL benchmarks
 criterion_group!(
-    psql_benches,
+    name = psql_benches;
+    config = configuration();
+    targets =
     psql_create_links,
     psql_delete_links,
     psql_each_identity,
@@ -36,7 +40,9 @@ criterion_group!(
 
 // Doublets benchmarks
 criterion_group!(
-    doublets_benches,
+    name = doublets_benches;
+    config = configuration();
+    targets =
     doublets_create_links,
     doublets_delete_links,
     doublets_each_identity,
@@ -47,4 +53,23 @@ criterion_group!(
     doublets_update_links
 );
 
-criterion_main!(psql_benches, doublets_benches);
+fn configuration() -> criterion::Criterion {
+    criterion::Criterion::default()
+        .sample_size(10)
+        .warm_up_time(std::time::Duration::from_secs(1))
+        .measurement_time(std::time::Duration::from_secs(1))
+}
+
+fn main() {
+    linkspsql::benchmark_links();
+    match std::env::var("BENCHMARK_BACKEND").as_deref().unwrap_or("all") {
+        "psql" => psql_benches(),
+        "doublets" => doublets_benches(),
+        "all" => {
+            psql_benches();
+            doublets_benches();
+        }
+        backend => panic!("unknown BENCHMARK_BACKEND: {backend}"),
+    }
+    configuration().configure_from_args().final_summary();
+}

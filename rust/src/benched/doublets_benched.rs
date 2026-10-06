@@ -17,13 +17,13 @@
 //! Each backend's `unfork()` implementation calls `delete_all()` to clean up
 //! all links created during the benchmark iteration.
 
-use crate::{map_file, Result};
+use crate::{Result, map_file};
 use doublets::{
+    Doublets,
     data::LinkReference,
     mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
     unit::{self, LinkPart},
-    Doublets,
 };
 
 use super::Benched;
@@ -55,7 +55,9 @@ impl<T: LinkReference> Benched for unit::Store<T, Global<LinkPart<T>>> {
 }
 
 /// Benched implementation for file-mapped split storage.
-impl<T: LinkReference> Benched for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>> {
+impl<T: LinkReference> Benched
+    for split::Store<T, FileMapped<DataPart<T>>, FileMapped<IndexPart<T>>>
+{
     type Builder<'a> = (&'a str, &'a str);
 
     fn setup((data, index): Self::Builder<'_>) -> Result<Self> {
@@ -68,9 +70,7 @@ impl<T: LinkReference> Benched for split::Store<T, FileMapped<DataPart<T>>, File
 }
 
 /// Benched implementation for in-memory split storage.
-impl<T: LinkReference> Benched
-    for split::Store<T, Global<DataPart<T>>, Global<IndexPart<T>>>
-{
+impl<T: LinkReference> Benched for split::Store<T, Global<DataPart<T>>, Global<IndexPart<T>>> {
     type Builder<'a> = ();
 
     fn setup(_: Self::Builder<'_>) -> Result<Self> {

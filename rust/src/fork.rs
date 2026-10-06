@@ -21,6 +21,6 @@ impl<B: Benched> DerefMut for Fork<'_, B> {
 
 impl<B: Benched> Drop for Fork<'_, B> {
     fn drop(&mut self) {
-        let _ = unsafe { self.unfork() };
+        unsafe { self.unfork() };
     }
 }

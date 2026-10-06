@@ -10,15 +10,15 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
 use doublets::{
+    Doublets,
     data::Flow,
     mem::{FileMapped, Global},
     split::{self, DataPart, IndexPart},
     unit::{self, LinkPart},
-    Doublets,
 };
-use linkspsql::{bench, Benched, Fork};
+use linkspsql::{Benched, Fork, bench};
 
 use crate::tri;
 
@@ -31,7 +31,7 @@ fn bench<B: Benched + Doublets<usize>>(
     let handler = |_| Flow::Continue;
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            let _ = elapsed! { fork.each(handler) };
+            elapsed! { fork.each(handler) };
         })(bencher, &mut benched);
     });
 }
@@ -39,6 +39,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for Doublets backends on querying all links.
 pub fn each_all(c: &mut Criterion) {
     let mut group = c.benchmark_group("Each_All");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(

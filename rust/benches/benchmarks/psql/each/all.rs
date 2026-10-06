@@ -14,9 +14,9 @@
 
 use std::time::{Duration, Instant};
 
-use criterion::{measurement::WallTime, BenchmarkGroup, Criterion};
-use doublets::{data::Flow, Doublets};
-use linkspsql::{bench, connect, Benched, Client, Exclusive, Fork, Transaction};
+use criterion::{BenchmarkGroup, Criterion, measurement::WallTime};
+use doublets::{Doublets, data::Flow};
+use linkspsql::{Benched, Client, Exclusive, Fork, Transaction, bench, connect};
 
 use crate::tri;
 
@@ -29,7 +29,7 @@ fn bench<B: Benched + Doublets<usize>>(
     let handler = |_| Flow::Continue;
     group.bench_function(id, |bencher| {
         bench!(|fork| as B {
-            let _ = elapsed! { fork.each(handler) };
+            elapsed! { fork.each(handler) };
         })(bencher, &mut benched);
     });
 }
@@ -37,6 +37,7 @@ fn bench<B: Benched + Doublets<usize>>(
 /// Creates benchmark for PostgreSQL backends on querying all links.
 pub fn each_all(c: &mut Criterion) {
     let mut group = c.benchmark_group("Each_All");
+    group.sampling_mode(criterion::SamplingMode::Flat);
 
     tri! {
         bench(&mut group, "PSQL_NonTransaction", Exclusive::<Client<usize>>::setup(()).unwrap());
