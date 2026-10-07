@@ -30,41 +30,77 @@ Every generated table records the server and library versions, CPU, UTC date and
 
 #### Rust: 100 background links, 10 links per iteration
 
-_Median time of one iteration with 10 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through postgres 0.19.7; doublets 0.3.0. CPU AMD EPYC 7763 64-Core Processor (PostgreSQL) and AMD EPYC 9V45 96-Core Processor (Doublets), [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37548090422) on 2026-10-06T23:46:07+00:00._
+_Median time of one iteration with 10 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through postgres 0.19.7; doublets 0.3.0. CPU AMD EPYC 9V74 80-Core Processor, [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37549306074) on 2026-10-06T23:58:58+00:00._
 
 | Operation | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PostgreSQL NonTransaction | PostgreSQL Transaction |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Create | 514 ns (21,300× faster) | 512 ns (21,400× faster) | 421 ns (26,000× faster) | 416 ns (26,300× faster) | 13.8 ms | **10.9 ms** |
-| Update | 1.69 µs (8,440× faster) | 1.62 µs (8,760× faster) | 583 ns (24,400× faster) | 583 ns (24,400× faster) | 17.5 ms | **14.2 ms** |
-| Delete | 729 ns (5,000× faster) | 736 ns (4,960× faster) | 771 ns (4,730× faster) | 796 ns (4,580× faster) | 5.02 ms | **3.65 ms** |
-| Each All | 36 ns (10,300× faster) | 35 ns (10,600× faster) | 143 ns (2,600× faster) | 142 ns (2,620× faster) | 390 µs | **371 µs** |
-| Each Identity | 2.42 µs (14,600× faster) | 2.39 µs (14,800× faster) | 2.44 µs (14,500× faster) | 2.44 µs (14,500× faster) | 36.5 ms | **35.4 ms** |
-| Each Concrete | 2.85 µs (12,800× faster) | 2.83 µs (12,900× faster) | 3.12 µs (11,700× faster) | 3.13 µs (11,700× faster) | 37.7 ms | **36.6 ms** |
-| Each Outgoing | 3.39 µs (10,400× faster) | 3.34 µs (10,600× faster) | 2.72 µs (13,000× faster) | 2.73 µs (13,000× faster) | 36.3 ms | **35.4 ms** |
-| Each Incoming | 3.42 µs (10,400× faster) | 3.37 µs (10,600× faster) | 2.76 µs (12,900× faster) | 2.75 µs (13,000× faster) | 36.9 ms | **35.6 ms** |
+| Create | 846 ns (8,260× faster) | 838 ns (8,340× faster) | 721 ns (9,690× faster) | 722 ns (9,680× faster) | 9.36 ms | **6.99 ms** |
+| Update | 2.54 µs (3,600× faster) | 2.58 µs (3,550× faster) | 819 ns (11,200× faster) | 824 ns (11,100× faster) | 11.9 ms | **9.14 ms** |
+| Delete | 1.18 µs (2,010× faster) | 1.17 µs (2,040× faster) | 1.33 µs (1,780× faster) | 1.3 µs (1,830× faster) | 3.49 ms | **2.37 ms** |
+| Each All | 54 ns (4,700× faster) | 54 ns (4,700× faster) | 258 ns (984× faster) | 240 ns (1,060× faster) | 272 µs | **254 µs** |
+| Each Identity | 3.41 µs (6,520× faster) | 3.38 µs (6,570× faster) | 3.46 µs (6,430× faster) | 3.46 µs (6,430× faster) | 23.8 ms | **22.2 ms** |
+| Each Concrete | 4.3 µs (5,570× faster) | 4.27 µs (5,600× faster) | 4.66 µs (5,140× faster) | 4.65 µs (5,150× faster) | 25.1 ms | **23.9 ms** |
+| Each Outgoing | 5.08 µs (4,480× faster) | 5.04 µs (4,520× faster) | 3.8 µs (5,980× faster) | 3.8 µs (5,990× faster) | 23.9 ms | **22.8 ms** |
+| Each Incoming | 5.06 µs (4,410× faster) | 5.06 µs (4,410× faster) | 3.88 µs (5,760× faster) | 3.88 µs (5,750× faster) | 24 ms | **22.3 ms** |
 
 ![Rust, 100 background links, 10 links per iteration, linear scale](Docs/bench_rust_100.png)
 ![Rust, 100 background links, 10 links per iteration, log scale](Docs/bench_rust_log_scale_100.png)
+
+#### Rust: 1,000 background links, 100 links per iteration
+
+_Median time of one iteration with 100 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through postgres 0.19.7; doublets 0.3.0. CPU AMD EPYC 9V45 96-Core Processor (PostgreSQL) and INTEL(R) XEON(R) PLATINUM 8573C (Doublets), [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37549306074) on 2026-10-06T23:58:48+00:00._
+
+| Operation | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PostgreSQL NonTransaction | PostgreSQL Transaction |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Create | 10.3 µs (4,730× faster) | 10.3 µs (4,720× faster) | 6.46 µs (7,550× faster) | 6.37 µs (7,650× faster) | 89.6 ms | **48.8 ms** |
+| Update | 33 µs (1,870× faster) | 33.8 µs (1,820× faster) | 7.78 µs (7,920× faster) | 7.74 µs (7,960× faster) | 91 ms | **61.6 ms** |
+| Delete | 17.3 µs (866× faster) | 17.2 µs (868× faster) | 11.8 µs (1,270× faster) | 11.9 µs (1,260× faster) | 27.2 ms | **15 ms** |
+| Each All | 682 ns (571× faster) | 372 ns (1,050× faster) | 2.07 µs (188× faster) | 2.08 µs (188× faster) | 398 µs | **389 µs** |
+| Each Identity | 28.9 µs (5,150× faster) | 28.9 µs (5,150× faster) | 28.6 µs (5,210× faster) | 28.8 µs (5,170× faster) | **149 ms** | 149 ms |
+| Each Concrete | 69.9 µs (2,220× faster) | 69.9 µs (2,220× faster) | 43.5 µs (3,570× faster) | 43.1 µs (3,600× faster) | 157 ms | **155 ms** |
+| Each Outgoing | 82.3 µs (1,800× faster) | 82.2 µs (1,800× faster) | 36.6 µs (4,030× faster) | 36.2 µs (4,090× faster) | 153 ms | **148 ms** |
+| Each Incoming | 83.2 µs (1,730× faster) | 84.1 µs (1,710× faster) | 34.7 µs (4,140× faster) | 34.9 µs (4,120× faster) | 150 ms | **144 ms** |
+
+![Rust, 1,000 background links, 100 links per iteration, linear scale](Docs/bench_rust_1000.png)
+![Rust, 1,000 background links, 100 links per iteration, log scale](Docs/bench_rust_log_scale_1000.png)
 
 ### C#
 
 #### C#: 100 background links, 10 links per iteration
 
-_Median time of one iteration with 10 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through Npgsql 10.0.0; Platform.Data.Doublets 0.18.1. CPU AMD EPYC 7763 64-Core Processor (PostgreSQL) and Intel(R) Xeon(R) 6973P-C (Doublets), [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37548090422) on 2026-10-06T23:45:47+00:00._
+_Median time of one iteration with 10 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through Npgsql 10.0.0; Platform.Data.Doublets 0.18.1. CPU AMD EPYC 9V74 80-Core Processor (PostgreSQL) and Intel(R) Xeon(R) 6973P-C (Doublets), [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37549306074) on 2026-10-06T23:58:34+00:00._
 
 | Operation | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PostgreSQL NonTransaction | PostgreSQL Transaction |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Create | 2.79 µs (2,600× faster) | 2.87 µs (2,530× faster) | 418 ns (17,400× faster) | 1.24 µs (5,830× faster) | 9.85 ms | **7.26 ms** |
-| Update | 3.39 µs (2,920× faster) | 3.39 µs (2,920× faster) | 235 ns (42,100× faster) | 223 ns (44,400× faster) | 12.4 ms | **9.9 ms** |
-| Delete | 1.33 µs (1,860× faster) | 1.41 µs (1,760× faster) | 525 ns (4,710× faster) | 1.17 µs (2,110× faster) | 3.66 ms | **2.47 ms** |
-| Each All | 1.13 µs (245× faster) | 1.12 µs (248× faster) | 906 ns (306× faster) | 908 ns (305× faster) | **277 µs** | 284 µs |
-| Each Identity | 606 ns (39,500× faster) | 619 ns (38,700× faster) | 815 ns (29,400× faster) | 789 ns (30,400× faster) | 24.4 ms | **24 ms** |
-| Each Concrete | 705 ns (36,000× faster) | 842 ns (30,100× faster) | 763 ns (33,300× faster) | 756 ns (33,600× faster) | 25.8 ms | **25.4 ms** |
-| Each Outgoing | 1.08 µs (22,300× faster) | 1.12 µs (21,500× faster) | 911 ns (26,500× faster) | 977 ns (24,700× faster) | 24.9 ms | **24.1 ms** |
-| Each Incoming | 2.1 µs (11,500× faster) | 2.21 µs (11,000× faster) | 844 ns (28,800× faster) | 840 ns (28,900× faster) | 24.7 ms | **24.3 ms** |
+| Create | 3.14 µs (2,080× faster) | 3.12 µs (2,100× faster) | 593 ns (11,000× faster) | 1.11 µs (5,890× faster) | 8.47 ms | **6.54 ms** |
+| Update | 3.94 µs (2,110× faster) | 3.79 µs (2,200× faster) | 439 ns (19,000× faster) | 379 ns (22,000× faster) | 11.1 ms | **8.34 ms** |
+| Delete | 1.7 µs (1,290× faster) | 1.65 µs (1,320× faster) | 1.14 µs (1,910× faster) | 1.39 µs (1,570× faster) | 3.2 ms | **2.18 ms** |
+| Each All | 1.36 µs (184× faster) | 1.3 µs (192× faster) | 973 ns (257× faster) | 1.01 µs (248× faster) | 268 µs | **250 µs** |
+| Each Identity | 1.91 µs (10,800× faster) | 1.53 µs (13,400× faster) | 1.81 µs (11,400× faster) | 1.73 µs (11,900× faster) | 21.1 ms | **20.6 ms** |
+| Each Concrete | 1.47 µs (15,300× faster) | 1.61 µs (13,900× faster) | 1.95 µs (11,500× faster) | 1.9 µs (11,800× faster) | 23.6 ms | **22.4 ms** |
+| Each Outgoing | 2.24 µs (9,310× faster) | 2.33 µs (8,950× faster) | 1.71 µs (12,200× faster) | 1.9 µs (10,900× faster) | 22.1 ms | **20.8 ms** |
+| Each Incoming | 4.01 µs (5,230× faster) | 3.82 µs (5,480× faster) | 2.06 µs (10,200× faster) | 2.14 µs (9,780× faster) | 21.6 ms | **20.9 ms** |
 
 ![C#, 100 background links, 10 links per iteration, linear scale](Docs/bench_csharp_100.png)
 ![C#, 100 background links, 10 links per iteration, log scale](Docs/bench_csharp_log_scale_100.png)
+
+#### C#: 1,000 background links, 100 links per iteration
+
+_Median time of one iteration with 100 links. PostgreSQL 17.6 (Debian 17.6-2.pgdg13+1) through Npgsql 10.0.0; Platform.Data.Doublets 0.18.1. CPU AMD EPYC 7763 64-Core Processor (PostgreSQL) and INTEL(R) XEON(R) PLATINUM 8573C (Doublets), [GitHub Actions run](https://github.com/linksplatform/Comparisons.PostgreSQLVSDoublets/actions/runs/37549306074) on 2026-10-06T23:58:23+00:00._
+
+| Operation | Doublets United Volatile | Doublets United NonVolatile | Doublets Split Volatile | Doublets Split NonVolatile | PostgreSQL NonTransaction | PostgreSQL Transaction |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Create | 46.7 µs (1,560× faster) | 47.8 µs (1,520× faster) | 14.5 µs (5,020× faster) | 14.9 µs (4,880× faster) | 101 ms | **72.7 ms** |
+| Update | 68.9 µs (1,430× faster) | 68.6 µs (1,440× faster) | 4.58 µs (21,500× faster) | 4.76 µs (20,700× faster) | 126 ms | **98.7 ms** |
+| Delete | 17.5 µs (1,390× faster) | 19.9 µs (1,220× faster) | 14 µs (1,740× faster) | 14.5 µs (1,680× faster) | 37.3 ms | **24.4 ms** |
+| Each All | 13.2 µs (49.4× faster) | 13.3 µs (49.1× faster) | 10.7 µs (60.8× faster) | 11 µs (59.3× faster) | 715 µs | **653 µs** |
+| Each Identity | 16.6 µs (14,300× faster) | 16.9 µs (14,000× faster) | 20.2 µs (11,700× faster) | 19.6 µs (12,100× faster) | 244 ms | **236 ms** |
+| Each Concrete | 31.3 µs (8,050× faster) | 31.9 µs (7,890× faster) | 16.3 µs (15,500× faster) | 18.5 µs (13,600× faster) | 259 ms | **252 ms** |
+| Each Outgoing | 35.1 µs (6,840× faster) | 36.6 µs (6,550× faster) | 19.4 µs (12,400× faster) | 20.4 µs (11,800× faster) | 248 ms | **240 ms** |
+| Each Incoming | 123 µs (1,950× faster) | 122 µs (1,960× faster) | 19.6 µs (12,200× faster) | 19.7 µs (12,200× faster) | 243 ms | **239 ms** |
+
+![C#, 1,000 background links, 100 links per iteration, linear scale](Docs/bench_csharp_1000.png)
+![C#, 1,000 background links, 100 links per iteration, log scale](Docs/bench_csharp_log_scale_1000.png)
 
 <!-- markdownlint-restore -->
 <!-- results:end -->
